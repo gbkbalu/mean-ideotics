@@ -1,0 +1,40 @@
+<div class="login-main" id="container">
+	<br/>
+	<div class="col-xs-6 col-xs-offset-1 col-sm-4 col-sm-offset-4">
+		<div class="error login-msg txtC mtl" ng-if="loginVM.error.hasError">
+			<div class="alert alert-danger">
+				<strong>{{loginVM.error.msg}}</strong>
+			</div>
+		</div>
+        <div class="error login-msg txtC mtl">
+            <div class="alert alert-danger">
+                <strong>Your Screen Resolution:{{screenWidth}}*{{screenHeight}}</strong>
+                <strong>/ Rec Resol:1366*768</strong>
+            </div>
+        </div>
+	</div>
+	<div class="login-container pal wrapper">
+		<div class="row">
+			<div class="col-xs-10 col-sm-4 col-xs-offset-1 col-sm-offset-4">
+				<h6 align="center"> <img ng-src="assets/ideotics.jpg" style="height: 70px;"> </h6>
+
+				<br/>
+				<div class="form-group inner-addon left-addon">
+					<i class="glyphicon glyphicon-user" style="line-height: 2.2"></i>
+					<input id="username" type="text" ng-model="loginVM.credentials.username" ng-enter="loginVM.login(loginVM.credentials)" placeholder="Username" class="form-control login-input">
+						
+				</div>
+
+				<div class="form-group inner-addon left-addon">
+					<i class="glyphicon glyphicon-eye-close" style="line-height: 2.2"></i>
+					<input id="password" type="password" ng-model="loginVM.credentials.password" ng-enter="loginVM.login(loginVM.credentials)" placeholder="Password" class="form-control login-input">
+				</div>
+				<div class="form-group">
+					<button id="login-btn" class="btn btn-primary full login-input" data-loading-text="Signing in..." ng-click="loginVM.login(loginVM.credentials)">Sign In</button>
+				</div>
+                <div ng-include="'scripts/directives/footer/footer.html'"></div>
+			</div>
+			
+		</div>
+	</div>
+</div>

@@ -1,0 +1,148 @@
+
+<div ng-include="'scripts/directives/header/header.html'"></div>
+<style>
+
+</style>
+<div class="container wrapper">
+<div class="row">
+<div class="col-sm-1"></div>
+<div class="col-sm-10">
+    <div class="well"  ng-if="newUserVm.broadCastMsg.broadCast !== 'open'">
+        <span style="font-size: 20px;">{{newUserVm.pageTitle}}</span><br><br>
+        <span style="color: red;" class="alert alert-danger" ng-if="newUserVm.errorMessage != ''">{{newUserVm.errorMessage}}</span>
+        <div style="color: green;" class="alert alert-success" ng-if="newUserVm.successMessage != ''">{{newUserVm.successMessage}}</div><br>
+
+        <div id="alertBox">
+            <div class="message"></div>
+            <span class="button no">OK</span>
+        </div>
+        <form class="form-horizontal"  name="myform" novalidate>
+
+            <div class="form-group" ng-class="{ 'has-error' : myform.firstName.$invalid && !myform.firstName.$pristine }">
+                <label for="firstName" class="col-sm-2 control-label required">First Name</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="firstName" required name="firstName" required placeholder="First Name"
+                           ng-model="newUserVm.addUser.firstName" ng-minlength="3" ng-maxlength="100"/>
+                </div>
+                <div class="col-sm-2">
+                    <span ng-if="myform.firstName.$invalid && !myform.firstName.$pristine" class="help-block">FirstName  is too short.</span>
+                    <span ng-if="newUserVm.submitted && myform.firstName.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{ 'has-error' : myform.lastName.$invalid && !myform.lastName.$pristine }">
+                <label for="lastName" class="col-sm-2 control-label required">Last Name</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="lastName" required name="lastName" placeholder="Last Name"
+                           ng-model="newUserVm.addUser.lastName" ng-minlength="3" ng-maxlength="100"/>
+                </div>
+                <div class="col-sm-2">
+                    <p ng-if="myform.lastName.$error.minlength" class="help-block">LastName is too short.</p>
+                    <span ng-if="newUserVm.submitted && myform.lastName.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{ 'has-error' : myform.email.$invalid && !myform.email.$pristine }">
+                <label for="email" class="col-sm-2 control-label required">Email</label>
+                <div class="col-sm-6">
+                    <input type="email" class="form-control" id="email" required name="email" placeholder="E-mail"
+                           ng-model="newUserVm.addUser.email" maxlength="220"/>
+                </div>
+                <div class="col-sm-2">
+                    <span ng-if="newUserVm.submitted && myform.email.$error.required" style="color: red;">Required</span>
+                    <p ng-if="myform.email.$invalid && !myform.email.$pristine" class="help-block">Enter a valid email.</p>
+                </div>
+
+            </div>
+            <div class="form-group"  ng-class="{ 'has-error' : myform.password.$invalid && !myform.password.$pristine }">
+                <label class="col-sm-2 control-label required">Password</label>
+                <div class="col-sm-6">
+
+                    <div class="input-group" ng-if="newUserVm.inputTypePassword">
+                        <input type="password" class="form-control" required name="password" placeholder="Password"  ng-minlength="3" ng-maxlength="100"
+                               ng-model="newUserVm.addUser.password" maxlength="220" aria-describedby="basic-addon1"/>
+                        <span class="input-group-addon" id="basic-addon1" ng-click="newUserVm.showOrHidePassword()"><i class="glyphicon glyphicon-eye-open" style="line-height: 1;z-index: 100; cursor: pointer;"></i></span>
+                    </div>
+
+                    <div class="input-group" ng-if="!newUserVm.inputTypePassword">
+                        <input type="text" class="form-control"  required name="password" placeholder="Password"  ng-minlength="3" ng-maxlength="100"
+                               ng-model="newUserVm.addUser.password" maxlength="220" aria-describedby="basic-addon2"/>
+                        <span class="input-group-addon" id="basic-addon2" ng-click="newUserVm.showOrHidePassword()"><i class="glyphicon glyphicon-eye-close" style="line-height: 1;z-index: 100; cursor: pointer;"></i></span>
+                    </div>
+
+                </div>
+
+                <div class="col-sm-2">
+                    <span ng-if="myform.password.$invalid && myform.password.$dirty && !myform.password.$pristine" class="help-block">Password is too short.</span>
+                    <span ng-if="newUserVm.submitted && myform.password.$error.required" style="color: red;">Required</span>
+                </div>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': addUser.errors.role}">
+                <label for="role" class="col-sm-2 control-label required">Role</label>
+                <div class="col-sm-6">
+                    <select id="role" class="form-control" ng-model='newUserVm.addUser.role'
+                            ng-options="roleType.value as roleType.text for roleType in newUserVm.rolesList">
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': addUser.errors.active}">
+                <label for="active" class="col-sm-2 control-label required">Status</label>
+                <div class="col-sm-6">
+                    <select id="active" class="form-control" ng-model='newUserVm.addUser.active'
+                            ng-options="statusType.value as statusType.text for statusType in newUserVm.statusList">
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-4">
+                    <button  class="btn btn-primary" style="margin-right: 10px;" ng-click="newUserVm.saveUser(myform)">{{newUserVm.saveBtnName}}</button>
+
+                    <button type="button" class="btn btn-default" ng-click="newUserVm.resetUserForm()">Reset</button>
+                    <button type="button" class="btn btn-default" ng-click="newUserVm.cancelTheForm()">Cancel</button>
+
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="well" ng-if="newUserVm.broadCastMsg.broadCast == 'open'">
+        <span style="font-size: 20px;">BroadCast Message To All LoggedIn Users</span><br><br>
+        <span style="color: red;" class="alert alert-danger" ng-if="newUserVm.errorMessage != ''">{{newUserVm.errorMessage}}</span>
+        <div style="color: green;" class="alert alert-success" ng-if="newUserVm.successMessage != ''">{{newUserVm.successMessage}}</div><br>
+
+        <form class="form-horizontal"  name="broadcastForm" novalidate>
+
+            <div class="form-group" ng-class="{ 'has-error' : broadcastForm.title.$invalid && !broadcastForm.title.$pristine }">
+                <label for="firstName" class="col-sm-2 control-label required">Title</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="title" required name="title" required placeholder="Title"
+                           ng-model="newUserVm.broadcast.title" ng-minlength="3" ng-maxlength="100"/>
+                </div>
+                <div class="col-sm-2">
+                    <span ng-if="broadcastForm.title.$invalid && !broadcastForm.title.$pristine" class="help-block">Title  is too short.</span>
+                    <span ng-if="newUserVm.submitted && broadcastForm.title.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label required">Message</label>
+                <div class="col-sm-6">
+                    <textarea type="text" class="form-control" placeholder="Description"
+                              ng-model="newUserVm.broadcast.message" ng-minlength="3" ng-maxlength="500"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-4">
+                    <button  class="btn btn-primary" style="margin-right: 10px;" ng-click="newUserVm.broadCastMessage()">BroadCast Message</button>
+                    <button type="button" class="btn btn-default" ng-click="newUserVm.cancelTheForm()">Cancel</button>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="col-sm-1"></div>
+</div>
+    </div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

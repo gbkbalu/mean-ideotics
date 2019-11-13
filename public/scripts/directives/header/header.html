@@ -1,0 +1,56 @@
+<nav class="navbar navbar-inverse" style="padding-left: 0px;font-size: 14px;">
+    <div class="navbar-header">
+        <a class="navbar-brand" href="" style="padding-top: 5px;"><img ng-src="assets/ideotics-newversion.png" style="height: 28px;"></a>
+    </div>
+    <ul class="nav navbar-nav navbar-left">
+        <li class="dropdown"  ng-repeat="tab in tabs" style = "border-top-left-radius: 10px;border-top-right-radius: 10px;"
+            ng-class="{'background-selected': tab.headerMenuSelected == headerMenuSelected, 'background-deselected': tab.headerMenuSelected != headerMenuSelected}">
+            <div style="cursor: pointer;display: flex;">
+                <div ng-if="tabs.length<8" style="padding: 10px !important; cursor: pointer !important;" ng-click="setHeaderAndChangePage(tab.headerMenuSelected)">{{tab.headerTitle}}</div>
+                <div ng-if="tabs.length>7" style="padding: 10px !important; cursor: pointer !important;"  ng-click="setHeaderAndChangePage(tab.headerMenuSelected)">{{tab.headerMinTitle}}</div>
+                <div style="padding-top: 5px !important;padding-right: 5px !important; cursor: default !important;color:darkgoldenrod"><i ng-if="tabs.length >1 && tab.headerMenuSelected != 16" style="padding-left: 5px;" class="glyphicon glyphicon-remove" ng-click="removeTab(tab.headerMenuSelected)"></i></div>
+            </div>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav navbar-right">
+
+        <li class="glyphicon glyphicon-question-sign" style="margin-top: 7px;font-size: 26px;cursor:pointer;" ng-click="openHelpModal()"/>
+
+        <li class="dropdown">
+            <img class="dropdown-toggle" style="margin:5px;cursor:pointer;" id="profileMenu" data-toggle="dropdown" ng-src="assets/profile.png" height="30" width="30"/>
+            <ul class="dropdown-menu" aria-labelledby="profileMenu">
+                <li>
+                    <a href=""><span class="glyphicon glyphicon-user" style="padding-right: 5px;"></span>{{globals.user.firstName + " " + globals.user.lastName}} | {{globals.user.role}}</a>
+                </li>
+                <li role="separator" class="divider"></li>
+                <li><a href="" ng-click="logout()"><span class="glyphicon glyphicon-log-out" style="padding-right: 5px;"></span>Logout</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="helpModal" aria-labelledby="myLargeModalLabel" >
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="container wrapper" style="width: 100% !important;padding-right: 0px;padding-left: 0px;" >
+                    <div class="container-fluid">
+                        <div class="row" style="margin-top: 0px;">
+                            <!-- The Upload Form -->
+                            <div class="col-md-12" style="padding: 0px !important;">
+                                <div class="panel panel-default"  style="margin-bottom: 0px !important;">
+                                    <div class="panel-heading" >
+                                        <h3 class="panel-title" style="padding: 10px 15px;color:green;display: -webkit-inline-box;font-size: 20px !important;display: -webkit-inline-box">{{helpModalTitle}}</h3>
+                                        <button class="btn btn-warning" style="float: right;padding: 2px 5px;" type="button" ng-click="hideHelpModal()">Cancel</button>
+                                    </div>
+                                    <div class="panel-body" style="padding: 5px;color: black;font-size: 18px;border:5px solid darkblue;max-height: 400px;overflow: auto;">
+                                        <span ng-bind-html="helpBodyContent"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

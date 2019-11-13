@@ -1,0 +1,411 @@
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+
+<div class="container wrapper">
+    <div class="row">
+        <!--<div class="col-xs-1"></div>-->
+        <div class="col-xs-12 box" style="background-color: white;">
+            <div id="confirmBox">
+                <div class="message"></div>
+                <span class="button yes">Yes</span>
+                <span class="button no">No</span>
+            </div>
+
+            <div id="alertBox">
+                <div class="message"></div>
+                <span class="button no">OK</span>
+            </div>
+
+            <!--<legend>
+                <span ng-bind="videoVM.videos.length" class="badge badge-important"></span>
+                <a>Videos</a>
+                <span ng-bind="videoVM.watchers" class="badge badge-important"></span>
+                <a href="" ng-click="videoVM.wcount()">$Watchers</a>
+            </legend>-->
+
+            <div id="usersListBox" style="height: 400px;overflow: auto;z-index: 1;">
+                <!--<div ng-repeat="act in videoVM.active">{{act.text}}</div>-->
+                <table class="table table-bordered table-condensed"  fixed-header ng-if="videoVM.showUsersListFlag">
+                    <tr style="font-weight: bold" class="table-head">
+                        <td style="width:30%">user Id</td>
+                        <td style="width:40%">First Name</td>
+                        <td style="width:0%">Role</td>
+                    </tr>
+                    <tr ng-repeat="user in videoVM.assignToUserList track by user._id" style="background-color:{{user.color}}" ng-click="videoVM.selecteduserToAssign($index)">
+
+                        <td>
+                            <span>
+			                    {{ user.userId || 'empty' }}
+			                </span>
+                        </td>
+                        <td>
+                            <span>
+			                    {{ user.firstName || 'empty' }}
+			                </span>
+                        </td>
+                        <td>
+                            <span>
+			                    {{ user.role || 'empty' }}
+			                </span>
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="table table-bordered table-condensed" ng-if="!videoVM.showUsersListFlag" >
+                    <tr style="font-weight: bold" class="table-head">
+                        <td style="width:90%">No users available</td>
+                    </tr>
+                </table>
+
+                <span class="button yes" ng-if="videoVM.showUsersListFlag">Assign</span>
+                <span class="button no">Cancel</span>
+
+            </div>
+
+            <table class="table table-condensed" ng-click="rowform.$show()"  style="margin-bottom: 0px;border:0px !important;">
+                <td style="border-top:0px !important;">
+                    <select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;width:90px;margin-right: 5px;font-size: 12px;" ng-init="videoVM.getProjectsList()" ng-model="videoVM.selectProjectName" ng-change="videoVM.filterByProject()">
+                        <option value="{{project.clientsId}}" ng-repeat="project in videoVM.projects track by project._id">{{project.clientname}}</option>
+                    </select>
+
+                    <select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;width:90px;margin-right: 5px;font-size: 12px;" ng-init="videoVM.getCamerasList()"  ng-model="videoVM.selectCameraName" ng-change="videoVM.getResultByFilter()">
+                        <option value="{{camera.camerasId}}" ng-repeat="camera in videoVM.cameras track by camera._id">{{camera.cameracode}}</option>
+                    </select>
+
+                    <select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;width:87px;margin-right: 5px;font-size: 12px;"
+                            ng-model="videoVM.selectVideoAssignType" ng-change="videoVM.getResultByFilter()">
+                        <option value="{{assignStatus.value}}" ng-repeat="assignStatus in videoVM.assignStatusType track by assignStatus.value">{{assignStatus.text}}</option>
+                    </select>
+
+                    <select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;width:87px;margin-right: 5px;font-size: 12px;"
+                            ng-model="videoVM.selectHiddenType" ng-change="videoVM.getResultByFilter()">
+                        <option value="{{hiddenStatus.value}}" ng-repeat="hiddenStatus in videoVM.hiddenType track by hiddenStatus.value">{{hiddenStatus.text}}</option>
+                    </select>
+                    <button type="button" class="btn btn-default" style="margin-right: 5px;" ng-click="videoVM.resetFilterForm()">Reset</button>
+                    <button type="button" class="btn btn-default" style="margin-right: 5px;" ng-click="videoVM.updatecamvideos()">updatecamvideos</button>
+                    Count:{{videoVM.totalItems}}
+                </td>
+
+                <td style="float:right;border-top:0px !important;">
+
+                    <button class="btn btn-default"  style="margin-right: 5px;font-size: 12px;" ng-click="videoVM.addVideo()" ng-if="videoVM.isAdmin">Add video</button>
+                    <button type="button" class="btn btn-default" style="margin-right: 5px;font-size: 12px;" ng-click="videoVM.open()"  ng-if="videoVM.isAdmin">Import Video List</button>
+                    <button class="btn btn-default myFile" style="margin-right: 5px;font-size: 12px;" ng-if="false">
+                        <input type="file" id="uploadVideoCsv" csv-Reader accept=".csv"> Import Video List
+                    </button>
+
+                    <button class="btn btn-default" ng-click="videoVM.uploadFramestoSelectedVideo()" style="margin-right: 5px;font-size: 12px;"  ng-if="videoVM.isAdmin">Import Video Events</button>
+                    <button class="btn btn-default myFile" style="margin-right: 5px;font-size: 12px;display: none;"  ng-if="videoVM.isAdmin">
+                        <input type="file" csv-Reader accept=".csv" id="importVideoEvents"> Import Video Events
+                    </button>
+
+                    <button class="btn btn-default" ng-if="false" style="margin-right: 5px;font-size: 12px;" ><input  id="importVideoFiles" class="bottom-marg-15" type="file" name="file" multiple="multiple" on-file-change="onFilesSelected" webkitdirectory directory ></button>
+                    <!--<button class="btn btn-default"   style="margin-right: 5px;font-size: 12px;" ng-click="videoVM.exportData()">Export Data To CSV</button>-->
+
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown">
+                            <button class="btn btn-default glyphicon glyphicon-menu-hamburger" data-toggle="dropdown"  style="margin-right: 25px;font-size: 12px;">
+                                Export
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="profileMenu">
+                                <li><a href="" style="margin-right: 5px;font-size: 12px;"><a class="btn" title="Export Table" ng-click='videoVM.downloadCurrentGridData()'>
+                                    <i class="glyphicon glyphicon-new-window"></i> &#160;Export Table
+                                </a></a></li><li role="separator" class="divider"></li>
+                                <li><a href="" ng-click="videoVM.exportData()" style="margin-right: 5px;font-size: 12px;">Export Data To CSV</a></li><li role="separator" class="divider"></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <button class="btn btn-default glyphicon glyphicon-menu-hamburger" data-toggle="dropdown"  style="margin-right: 25px;font-size: 12px;">
+                                Others
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="profileMenu">
+                                <li  ng-if="videoVM.isAdmin" ><a href="" ng-click="videoVM.deleteSelectedVideoSListByCheckBox()" style="margin-right: 5px;font-size: 12px;">Delete Videos</a></li><li role="separator"  ng-if="videoVM.isAdmin"  class="divider"></li>
+                                <li ng-if="videoVM.isAdmin" ><a href="" ng-click="videoVM.hideSelectedVideoSListByCheckBox(true)" style="margin-right: 5px;font-size: 12px;">Hide Videos</a></li><li role="separator"  ng-if="videoVM.isAdmin"  class="divider"></li>
+                                <li ng-if="videoVM.isAdmin" ><a href="" ng-click="videoVM.hideSelectedVideoSListByCheckBox(false)" style="margin-right: 5px;font-size: 12px;">UnHide Videos</a></li><li role="separator" ng-if="videoVM.isAdmin"  class="divider"></li>
+                               <!-- <li><a href="" ng-click="videoVM.assignUserToVideo()" style="margin-right: 5px;font-size: 12px;">Assign User</a></li><li role="separator" class="divider"></li>-->
+                                <li><a href="" ng-click="videoVM.unAssignVideosFromUsers()" style="margin-right: 5px;font-size: 12px;">Cancel Processing</a></li><li role="separator" class="divider"></li>
+                                <li  ng-if="videoVM.isAdmin" ><a href="" ng-click="videoVM.showHeatMapForSelectedVideo()" style="margin-right: 5px;font-size: 12px;">Show Heat Map</a></li><li role="separator"  ng-if="videoVM.isAdmin" class="divider"></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </td>
+            </table>
+
+            <div ng-if="videoVM.showVideosList && !videoVM.showPlayingVideo">
+                <table style="width: 100%;" ng-if="videoVM.selectedVideo.name" >
+                    <tr style="width: 100%;">
+                        <td style="width: 50%;"><span style="color: green"><b>FileName:</b></span>{{videoVM.selectedVideo.name}}</td>
+                        <td style="width: 50%;"><span style="color: green"><b>URL:</b></span>{{videoVM.selectedVideo.url}}</td>
+                    </tr>
+                </table>
+
+                <div ui-grid="gridOptions"  class="grid" external-scopes="$scope" style="{{gridHeightTable}}" export-csv="csv"  export-csv-ignore="ignore"
+                     ui-grid-exporter ui-grid-edit ui-grid-resize-columns ui-grid-pagination ui-grid-auto-resize ui-grid-selection  ui-grid-cellnav></div>
+
+                <table ng-init="videoVM.filterByUserPreferrence()"></table>
+            </div>
+            <div  ng-if="videoVM.showPlayingVideo">
+                <table style="width: 100%;">
+                    <tr style="width: 100%;">
+                        <td style="width: auto;"><span style="color: green"><b>Playing VideoId:</b></span>{{videoVM.playingVideoId}}</td>
+                        <td style="width: auto;"><div class="buttons" ><button class="btn btn-primary btn-padding"  ng-click="videoVM.showEditDateTime()"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span>{{videoVM.editMsg}}</button></div></td>
+                        <td style="width:auto;" ng-if="videoVM.showDateTime">
+                            <datepicker date-format="yyyy-MM-dd" selector="form-control" style="width: auto;margin-top:0px;">
+                                <div class="input-group  inner-addon right-addon">
+                                    <i class="glyphicon glyphicon-calendar" style="line-height: 1;z-index: 100"></i>
+                                    <input class="form-control" ng-model="videoVM.updatable.selectedDate" placeholder="Choose a date" ng-change="dashVM.getResultByFilter()"/>
+                                </div>
+                            </datepicker>
+                        </td>
+                        <td style="width: auto;"  ng-if="videoVM.showDateTime"><input class="form-control" ng-model="videoVM.updatable.selectedTime"  type="time" step="1" ></td>
+                        <td style="width: auto;"  ng-if="videoVM.showDateTime"><button class="form-control btn btn-default" ng-click="videoVM.updateDateTimeOfVideo()" style="margin-right: 5px;font-size: 12px;" >Update</button></td>
+                    </tr>
+                </table>
+                <ab-video api="videoVM.mediaPlayerApi" controls></ab-video>
+            </div>
+            <div ng-if="!videoVM.showVideosList">
+                <table class="table table-bordered table-condensed">
+                    <tr style="font-weight: bold" class="table-head">
+                        <td style="width:19%">Videos List to sync data from mysql to mongo</td>
+                    </tr>
+                    <tr ng-repeat="video in videoVM.listOfVideostoSync track by video._id"  id="trTdVideo1{{$index}}" ng-click="videoVM.selectedvideoToSync($index)">
+                        <td>
+                            <span>
+			                    {{ video.VideoID || 'empty' }}
+			                </span>
+                        </td>
+                    </tr>
+                </table>
+
+                <button class="btn btn-default" ng-click="videoVM.syncMysqlDataByVideoId()" ng-if="videoVM.videoLstbgclrIndex !== ''">Sync Data</button>
+            </div>
+        </div>
+
+        <div id="mytest" ></div>
+
+        <script type="text/ng-template" id="myModalContent.html">
+            <div class="modal-header">
+                <h3 class="modal-title">Video Details</h3>
+            </div>
+            <div class="modal-body">
+                <span class="help-block" style="color: red;font-size: 18px;" ng-if="invalidMessage !== ''">{{invalidMessage}}</span>
+                <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;margin-right: 5px;margin-left:15px;font-size: 12px;width: 50%;" ng-model="details.project" ng-change="filterByProject()">
+                    <option value="{{project._id}}" ng-repeat="project in projects track by project._id">{{project.clientname}}</option>
+                </select><br><br>
+
+                <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;margin-left:15px;margin-right: 5px;font-size: 12px;width: 50%;" ng-model="details.camera">
+                    <option value="{{camera._id}}" ng-repeat="camera in cameras track by camera._id">{{camera.cameracode}}</option>
+                </select><br><br>
+
+                <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;margin-left:15px;margin-right: 5px;font-size: 12px;width: 50%;" ng-model="details.srcbucket">
+                    <option value="{{srcbucket.value}}" ng-repeat="srcbucket in srcBucketList">{{srcbucket.name}}</option>
+                </select><br><br>
+
+                <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;margin-left:15px;margin-right: 5px;font-size: 12px;width: 50%;" ng-model="details.destBucket">
+                    <option value="{{destBucket.value}}" ng-repeat="destBucket in destBucketList">{{destBucket.name}}</option>
+                </select>
+                <br><br>
+
+                <datepicker date-format="yyyy-MM-dd" selector="form-control" style="width: 20%;margin-left: 15px;width: 50%;">
+                    <div class="input-group   inner-addon right-addon">
+                        <i class="glyphicon glyphicon-calendar" style="line-height: 1;z-index: 100"></i>
+                        <input class="form-control" ng-model="details.selectedDate" placeholder="Choose a date" ng-readonly="true"/>
+                    </div>
+                </datepicker><br><br><br>
+
+                <input type="text" class="form-control" required name="url" placeholder="Url Prefix To Video Url" style="margin-left:15px;width: 50%;"
+                       ng-model="details.url" ng-minlength="3" ng-maxlength="100" ng-readonly="true"/><br>
+
+                <!--<input type="text" class="form-control" required name="url" placeholder="File Name Format" style="margin-left:15px;width: 50%;"
+                       ng-model="details.nameFormat" ng-minlength="3" ng-maxlength="100"/>
+                <span style="margin-left: 15px;color: green;">(Ex:YYYYMMDDHHMISS,MM-Month,MI-Minutes)</span>-->
+                <!--<div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="details.getFromAws">
+                        Get From Aws
+                    </label>
+                </div>-->
+            </div><br>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="button" ng-click="ok()">Import Videos</button>
+                <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+            </div>
+        </script>
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Enter Project Details</h4>
+                    </div>
+                    <div class="modal-body">
+                        <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;margin-right: 5px;margin-left:10px;font-size: 12px;" ng-model="videoVM.details.selectProjectName" ng-change="filterByProject()">
+                            <option value="{{project._id}}" ng-repeat="project in videoVM.projects track by project._id">{{project.clientname}}</option>
+                        </select><br>
+
+                        <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;margin-right: 5px;font-size: 12px;" ng-model="videoVM.details.selectCameraName">
+                            <option value="{{camera.camerasId}}" ng-repeat="camera in videoVM.cameras track by camera._id">{{camera.cameracode}}</option>
+                        </select>
+                        <br><br>
+                        <input type="text" class="form-control" required name="url" placeholder="Url"
+                               ng-model="videoVM.details.url" ng-minlength="3" ng-maxlength="100"/><br>
+                        <datepicker date-format="yyyy-MM-dd" selector="form-control" style="width: 20%;margin-left: 18px;">
+                            <div class="input-group">
+                                <input class="form-control" ng-model="details.selectedDate" placeholder="Choose a date"/>
+                            </div>
+                        </datepicker><br><br>
+                    </div><br>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="modal fade bs-example-modal-lg" ng-controller="VideoUploadController" tabindex="-1" role="dialog" id="uploadVideoFiles" aria-labelledby="myLargeModalLabel">
+            <div class="modal-dialog modal-lg"  style="width: 90%;height: 100%" >
+                <div class="modal-content">
+                    <div  ng-if="!showMetaContent"  class="container wrapper" style="width: 100% !important;padding-right: 0px;padding-left: 0px;" flow-init flow-files-submitted="uploadedFiles( $files, $event, $flow )" flow-prevent-drop="" flow-drag-enter="style={border: '5px solid green'}" flow-drag-leave="style={}">
+                        <div class="container-fluid">
+                            <div class="row" style="margin-top: 0px;">
+                                <!-- The Upload Form -->
+                                <div class="col-md-12" style="padding: 0px !important;">
+                                    <div class="panel panel-default"  style="margin-bottom: 0px !important;">
+                                        <div class="panel-heading"  ng-if="!filledFormDetails.getFromAws">
+                                            <h3 class="panel-title" style="padding: 10px 15px;color:green;display: -webkit-inline-box;font-size: 14px !important;display: -webkit-inline-box">{{uploadModal}}</h3>
+                                            <button class="btn btn-warning" style="float: right;;" type="button" ng-click="hideModal()">Cancel</button>
+                                        </div>
+
+                                        <div class="panel-body" style="padding: 15px;" ng-if="!filledFormDetails.getFromAws">
+                                            <select class="btn-default" ng-change="changeFileUploadType()"  ng-model="fileOrDirectoryType" style="color: green;height:34px;width: 10%;border-radius: 5px;">
+                                                <option value="0" selected="selected">File</option>
+                                                <option value="1">Directory</option>
+                                            </select>
+                                            <button ng-if="!typeOfFileSelected" class="btn btn-default myFile aws-upload-btn" style="height: 34px !important;">
+                                                <input  type="file" flow-btn="" style="display: -webkit-inline-box" ng-if="!typeOfFileSelected" accept="video/mp4,video/x-m4v,video/*"> File Upload
+                                            </button>
+                                            <button ng-if="typeOfFileSelected" class="btn btn-default myFile aws-upload-btn" style="height: 34px !important;">
+                                                <input  type="file" flow-btn="" flow-directory=""  style="opacity: 0" ng-if="$flow.supportDirectory" accept="video/mp4,video/x-m4v,video/*">Directory Upload
+                                            </button>
+
+                                            <button class="btn btn-primary btn-default" style="margin-left: 20px;" ng-click="upload()">Upload</button>
+
+                                            <button class="btn btn-danger btn-default" ng-if="filesToUploaded.length !== 0 || hideCancelButton" style="margin-left: 20px;" ng-click="removeAllUploadingFilse()">Cancel</button>
+
+
+                                            <div class="progress" style="margin-top: 10px;" ng-if="filesToUploaded.length=== 0">
+                                                <div class="progress-bar" role="progressbar"  aria-valuemin="0" aria-valuemax="100" style="width:0%;">
+
+                                                </div>
+                                            </div>
+
+                                            <!-- Progress Bar -->
+                                            <table style="width: 100%;margin-top: 10px;" ng-if="filesToUploaded.length !== 0">
+                                                <tr style="width: 100%;">
+                                                    <td ng-repeat="file in filesToUploaded" style="width: {{100/filesToUploaded.length}}%;">
+                                                        <div class="progress" >
+                                                            <div class="progress-bar" role="progressbar" aria-valuenow="{{ file.uploadProgress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ file.uploadProgress }}%;">
+                                                                {{ file.uploadProgress == 0 ? '' : file.uploadProgress + '%' }}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <!--<a class="btn btn-primary btn-block btn-lg" ng-click="upload()">Upload</a>-->
+                                            <table class="table table-bordered table-condensed" style="{{(innerHeightAwsUploadFileTable)}}" fixed-header  >
+                                                <thead>
+                                                <tr style="font-weight: bold" class="table-head">
+                                                    <th style="width:5%">No</th>
+                                                    <th style="width:45%">File Name</th>
+                                                    <th style="width:10%">File Size</th>
+                                                    <th style="width:35%">Upload Percentage</th>
+                                                    <th style="width:5%">Delete</th>
+                                                </tr>
+                                                </thead>
+                                                <tr ng-repeat="file in filesToUploaded" style="margin-top: 20px;">
+                                                    <td>{{$index+1}}</td>
+                                                    <td> {{typeOfFileSelected ? file.webkitRelativePath : file.name}}-({{file.fileSize}}KB)</td>
+                                                    <td>{{file.sizeUploaded}}</td>
+                                                    <!--<td>{{file.msg}}</td>-->
+                                                    <td>
+                                                        <div class="progress" style="margin-bottom: 5px;">
+                                                            <div class="progress-bar" role="progressbar"   aria-valuenow="{{ file.uploadProgress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ file.uploadProgress }}%;">
+                                                                {{ file.uploadProgress == 0 ? '' : file.uploadProgress + '%' }}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-danger btn-padding" ng-click="removeUploadingVideo($index)" style="padding: 0px 2px;"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                                                    </td>
+                                                </tr>
+                                            </table>
+
+                                        </div>
+
+                                        <div class="panel-heading"  ng-if="filledFormDetails.getFromAws">
+                                            <button class="btn btn-success glyphicon glyphicon-arrow-left" style="float: left;;" type="button" ng-click="hideAndLoadPreviousModal()"></button>
+                                            <h3 class="panel-title" style="padding: 10px 15px;color:green;display: -webkit-inline-box;font-size: 14px !important;display: -webkit-inline-box">{{uploadModal}}<span ng-repeat="rec in awsFolderListWise"><a  ng-if="!$last" href="" ng-click="getAwsListOnClick(rec,$index)">{{rec.value}}</a> <span  ng-if="$last">{{rec.value}}</span> <span ng-if="!$last">/</span> </span></h3>
+                                            <button class="btn btn-warning" style="float: right;;" type="button" ng-click="hideModal()">Cancel</button>
+                                            <button ng-if="gridFilesApi.selection.getSelectedRows().length>0"class="btn btn-success" style="float: right;;" type="button" ng-click="copyAwsFiles()">Copy</button>
+                                        </div>
+
+                                        <div class="panel-body" style="padding: 15px;" ng-if="filledFormDetails.getFromAws">
+                                            <div ui-grid="gridAwsOptions" ng-if="folderList" class="grid" external-scopes="$scope" style="{{gridModalTable}}"
+                                                 ui-grid-resize-columns ui-grid-auto-resize ui-grid-selection  ui-grid-cellnav></div>
+
+                                            <!--<input type="text" class="form-control"   ng-if="!folderList" required name="url" placeholder="File Name Format" style="margin-left:15px;width: 40%;display: inline"
+                                                   ng-model="filledFormDetails.nameFormat" ng-minlength="3" ng-maxlength="100"/>
+                                            <span  ng-if="!folderList" style="margin-left: 15px;color: green;">(Ex:YYYYMMDDHHMISS,MM-Month,MI-Minutes)</span>
+-->
+                                            <div class="form-group" style="margin-bottom: 40px;" ng-if="!folderList">
+                                                <div class="col-sm-3 checkbox" ng-if="!folderList">
+                                                    <label ng-if="!folderList">
+                                                        <input type="checkbox" ng-model="filledFormDetails.getFromName" ng-if="!folderList">
+                                                        From Name
+                                                    </label>
+                                                </div>
+                                                <!--<div class="col-sm-9">
+                                                    <input type="text" class="form-control"   ng-if="!folderList" required name="url" placeholder="File Name Format" style="margin-left:15px;width: 50%;display: inline"
+                                                           ng-model="filledFormDetails.nameFormat" ng-minlength="3" ng-maxlength="100"/>
+                                                    <span  ng-if="!folderList" style="margin-left: 15px;color: green;">(Ex:YYYYMMDDHHMISS,MM-Month,MI-Minutes)</span>
+                                                </div>-->
+
+                                            </div>
+
+                                            <div ui-grid="gridAwsFilesOptions"  ng-if="!folderList" class="grid" external-scopes="$scope" style="{{gridModalTable}}"
+                                                 ui-grid-resize-columns ui-grid-auto-resize ui-grid-selection  ui-grid-cellnav></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="showMetaContent" class="container wrapper" style="width: 100% !important;padding-right: 0px;padding-left: 0px;" flow-init flow-files-submitted="uploadedFiles( $files, $event, $flow )" flow-prevent-drop="" flow-drag-enter="style={border: '5px solid green'}" flow-drag-leave="style={}">
+                        <div class="container-fluid">
+                            <div class="row" style="margin-top: 0px;">
+                                <div class="form-group" style="margin-bottom: 35px;">
+                                    <div class="col-sm-offset-8 col-sm-4" >
+                                        <button type="button" class="btn btn-default" ng-click="enableForEdit()">Cancel</button>
+                                        <button  class="btn btn-primary" style="margin-right: 10px;" ng-click="saveEditedMetaContent()">Save</button>
+                                        <button class="btn btn-danger btn-default" style="margin-left: 20px;" ng-click="cancelMetaEditContent()">Close</button>
+                                    </div>
+                                </div>
+                                <div class="panel panel-primary dsPanel">
+                                    <textarea class="form-control rounded-0"  ng-model="metaObj.metaObjDataEditStr" rows="25"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div ng-include="'scripts/directives/footer/footer.html'"></div>
+<script> document.addEventListener("DOMContentLoaded", setupControl, false); function setupControl() { var myVideo = document.getElementById("myVideo"); if (myVideo.canPlayType) {  myVideo.removeAttribute("controls");  document.getElementById("controls").style.display="block"; document.getElementById("progressbar").style.display="block";  myVideo.addEventListener("timeupdate", reportProgress, false); myVideo.addEventListener("ended", endPlayback, false);  myVideo.addEventListener("play",function() { document.getElementById("start").disabled=true; document.getElementById("pause").disabled=false; document.getElementById("stop").disabled=false; document.getElementById("plus").disabled=false; document.getElementById("minus").disabled = false; document.getElementById("mute").disabled=false; }, false); myVideo.addEventListener("pause", function() { document.getElementById("start").disabled=false; document.getElementById("pause").disabled=true; document.getElementById("plus").disabled=true; document.getElementById("minus").disabled = true; document.getElementById("mute").disabled=true; }, false);document.getElementById("start").addEventListener("click",startPlayback,false); document.getElementById("stop").addEventListener("click",stopPlayback,false); document.getElementById("pause").addEventListener("click",pausePlayback,false); document.getElementById("plus").addEventListener("click",volumeUp, false); document.getElementById("minus").addEventListener("click", volumeDown, false); document.getElementById("mute").addEventListener("click", toggleMute, false); } } function startPlayback() { document.getElementsByTagName("body")[0].style.backgroundColor="#664c58"; document.getElementById("myVideo").play(); }  function pausePlayback() { document.getElementById("myVideo").pause(); }  function stopPlayback() { var myVideo = document.getElementById("myVideo"); myVideo.pause(); myVideo.currentTime=0; endPlayback(); } function volumeUp() {  var myVideo = document.getElementById("myVideo"); var volume = Math.floor(myVideo.volume * 10)/10; myVideo.muted = false; if(volume >= 0.9) myVideo.volume = 1; else myVideo.volume += 0.1; } function volumeDown() {var myVideo = document.getElementById("myVideo"); var volume = Math.floor(myVideo.volume * 10)/10; myVideo.muted = false; if(volume <= 0.1) myVideo.volume = 0; else myVideo.volume -= 0.1; }  function toggleMute() { var myVideo = document.getElementById("myVideo"); var mute = document.getElementById("mute"); if(myVideo.muted) { mute.innerHTML = "Mute"; myVideo.muted = false; } else { mute.innerHTML= "Unmute"; myVideo.muted = true; } } function endPlayback() { document.getElementsByTagName("body")[0].style.backgroundColor="#fff";  var progress = document.getElementById("butterfly"); progress.style.left="-10px"; document.getElementById("start").disabled=false; document.getElementById("pause").disabled=true; document.getElementById("stop").disabled=true; } function reportProgress() { var barwidth = 500; var sliderwidth = 30; var time = Math.round(this.currentTime); var duration = parseInt(this.duration); var position = barwidth * (time / duration); if (isNaN(position)) return; document.getElementById("loadingprogress").style.width=position + "px"; var butterfly = document.getElementById("butterfly"); if (position <= (barwidth - Math.round(sliderwidth / 2))) { butterfly.style.left=position + "px"; } else { butterfly.style.left=barwidth - Math.round(sliderwidth / 2); } } </script>

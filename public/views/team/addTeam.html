@@ -1,0 +1,65 @@
+
+<div ng-include="'scripts/directives/header/header.html'"></div>
+<style>
+
+</style>
+<div class="container wrapper">
+<div class="row">
+<div class="col-sm-1"></div>
+<div class="col-sm-10">
+    <div class="well">
+        <span style="font-size: 20px;">{{newTeamVm.pageTitle}}</span><br><br>
+        <span style="color: red;">{{newTeamVm.errorMessage}}</span>
+        <span style="color: green;">{{newTeamVm.successMessage}}</span><br>
+        <div id="alertBox">
+            <div class="message"></div>
+            <span class="button no">OK</span>
+        </div>
+        <form class="form-horizontal"  name="myform" novalidate>
+
+            <div class="form-group" ng-class="{ 'has-error' : myform.teamName.$invalid && !myform.teamName.$pristine }">
+                <label for="teamName" class="col-sm-2 control-label required">Team Name</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="teamName" required name="teamName" required placeholder="Team Name"
+                           ng-model="newTeamVm.addTeam.teamName" ng-minlength="3" ng-maxlength="100"/>
+                </div>
+                <div class="col-sm-2">
+                    <span ng-if="myform.teamName.$invalid && !myform.teamName.$pristine" class="help-block">TeamName  is too short.</span>
+                    <span ng-if="newTeamVm.submitted && myform.teamName.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                </div>
+            </div>
+
+
+            <div class="form-group" ng-class="{'has-error': addTeam.errors.active}">
+                <label for="active" class="col-sm-2 control-label required">Status</label>
+                <div class="col-sm-6">
+                    <select id="active" class="form-control" ng-model='newTeamVm.addTeam.active'
+                            ng-options="statusType.value as statusType.text for statusType in newTeamVm.statusList">
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label required">Description</label>
+                <div class="col-sm-6">
+                            <textarea type="text" class="form-control" placeholder="Description"
+                                      ng-model="newTeamVm.addTeam.description" ng-minlength="3" ng-maxlength="500"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-4">
+                    <button  class="btn btn-primary" style="margin-right: 10px;" ng-click="newTeamVm.saveTeam()">{{newTeamVm.saveBtnName}}</button>
+
+                    <button type="button" class="btn btn-default" ng-click="newTeamVm.resetTeamForm()">Reset</button>
+                    <button type="button" class="btn btn-default" ng-click="newTeamVm.cancelTheForm()">Cancel</button>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="col-sm-1"></div>
+</div>
+    </div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

@@ -1,0 +1,287 @@
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+<style>
+
+</style>
+<div class="container wrapper">
+    <div class="row">
+
+        <!--<div class="col-xs-1"></div>-->
+        <div class="col-xs-12 box"  style="background-color: white;">
+            <div id="confirmBox">
+                <div class="message"></div>
+                <span class="button yes">Yes</span>
+                <span class="button no">No</span>
+            </div>
+
+            <div id="alertBox">
+                <div class="message"></div>
+                <span class="button no">OK</span>
+            </div>
+             <div>
+                <table class="table table-condensed" ng-click="rowform.$show()"  style="margin-bottom: 0px;border:0px !important;">
+                    <td style="border-top:0px !important;">
+                        <select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;margin-right: 5px;font-size: 12px;" ng-init="cameraVM.getProjectsList()" ng-model="cameraVM.selectProjectName" ng-change="cameraVM.getAllCamerasByFilter()">
+                            <option value="{{project._id}}" ng-repeat="project in cameraVM.projects">{{project.clientname}}</option>
+                        </select>
+                        <button type="button" class="btn btn-danger" style="margin-right: 5px;" ng-click="cameraVM.resetFilterForm()">Reset</button>
+                        Count:{{gridOptions.totalItems}}
+                    </td>
+                    <td style="float:right;border-top:0px !important;">
+                        <a class="btn" title="Export Table" ng-click='cameraVM.downloadCurrentGridData()'>
+                            <i class="glyphicon glyphicon-new-window"></i> &#160;Export
+                        </a>
+                        <button class="btn btn-default" style="margin-right: 5px;font-size: 12px;"  ng-if="cameraVM.isAdmin" ng-click="cameraVM.addCamera()" >Add Camera</button>
+                        <button class="btn btn-default"  ng-if="cameraVM.isAdmin" ng-click="cameraVM.copyCatsFromBaseCamera(true)" style="margin-right: 5px;font-size: 12px;">Copy From Base</button>
+
+                        <button class="btn btn-default"  ng-if="cameraVM.isAdmin" ng-click="cameraVM.deleteSelectedCamerasListByCheckBox()" style="margin-right: 5px;font-size: 12px;">Delete Cameras</button>
+
+                        <button class="btn btn-default"   style="margin-right: 5px;font-size: 12px;" ng-click="cameraVM.showCamReportExportType()">Export To CSV</button>
+
+                        <button class="btn btn-default"  ng-if="cameraVM.isAdmin" ng-click="cameraVM.showHeatMapForSelectedVideo()" style="margin-right: 5px;font-size: 12px;">Show HeatMap</button>
+
+                        <button class="btn btn-default" ng-click="cameraVM.showVideosListByProject(true)" style="margin-right: 5px;font-size: 12px;">Show Videos</button>
+
+                    </td>
+
+                </table>
+
+                <table style="width: 100%;" ng-if="cameraVM.showListCount">
+                    <tr style="width: 100%;">
+                        <td style="width: 33%;"><span style="color: green"><b>UnAssigned:</b></span>{{cameraVM.projectVideosCount.unAssigned}}</td>
+                        <td style="width: 33%;"><span style="color: green"><b>Assigned:</b></span>{{cameraVM.projectVideosCount.assigned}}</td>
+                        <td style="width: 33%;float: right" ><span style="color: green"><b>Submitted:</b></span>{{cameraVM.projectVideosCount.submitted}}</td>
+                    </tr>
+                </table>
+
+                 <div ui-grid="gridOptions"  class="grid" external-scopes="$scope" style="{{gridHeightTable}}" export-csv="csv"  export-csv-ignore="ignore"
+                      ui-grid-exporter ui-grid-edit ui-grid-resize-columns ui-grid-pagination ui-grid-auto-resize ui-grid-selection  ui-grid-cellnav ng-init="cameraVM.getAllCameras()"></div>
+
+            </div>
+        </div>
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Modal Header</h4>
+                    </div>nod
+                    <div class="modal-body">
+                        <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;margin-right: 5px;margin-left:10px;font-size: 12px;" ng-model="details.selectProjectName" ng-change="filterByProject()">
+                            <option value="{{project._id}}" ng-repeat="project in projects">{{project.clientname}}</option>
+                        </select>
+
+                        <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;margin-right: 5px;font-size: 12px;" ng-model="details.selectCameraName">
+                            <option value="{{camera.camerasId}}" ng-repeat="camera in cameras">{{camera.cameracode}}</option>
+                        </select>
+                        <br><br>
+                        <div class="form-group" ng-class="{ 'has-error' : myform.url.$invalid && !myform.url.$pristine }">
+
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="url" required name="url" placeholder="Url"
+                                       ng-model="newVideoVm.addVideo.url" ng-minlength="3" ng-maxlength="100"/>
+                            </div>
+                            <div class="col-sm-2">
+                                <p ng-if="myform.url.$error.minlength" class="help-block">URL is too short.</p>
+                                <span ng-if="newVideoVm.submitted && myform.url.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                            </div>
+                        </div><br><br>
+                        <datepicker date-format="yyyy-MM-dd" selector="form-control" style="width: 20%;margin-left: 18px;">
+                            <div class="input-group">
+                                <input class="form-control" ng-model="details.selectedDate" placeholder="Choose a date"/>
+                            </div>
+                        </datepicker><br><br>
+                    </div><br>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>
+
+<div id="videosListOfSelectedProject" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header" style="padding-bottom:0px;">
+                <table class="table table-bordered table-condensed">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <!--<div class="modal-title">{{projectVM.selectedProjLists[0].clientcode}} Videos List.</div>-->
+                    <span>
+                        {{cameraVM.selectedProjLists[0].clientcode}} Videos List.
+                    </span>
+                    <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;width:120px;margin-right: 5px;font-size: 12px;"
+                            ng-model="cameraVM.selectVideoAssignType" ng-change="cameraVM.showVideosListByProject(false)">
+                        <option value="{{assignStatus.value}}" ng-repeat="assignStatus in cameraVM.assignStatusType">{{assignStatus.text}}</option>
+                    </select>
+                </table>
+                <table style="width: 100%;" ng-if="cameraVM.showListCount">
+                    <tr style="width: 100%;">
+                        <td style="width: 33%;"><span style="color: green"><b>UnAssigned:</b></span>{{cameraVM.projectVideosCount.unAssigned}}</td>
+                        <td style="width: 33%;"><span style="color: green"><b>Assigned:</b></span>{{cameraVM.projectVideosCount.assigned}}</td>
+                        <td style="width: 33%;float: right" ><span style="color: green"><b>Submitted:</b></span>{{cameraVM.projectVideosCount.submitted}}</td>
+                    </tr>
+                </table>
+
+            </div>
+            <div class="modal-body" style="max-height: 400px;overflow-y: auto;padding-top:5px;">
+                <table class="table table-bordered table-condensed">
+                    <thead>
+                    <tr style="font-weight: bold" class="table-head">
+                        <th style="width:6%" ng-click="sortData('cameraId')">
+                            Project <div ng-class="getSortClass('cameraId')"></div>
+                        </th>
+                        <th style="width:7%" ng-click="sortData('name')">
+                            FileName <div ng-class="getSortClass('name')"></div>
+                        </th>
+                        <th style="width:8%" ng-click="sortData('dateOfTheVideo')">
+                            VideoDate <div ng-class="getSortClass('dateOfTheVideo')"></div>
+                        </th>
+                        <th style="width:9%" ng-click="sortData('submittedDate')">
+                            Submitted On <div ng-class="getSortClass('submittedDate')"></div>
+                        </th>
+                        <th style="width:5%" ng-click="sortData('hidden')">
+                            Hidden<div ng-class="getSortClass('hidden')"></div>
+                        </th>
+
+                        <th style="width:5%" ng-click="sortData('videoId')">
+                            Video Id <div ng-class="getSortClass('videoId')"></div>
+                        </th>
+                        <th style="width:6%">
+                            User Name
+                        </th>
+
+                    </tr>
+                    </thead>
+                    <tr ng-repeat="video in cameraVM.videosList  | orderBy :sortColumn:reverseSort" >
+                        <td>
+                            <span>
+			                  {{ video.project.clientcode}}
+			                </span>
+                        </td>
+                        <td>
+                            <span>
+			                    {{ video.name.substring(0, 9)+'...' || 'empty' }}
+			                </span>
+                        </td>
+
+                        <td>
+                            <span  e-name="dateOfTheVideo" >
+                              {{video.dateOfTheVideo | date:"dd/MM/yyyy"}}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span e-name="submittedDate"  >
+                              {{video.submittedDate | date:"dd/MM/yyyy"}}
+                            </span>
+                        </td>
+                        <td>
+                            <span e-name="hidden" >
+			                    {{video.hidden}}
+			                </span>
+                        </td>
+
+                        <td>
+                            <span  e-name="videoId" e-form="rowform" e-required ng-class="{disabled: true}">
+			                    {{ video.videoId || 'empty' }}
+			                 </span>
+                        </td>
+
+                        <td>
+			                <span >
+			                    {{ video.userName}}
+			                </span>
+                        </td>
+                    </tr>
+                </table>
+            </div><br>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="popupCameraImage" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Camera Image</h4>
+            </div>
+            <div class="modal-body" style="max-height: 400px;overflow-y: auto;">
+                <image id="imageUrl" style="height: 315px;" ng-src="{{cameraVM.imageUrl}}"></image>
+            </div><br>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="baseCamerasList" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Base Cameras List.</h4>
+            </div>
+            <div class="modal-body" style="max-height: 400px;overflow-y: auto;">
+                <table class="table table-bordered table-condensed">
+                    <div ui-grid="cameraVM.gridOptions"  class="grid" external-scopes="cameraVM"
+                         ui-grid-selection ui-grid-auto-resize ></div>
+                </table>
+
+            </div><br>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"  ng-click="cameraVM.copyCatsFromBaseCamera(false)" >{{cameraVM.showMoreText}}</button>
+                <button type="button" class="btn btn-default" ng-click="cameraVM.copyParamsFromSelectedCam()" ng-if="cameraVM.gridApi.selection.getSelectedRows().length>0">Copy Params</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="downloadHiddenCams" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Download Report</h4>
+            </div>
+            <div class="modal-body" style="max-height: 400px;overflow-y: auto;">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="cameraVM.videoInclude.hidden" style="margin-left: 121px;width:10%;">
+                        Include Hidden Videos
+                    </label>
+                </div>
+                <button class="btn btn-default"   style="margin-right: 5px;font-size: 12px;" ng-click="cameraVM.exportData()">Export To CSV</button>
+            </div><br>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+

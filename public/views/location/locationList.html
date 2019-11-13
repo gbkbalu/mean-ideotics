@@ -1,0 +1,54 @@
+<div ng-controller="locationListController" ng-init="initializeController()" class="col-sm-12" ng-if="displayLocationListPage">
+	<h1>My Locations</h1>
+	<span>This section allows you to view all the locations.</span>
+	<br/><br/>
+	<div class="well well-lg">
+		<form novalidate class="form-inline" role="form" ng-submit="locationListSearchSubmit()">
+			<div class="form-group">
+				<input type="text" class="form-control" ng-model="locationListSearch.locationCode" placeholder="Location Code"/>
+			</div>
+			<div class="form-group">
+				<input type="text" class="form-control" ng-model="locationListSearch.locationName" placeholder="Location Name">
+			</div>
+			<div class="form-group">
+				<button type="submit" class="btn btn-primary">Search</button>
+				<button type="button" class="btn btn-default" ng-click="resetLocationListSearchForm(true)">Reset</button>
+			</div>
+		</form>
+	</div>
+	<div class="table-responsive">
+		<div class="panel panel-default">
+		<table class="table table-responsive table-hover">
+			<thead>
+				<tr>
+					<th ng-class="{'sortcursor': tableHeader.sortExpression}" ng-repeat="tableHeader in tableHeaders" ng-if="tableHeader.label!='Action'" ng-click="changeSorting(tableHeader.sortExpression)">&nbsp;{{tableHeader.label}}
+						<span ng-class="setSortIndicator(tableHeader.sortExpression)"></span>
+					</th>
+					<th class="textCenter" ng-repeat="tableHeader in tableHeaders" ng-if="tableHeader.label=='Action'">&nbsp;{{tableHeader.label}}
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="location in locationSearchResponseList">
+					<td>{{location.locationCode}}</td>
+					<td>{{location.locationName}}</td>
+					<td>{{location.locationType | formatVocabulary}}</td>
+					<td class="textCenter"><span ng-if="location.isAllowEdit"><b><a href="#/location/editLocation/{{location.locationCode | encodeURIComponent}}"><span class="glyphicon glyphicon-pencil"></span></a></b></span></td>
+				</tr>
+			</tbody>
+		</table>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-6">
+			<div class="sortable-grid-info">Showing <b>{{locationSearchListPaging.startIndex | incrementByOne}}</b>  to <b>{{locationSearchListPaging.endIndex | incrementByOne}}</b> of <b>{{locationSearchListPaging.totalRecords}}</b> records.</div>
+		</div>
+		<div class="col-sm-6">
+			<div class="sortable-grid-paginate pull-right">
+				<pagination boundary-links="true" total-items="locationSearchListPaging.totalRecords" items-per-page="PageSize" ng-change="pageChanged()" ng-model="CurrentPageNumber" align="false"  max-size="5" rotate="false" num-pages="numPages"></pagination>			
+			</div>
+		</div>
+	</div>
+	<button type="button" class="btn btn-primary" ng-click="exportExcel()">Export to Excel</button>
+</div>
+<div class="clearfix">&nbsp;</div>

@@ -1,0 +1,115 @@
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+
+<div class="container wrapper">
+    <div class="row">
+        <div class="col-xs-1"></div>
+        <div class="col-xs-10 box">
+            <div id="confirmBox">
+                <div class="message"></div>
+                <span class="button yes">Yes</span>
+                <span class="button no">No</span>
+            </div>
+
+            <div id="alertBox">
+                <div class="message"></div>
+                <span class="button no">OK</span>
+            </div>
+
+            <table class="table table-bordered table-condensed" ng-click="rowform.$show()" >
+
+                <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;margin-right: 5px;font-size: 12px;" ng-init="videoVM.getProjectsList()" ng-model="videoVM.selectProjectName" ng-change="videoVM.filterByUser()">
+                    <option value="{{project.clientsId}}" ng-repeat="project in videoVM.projects">{{project.clientname}}</option>
+                </select>
+
+                <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;margin-right: 5px;font-size: 12px;"
+                        ng-model="videoVM.selectedUseId"  ng-change="videoVM.filterByUser()">
+                    <option value="{{user.userId}}" ng-repeat="user in videoVM.userAgentsList">{{user.firstName}}</option>
+                </select>
+
+                <datepicker date-format="yyyy-MM-dd" selector="form-control" style="width: 15%;">
+                    <div class="input-group">
+                        <input class="form-control" ng-model="videoVM.selectedDate" placeholder="Choose a date"  ng-change="videoVM.filterByUser()"/>
+                    </div>
+                </datepicker>
+
+                <button type="button" class="btn btn-default" style="margin-left: 10px;" ng-click="videoVM.resetFilterForm()">Reset</button>
+                Count:{{videoVM.videos.length}}
+            </table>
+
+            <div>
+
+                <table style="width: 100%;" ng-if="videoVM.selectedVideo.name">
+                    <tr style="width: 100%;">
+                        <td style="width: 50%;"><span style="color: green"><b>FileName:</b></span>{{videoVM.selectedVideo.name}}</td>
+                        <td style="width: 50%;"><span style="color: green"><b>URL:</b></span>{{videoVM.selectedVideo.url}}</td>
+                    </tr>
+                </table>
+
+                <table class="table table-bordered table-condensed" style="{{innerHeightTable}}" fixed-header  ng-init="videoVM.getAllVideos()" >
+                    <thead>
+                    <tr style="font-weight: bold" class="table-head">
+                        <th style="width:5%">
+                            <input type="checkbox" id="checkAll" style="vertical-align: baseline">
+                        </th>
+                        <th style="width:10%" ng-click="sortData('client')">
+                            Project <div ng-class="getSortClass('client')"></div>
+                        </th>
+                        <th style="width:28%" ng-click="sortData('name')">
+                            FileName <div ng-class="getSortClass('name')"></div>
+                        </th>
+                        <th style="width:33%" ng-click="sortData('url')">
+                            URL <div ng-class="getSortClass('url')"></div>
+                        </th>
+                        <th style="width:12%" ng-click="sortData('videoId')">
+                            Uploaded Date<div ng-class="getSortClass('videoId')"></div>
+                        </th>
+                        <th style="width:12%">
+                            User Name
+                        </th>
+
+                    </tr>
+                    </thead>
+                    <tr ng-repeat="video in videoVM.videos  | orderBy :sortColumn:reverseSort" style="background-color:{{video.color}}" ng-click="videoVM.selectedvideoToSync(video)" ng-class="{selected: video.id === idSelectedVote}">
+
+                        <td>
+                            <input type="checkbox" ng-change="videoVM.updateSelection(video)" ng-model="video.checked" checked style="vertical-align: baseline">
+                        </td>
+                        <td>
+                           <span editable-select="video.client" e-name="client" e-form="rowform" e-ng-options="g.clientsId as g.clientname for g in videoVM.projects">
+			                    {{ videoVM.showProject(video) }}
+			               </span>
+                        </td>
+
+                        <td>
+                            <span editable-text="video.name" e-name="name" e-form="rowform" e-required ng-click="videoVM.showAlertMessageExtension(video.name)">
+			                    {{ video.name.substring(0, 50) || 'empty' }}
+			                </span>
+                        </td>
+
+                        <td>
+                            <span editable-text="video.url" e-name="url" e-form="rowform" e-required ng-click="videoVM.showAlertMessageExtension(video.url)">
+			                    {{ video.url.substring(0, 50) || 'empty' }}
+			                </span>
+                        </td>
+
+                        <td>
+                            <span  e-name="videoId" e-form="rowform" e-required ng-class="{disabled: true}">
+			                    {{ video.dateCreated | date:'dd-MM-yyyy' }}
+			                </span>
+                        </td>
+
+                        <td>
+                            <span >
+			                    {{ video.userName}}
+			                </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col-xs-1"></div>
+
+    </div>
+</div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

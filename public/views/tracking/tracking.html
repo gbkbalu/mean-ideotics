@@ -1,0 +1,235 @@
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+<style>
+    .selected {
+        background-color: lightskyblue;
+    }
+</style>
+<div class="container wrapper">
+    <div id="confirmBox">
+        <div class="message"></div>
+        <span class="button yes">Yes</span>
+        <span class="button no">No</span>
+    </div>
+    <table class="table table-bordered table-condensed" ng-click="rowform.$show()" >
+        <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;margin-right: 5px;font-size: 12px;" ng-init="trackingVM.getProjectsList()" ng-model="trackingVM.selectProjectName"  ng-change="trackingVM.getCamerasListByProject('{{trackingVM.selectProjectName}}')">
+            <option value="{{project._id}}" ng-repeat="project in trackingVM.projects">{{project.clientcode}}</option>
+        </select>
+        <select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;width:90px;margin-right: 5px;font-size: 12px;" ng-init="trackingVM.getCamerasList()"  ng-model="trackingVM.selectCameraName" ng-change="trackingVM.changeCamera('{{trackingVM.selectCameraName}}');">
+            <option value="{{camera._id}}" ng-repeat="camera in trackingVM.cameras">{{camera.cameracode}}</option>
+        </select>
+        <button type="button" title="Show categories" class="btn btn-primary" style="margin-right: 5px;" ng-click="trackingVM.filterByProject()"><span class="glyphicon glyphicon-eye-open"></span>Show Categories</button>
+        <button type="button" title="Edit Category" class="btn btn-primary" style="margin-right: 5px;" ng-click="trackingVM.enableEdit()" ng-if="trackingVM.showEdit"><span class="glyphicon glyphicon-pencil"></span>{{trackingVM.editTextMsg}}</button>
+        <button type="button" title="Show categories" class="btn btn-success" style="margin-right: 5px;" ng-click="trackingVM.saveParameters()" ng-if="trackingVM.enableCatEdit"><span class="glyphicon glyphicon-saved"></span>Save Changes</button>
+    </table>
+    <div class="row" style="max-height: 80%;">
+        <div class="col-xs-3 col-sm-3">
+            <li class="list-group-item list-group-item-header">
+                CATEGORIES
+            </li>
+            <ul class="list-group category-row-panel">
+                <li class= "list-group-item" ng-repeat="cat in trackingVM.categoriesDataList" ng-click="trackingVM.selectedCategory($index)" ng-class="{selected: $index === trackingVM.idSelectedVote}" ng-if="trackingVM.flagShowCatsList">
+                    <div class="col-xs-8">{{(cat.category).toUpperCase()}}
+                          <span ng-if="cat.isrepeats == true" style="color: green">(R)</span>
+                        <span ng-if="cat.isrepeats == false" style="color: green">(S)</span>
+                          <span ng-if="cat.isMandatory == true" style="color: red">*</span></div>
+                    <div class="col-xs-4" class="switch">
+                        <input id="cmn-toggle-{{$index}}" class="cmn-toggle cmn-toggle-round" ng-model="trackingVM.selectedMessages[$index]"
+                               ng-change='trackingVM.changeCheckboxValue($index,cat);' type="checkbox" ng-disabled="true">
+                        <label for="cmn-toggle-{{$index}}"></label>
+                    </div>
+                </li>
+                <div class="panel-footer"  ng-if="!trackingVM.flagShowCatsList" style="padding: 0px !important;background-color: rgba(255,255,255,.15);">
+                    <li class= "list-group-item" >
+                        <input class="form-control"  type="text" ng-model="trackingVM.catNameText" style="width: 100%;"/>
+                        <span style="color: red;">{{trackingVM.errorMessages}}</span>
+                    </li>
+                    <li class= "list-group-item" style="padding: 8px;">
+                        <div class="col-xs-8">Is Mandatory?</div>
+                        <div class="col-xs-4" class="switch">
+                            <input id="cmn-toggle-mm" class="cmn-toggle cmn-toggle-round" ng-model="trackingVM.category.isMandatory"
+                                   type="checkbox">
+                            <label for="cmn-toggle-mm"></label>
+                        </div>
+                    </li>
+                    <li class= "list-group-item"  style="padding: 8px;">
+                        <div class="col-xs-8">Hide The Category?</div>
+                        <div class="col-xs-4" class="switch">
+                            <input id="cmn-toggle-x" class="cmn-toggle cmn-toggle-round" ng-model="trackingVM.category.isHidden"
+                                    type="checkbox">
+                            <label for="cmn-toggle-x"></label>
+                        </div>
+                    </li>
+                    <span class="pull-right">
+						    <span class="pointer btn btn-default btn-sm" ng-click="trackingVM.closeDataEntryCats()" style="margin: 10px;">Close </span>
+							<span class="pointer btn btn-primary btn-sm" ng-click="trackingVM.updateCategory()"  style="margin: 10px;"> Save</span>
+					</span>
+                </div>
+            </ul>
+        </div>
+        <div class="col-xs-3">
+            <li class="list-group-item list-group-item-header">
+                SUB CATEGORIES
+                <span  title="Edit SubCategory" class="pull-right glyphicon glyphicon glyphicon-pencil pointer"  ng-click="trackingVM.addNewSubCat('edit')" ng-if="trackingVM.enableCatEdit && trackingVM.flagShowSubCatsList && trackingVM.idSelectedSubCat !== null && (trackingVM.selectedCatCode == 'START' || trackingVM.selectedCatCode == 'SHOPPERPROFILE'  || trackingVM.selectedCatCode == 'SKUBEHAVIOUR')" ></span>
+            </li>
+            <ul class="list-group category-row-panel">
+                <li class= "list-group-item" ng-repeat="item in trackingVM['category'][trackingVM.currentCategory]" ng-click="trackingVM.selectedSubCategory($index)"  ng-class="{selected: $index === trackingVM.idSelectedSubCat}" ng-if="trackingVM.flagShowSubCatsList">
+                    <div class="col-xs-4">{{item.subCategory}}<span ng-if="( trackingVM.selectedCatCode == 'START' || trackingVM.selectedCatCode == 'SHOPPERPROFILE' || trackingVM.selectedCatCode == 'SKUBEHAVIOUR')">({{item.percentage}}%)</span><span ng-if="trackingVM.category.isMandatory == true && item.isMandatory == true" style="color: red">*</span></div>
+                    <div class = "col-xs-8" style="text-align:right;">
+						<span ng-repeat="type in item.type">
+					        <img  ng-if="type.isDefault" ng-src="{{type.icon.imageUrl}}" alt="image" class="img-responsive pointer" title="{{type.icon.name}}"  style="border:3px solid green;">
+					        <img  ng-show="!type.isDefault" ng-src="{{type.icon.imageUrl}}" alt="image" class="img-responsive pointer" title="{{type.icon.name}}">
+                    	</span>
+                    </div>
+                </li>
+
+                <div class="panel-footer"  ng-if="!trackingVM.flagShowSubCatsList" style="padding: 0px !important;background-color: rgba(255,255,255,.15);">
+                    <li class= "list-group-item" >
+                        <input type="text" class="form-control" ng-model="trackingVM.subCatNameText" style="width: 100%;" ng-readonly="true"/>
+                        <span style="color: red;">{{trackingVM.errorMessages}}</span>
+                    </li>
+                    <!--IF ANY OPTION IS SELECTED, JUMP TO DIFFERENT CATEGORY:-->
+                    <li class= "list-group-item" style="padding: 8px;"  >
+                        JUMP TO DIFFERENT CATEGORY:
+                    </li>
+                    <li style="margin:10px;">
+                        <select class="editable-has-buttons editable-input form-control ng-pristine" style="width:100%;display: inline;margin-right: 5px;font-size: 12px;" ng-model="trackingVM.subcategory.reference" ng-disabled="true">
+                            <option value="0">Select Category</option>
+                            <option value="{{catCodeObj.code}}" ng-repeat="catCodeObj in trackingVM.copyOfCatCodesList">{{catCodeObj.value}}</option>
+                        </select>
+                    </li>
+
+                    <li class= "list-group-item" style="padding: 8px;"  >
+                        MOVE TO DIFFERENT CATEGORY:
+                    </li>
+                    <li style="margin:10px;" ng-if="trackingVM.idSelectedSubCat != null">
+                        <select class="editable-has-buttons editable-input form-control ng-pristine" style="width:100%;display: inline;margin-right: 5px;font-size: 12px;" ng-model="trackingVM.subcategory.category" ng-disabled="true">
+                            <option value="0">Move To Category</option>
+                            <option value="{{catCodeObj._id}}" ng-repeat="catCodeObj in trackingVM.categoriesCodesList">{{catCodeObj.value}}</option>
+                        </select>
+                    </li>
+
+                    <li class= "list-group-item" >
+                        <input type="text" class="form-control" ng-model="trackingVM.subcategory.percentage" style="width: 100%;" placeholder="Percentage"/>
+                        <span style="color: red;">{{trackingVM.errorMessages}}</span>
+                    </li>
+
+                    <li class= "list-group-item" style="padding: 8px;"  ng-if="trackingVM.category.isMandatory == true">
+                        <div class="col-xs-8">Is Mandatory?</div>
+                        <div class="col-xs-4" class="switch">
+                            <input id="cmn-toggle-subcat" class="cmn-toggle cmn-toggle-round" ng-model="trackingVM.subcategory.isMandatory"
+                                   type="checkbox" ng-disabled="true">
+                            <label for="cmn-toggle-subcat"></label>
+                        </div>
+                    </li>
+
+                    <li class= "list-group-item"  style="padding: 8px;">
+                        <div class="col-xs-8">Hide The Sub Category?</div>
+                        <div class="col-xs-4" class="switch">
+                            <input id="cmn-toggle-subcat-hide" class="cmn-toggle cmn-toggle-round" ng-model="trackingVM.subcategory.isHidden"
+                                   type="checkbox" ng-disabled="true">
+                            <label for="cmn-toggle-subcat-hide"></label>
+                        </div>
+                    </li>
+
+                    <span class="pull-right">
+						    <span class="pointer btn btn-default btn-sm" ng-click="trackingVM.closeDataEntrySubCats()"  style="margin: 10px;">Close </span>
+							<span class="pointer btn btn-primary btn-sm" ng-click="trackingVM.saveSubCategory()"  style="margin: 5px;"> Save</span>
+					</span>
+                </div>
+
+            </ul>
+        </div>
+
+        <div class="col-xs-3">
+            <li class="list-group-item list-group-item-header">
+                {{(trackingVM.OPTION).toUpperCase()}}
+            </li>
+            <ul class="list-group category-row-panel">
+                <li class= "list-group-item" ng-repeat="option in trackingVM.subCategoryOptionsList" ng-click="trackingVM.selectedOptionToRemove($index)" ng-class="{selected: $index === trackingVM.idSelectedOption}" ng-if="trackingVM.flagEditCateRelativeOption == false">
+                    <div class="col-xs-4">{{option.icon.name}}</div>
+                    <div class = "col-xs-8" style="text-align:right;">
+						<span>
+                            <img ng-if="option.isDefault" ng-src="{{option.icon.imageUrl}}" alt="image" class="img-responsive pointer" title="{{option.icon.name}}" style="border:3px solid green;">
+                            <img ng-show="!option.isDefault" ng-src="{{option.icon.imageUrl}}" alt="image" class="img-responsive pointer" title="{{option.icon.name}}">
+                    	</span>
+                    </div>
+                </li>
+
+                <li class= "list-group-item" style="padding: 8px;"  ng-if="trackingVM.category.isMandatory == true && trackingVM.subCategoryOptionsList.length>0 && trackingVM.flagEditCateRelativeOption == false">
+                    <div class="col-xs-8">Is Mandatory?</div>
+                    <div class="col-xs-4" class="switch">
+                        <input id="cmn-toggle1-21" class="cmn-toggle cmn-toggle-round" ng-model="trackingVM.subcategory.isMandatory"
+                               ng-change='trackingVM.changeCheckboxValueSubCat();' type="checkbox" ng-disabled="true">
+                        <label for="cmn-toggle1-21"></label>
+                    </div>
+                </li>
+
+                <div class="panel-footer"  ng-if="trackingVM.flagEditCateRelativeOption" style="background-color: white">
+                    <li style="margin:10px;">
+                        <select class="editable-has-buttons editable-input form-control ng-pristine" style="width:100%;display: inline;margin-right: 5px;font-size: 12px;" ng-model="trackingVM.refIconCatCodeRel">
+                            <option value="0">Select Category</option>
+                            <option value="{{catCodeObj.code}}" ng-repeat="catCodeObj in trackingVM.copyOfCatCodesList">{{catCodeObj.value}}</option>
+                        </select>
+                    </li>
+
+                    <li class= "list-group-item" style="padding: 8px;">
+                        <div class="col-xs-8">Is Default</div>
+                        <div class="col-xs-4" class="switch">
+                            <input id="cmn-toggle1-isDefault" class="cmn-toggle cmn-toggle-round" ng-model="trackingVM.isDefault" ng-change="trackingVM.onInputChange()" type="checkbox">
+                            <label for="cmn-toggle1-isDefault"></label>
+                        </div>
+                    </li>
+
+                    <li class= "list-group-item" style="padding: 8px;">
+                        <div class="col-xs-8" style="color: red;">Identified Shopper?-Care Ground Truth Only</div>
+                        <div class="col-xs-4" class="switch">
+                            <input id="cmn-toggle1-refsub" class="cmn-toggle cmn-toggle-round" ng-model="trackingVM.alreadyIn" type="checkbox">
+                            <label for="cmn-toggle1-refsub"></label>
+                        </div>
+                    </li>
+
+                    <span class="pull-right">
+                        <span class="pointer btn btn-default btn-sm" ng-click="trackingVM.closeDataEntryRelCatValue()"  style="margin: 10px;">Close </span>
+				        <span class="pointer btn btn-primary btn-sm" ng-click="trackingVM.saveDataEntryRelCatValue()"  style="margin: 5px;"> Save</span>
+			        </span>
+                </div>
+            </ul>
+        </div>
+        <div class="col-xs-3">
+            <li class="list-group-item list-group-item-header">
+                Add Values
+            </li>
+
+            <ul class="list-group category-row-panel">
+                <li class= "list-group-item" ng-repeat="option in trackingVM.subCatOptToAddList" ng-click="trackingVM.selectedOptionToAdd($index)" ng-class="{selected: $index === trackingVM.idSelOptToAdd}"  ng-if="trackingVM.dataOptionAdd && !trackingVM.flagEditOptionAdd" >
+                    <div class="col-xs-4">{{option.name}}</div>
+                    <div class = "col-xs-8" style="text-align:right;">
+						<span>
+					        <img ng-src="{{option.imageUrl}}" alt="image" class="img-responsive pointer" title="{{option.name}}">
+                    	</span>
+                    </div>
+                </li>
+                <div class="panel-footer"  ng-if="trackingVM.flagEditOptionAdd">
+                    <li class= "list-group-item" >
+                        <input type="text" ng-model="trackingVM.editIconValue" style="width: 100%;"/>
+                        <span style="color: red;">{{trackingVM.errorMessages}}</span>
+                    </li>
+                    <li class= "list-group-item" >
+                        <label class="item item-input borderNone" style="background: none; border-color:white; border-top: none">
+                            <img id="myImg" src="#" width="40px;" height="40px;" alt="your image" ng-src="{{trackingVM.imageUrl}}" />
+                            <input type='file' id="selectImageFile" style="position:absolute;width:100%;opacity: 0;" accept="image/*"/>
+                        </label>
+                    </li>
+                    <span class="pull-right">
+                        <span class="pointer btn btn-danger btn-sm" ng-if="trackingVM.idSelOptToAdd !== null" ng-click="trackingVM.deleteIcon()">Discard </span>
+                        <span class="pointer btn btn-default btn-sm" ng-click="trackingVM.closeDataEntryValue()"  style="margin: 10px;">Close </span>
+				        <span class="pointer btn btn-primary btn-sm" ng-click="trackingVM.saveIconValue()"  style="margin: 5px;"> Save</span>
+			        </span>
+                 </div>
+            </ul>
+        </div>
+    </div>
+</div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>
+

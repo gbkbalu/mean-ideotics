@@ -1,0 +1,229 @@
+
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+
+<div class="container wrapper">
+    <div class="row">
+        <table class="table table-bordered table-condensed" ng-click="rowform.$show()" style="margin-bottom: 6px;">
+
+            <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;float:left;margin-right: 5px;font-size: 12px;" ng-init="dashVM.getProjectsList()" ng-model="dashVM.selectProjectName" ng-change="dashVM.changeProject()">
+                <option value="{{project.clientsId}}" ng-repeat="project in dashVM.projects">{{project.clientname}}</option>
+            </select>
+
+            <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;float:left;margin-right: 5px;font-size: 12px;" ng-model="dashVM.selectCameraName" ng-change="dashVM.getResultByFilter()">
+                <option value="{{camera.camerasId}}" ng-repeat="camera in dashVM.cameras">{{camera.cameracode}}</option>
+            </select>
+
+            <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;float:left;width:87px;margin-right: 5px;font-size: 12px;"
+                    ng-model="dashVM.selectVideoAssignType" ng-change="dashVM.getResultByFilter()">
+                <option value="{{assignStatus.value}}" ng-repeat="assignStatus in dashVM.assignStatusType">{{assignStatus.text}}</option>
+            </select>
+
+            <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;float:left;margin-right: 5px;font-size: 12px;"
+                    ng-model="dashVM.selectedUseId" ng-change="dashVM.getResultByFilter()">
+                <option value="{{user.userId}}" ng-repeat="user in dashVM.userAgentsList">{{user.firstName}}</option>
+            </select>
+
+            <datepicker date-format="yyyy-MM-dd" selector="form-control" style="width: 15%;">
+                <div class="input-group">
+                    <input class="form-control" ng-model="dashVM.selectedDate" placeholder="Choose a date" ng-change="dashVM.getResultByFilter()"/>
+                </div>
+            </datepicker>
+            <button class="btn btn-default" ng-if="dashVM.showvideo" ng-click="dashVM.flipShowVideoFlag()" style="margin-right: 5px;font-size: 12px;">Cancel Video</button>
+
+            <button type="button" class="btn btn-default" style="margin-right: 5px;" ng-click="dashVM.resetFilterForm('reset')">Reset</button>
+            <button type="button" class="btn btn-default" ng-click="dashVM.resetFilterForm('clear')">Clear All</button>
+            Count:{{dashVM.totalItems}}
+
+            <div style="font-size:14px;display:inline-block;">
+                {{dashVM.totalRecords}}{{dashVM.discards}}{{dashVM.notSubmittedRecords}}
+            </div>
+        </table>
+        <table style="width: 100%;" ng-if="dashVM.selectedVideo.name">
+            <tr style="width: 100%;">
+                <td style="width: 50%;"><span style="color: green"><b>FileName:</b></span>{{dashVM.selectedVideo.name}}</td>
+                <td style="width: 50%;"><span style="color: green"><b>URL:</b></span>{{dashVM.selectedVideo.url}}</td>
+            </tr>
+        </table>
+        <div class="col-xs-7">
+            <li class="list-group-item list-group-item-header" ng-if="dashVM.showvideo" >
+                Video
+
+                <span class="pull-right">
+                    <div class="btn-group" uib-dropdown is-open="status.isopen" >
+                        <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled"  style="padding: 0px 3px !important;">
+                            {{dashVM.selectedVideoRate}}<span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button">
+                            <li role="menuitem" ><a ng-click="dashVM.changeSpeedOfVideo('0.5')" >0.5</a></li>
+                            <li role="menuitem" ><a ng-click="dashVM.changeSpeedOfVideo('0.5')" >0.5</a></li>
+                            <li role="menuitem" ><a ng-click="dashVM.changeSpeedOfVideo('1.0')" >1.0</a></li>
+                            <li role="menuitem" ><a ng-click="dashVM.changeSpeedOfVideo('1.5')" >1.5</a></li>
+                            <li role="menuitem" ><a ng-click="dashVM.changeSpeedOfVideo('2.0')" >2.0</a></li>
+                            <li role="menuitem" ><a ng-click="dashVM.changeSpeedOfVideo('2.5')" >2.5</a></li>
+                        </ul>
+                    </div>
+                </span>
+                <span class="pull-right" style="padding-right: 10px;">Speed Rate</span>
+                <!--<span class="pull-right glyphicon glyphicon-plus-sign pointer" ng-if="dashVM.currentVideo.videoId && dashVM.eventCreated" ng-click="dashVM.createEvent('SKU Behaviour')"></span>-->
+            </li>
+            <ab-video api="dashVM.mediaPlayerApi" ng-if="dashVM.showvideo" style="max-height: 495px;"></ab-video>
+            <div class="panel panel-default mt-1" ng-if="!dashVM.showvideo" style="height: 500px;">
+                <table class="table table-bordered table-condensed" fixed-header  style="{{innerHeightTable}}" >
+                    <thead>
+                    <tr style="font-weight: bold" class="table-head">
+                        <th style="width:10%">
+                            Id
+                        </th>
+                        <th style="width:20%">
+                            FileName
+                        </th>
+                        <th style="width:15%">
+                            Project
+                        </th>
+                        <th style="width:15%">
+                            Camera
+                        </th>
+                        <th style="width:20%">
+                            User Name
+                        </th>
+                        <th style="width:20%">
+                            Date
+                        </th>
+                    </tr>
+                    </thead>
+                    <tr ng-repeat="video in dashVM.videos" ng-click="dashVM.openVideo(video, true)" style="background-color:{{video.color}}">
+                        <td>
+                             <span>
+                               {{ video.videoId || 'empty' }}
+                             </span>
+                        </td>
+
+                        <td>
+                            <span>
+                                {{ video.name.substring(0, 20)+'...' || 'empty' }}
+                            </span>
+                        </td>
+
+                        <td>
+                           <span>
+			                    {{ dashVM.showProject(video) }}
+			               </span>
+                        </td>
+
+                        <td>
+                           <span>
+			                    {{ dashVM.showCameras(video) }}
+			               </span>
+                        </td>
+
+                        <td>
+                            <span >
+                               {{ video.userName}}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span >
+                              {{video.submittedDate | date:"dd/MM/yyyy"}}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+
+        <div class="col-xs-2">
+            <id-events></id-events>
+        </div>
+
+        <div class="col-xs-3">
+            <!-- Widget to enter data -->
+            <div class="data-entry ">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span class="list-group-item list-group-item-header">{{dashVM.currentCategory}}</span>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-group option-row-panel">
+                            <li class= "list-group-item" ng-repeat="event in dashVM.selectedEvent" >
+                                <div class="col-xs-3">Profile
+                                    <span ng-if="event['analysis']['Shopper Profile'].timeSpent">({{event['analysis']['Shopper Profile'].timeSpent}})</span>
+                                </div>
+                                <div class="col-xs-9" style="display: inline; text-align:right;">
+                                    <span ng-repeat="item in event['analysis']['Shopper Profile']">
+                                        <img ng-if="dashVM.types[item]" ng-src="{{dashVM.types[item]}}" class="img-responsive pointer" title="{{item}}"/>
+                                    </span>
+                                </div>
+                            </li>
+                            <li class= "list-group-item" ng-repeat="event in dashVM.selectedEvent" ng-if="!event['analysis']['Shopper Profile']['Staff Type']">
+                                <div class="col-xs-3">Behaviour
+                                    <span ng-if="event.timeSpent">({{event.timeSpent}})</span>
+                                </div>
+                                <div class="col-xs-9" style="display: inline; text-align:right;">
+                                    <div ng-repeat="item in event['analysis']['SKU Behaviour']" >
+                                    <span ng-repeat="subItem in item">
+                                        <img ng-if="dashVM.types[subItem]" ng-src="{{dashVM.types[subItem]}}" class="img-responsive pointer" title="{{subItem}}"/>
+                                    </span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class= "list-group-item" ng-repeat="event in dashVM.selectedEvent" ng-if="event['analysis']['Shopper Profile']['Staff Type']">
+                                <div class="col-xs-4">Staff Behaviour
+                                    <span ng-if="event.timeSpent">({{event.timeSpent}})</span>
+                                </div>
+                                <div class="col-xs-8" style="display: inline; text-align:right;">
+                                    <div ng-repeat="item in event['analysis']['Staff behaviour']" >
+                                    <span ng-repeat="subItem in item">
+                                        <img ng-if="dashVM.types[subItem]" ng-src="{{dashVM.types[subItem]}}" class="img-responsive pointer" title="{{subItem}}"/>
+                                    </span>
+                                    </div>
+                                </div>
+                                <!--<div class="col-xs-6" style="display: inline; text-align:right;">
+                                    <span ng-repeat="item in event['analysis']['Staff behaviour']" >
+                                            <img ng-if="dashVM.types[item]" ng-src="{{dashVM.types[item]}}" class="img-responsive pointer" title="{{item}}"/>
+                                    </span>
+                                </div>-->
+                            </li>
+
+                            <li class= "list-group-item" ng-repeat="event in dashVM.selectedEvent">
+                                <div class="col-xs-3">Others
+                                    <span ng-if="event['analysis']['Others'].timeSpent">({{event['analysis']['Others'].timeSpent}})</span>
+                                </div>
+                                <div class="col-xs-9" style="display: inline; text-align:right;">
+                                    <span ng-repeat="item in event['analysis']['Others']" >
+                                        <img ng-if="dashVM.types[item]" ng-src="{{dashVM.types[item]}}" class="img-responsive pointer" title="{{item}}"/>
+                                    </span>
+                                </div>
+                            </li>
+
+                            <li class= "list-group-item" ng-repeat="event in dashVM.selectedEvent" >
+                                <div class="col-xs-3">Exit
+                                    <span ng-if="event['analysis']['Exit Path'].timeSpent">({{event['analysis']['Exit Path'].timeSpent}})</span>
+                                </div>
+                                <div class="col-xs-9" style="display: inline; text-align:right;">
+                                    <span ng-repeat="item in event['analysis']['Exit Path']">
+                                        <img ng-if="dashVM.types[item]" ng-src="{{dashVM.types[item]}}" class="img-responsive pointer" title="{{item}}"/>
+                                    </span>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="panel-footer">
+                                <span class="pull-right">
+                                    <span class="pointer btn btn-success btn-sm" ng-if="dashVM.currentCategory === 'Exit Path' && dashVM.selectedEventIndex !== ''" ng-click="dashVM.saveCategory(true,false,'Save')">Next</span>
+                                    <span class="pointer btn btn-success btn-sm" ng-if="dashVM.currentCategory !== 'Exit Path' && dashVM.selectedEventIndex !== ''" ng-click="dashVM.saveCategory(true,false,'New')">Next</span>
+                                </span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+</div>
+    <uib-pagination ng-if="dashVM.totalItems>0" total-items="dashVM.totalItems" items-per-page="20" ng-model="dashVM.currentPage" max-size="20"  ng-change="dashVM.pageChanged()" class="pagination-sm" boundary-link-numbers="true" rotate="false" style="margin: 0px !important;"></uib-pagination>
+
+<div ng-include="'scripts/directives/footer/footer.html'"></div>
+

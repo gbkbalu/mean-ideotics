@@ -1,0 +1,314 @@
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+
+<div class="container wrapper">
+
+<div id="confirmBox">
+    <div class="message"></div><br>
+    <div class="message1"></div>
+    <div class="message2"></div>
+    <div class="message3"></div><br>
+
+    <span class="button yes">Review</span>
+    <span class="button submit">Submit</span>
+    <span class="button no">Cancel</span>
+</div>
+
+    <div id="confirmBoxDelete">
+        <div class="message"></div>
+        <span class="button yes">Yes</span>
+        <span class="button no">No</span>
+    </div>
+
+<!--<div class="demo-wrapper">
+    <div class="heatmap"></div>
+</div>-->
+
+<!--<heat-map data="passed_data"></heat-map>-->
+<div class="row">
+    <table class="table table-bordered table-condensed" ng-click="rowform.$show()" style="margin-bottom: 6px;">
+        <a class="btn" title="Export Table" ng-click='csv.generate()' ng-href="{{ csv.link() }}"
+           download="analysedvideos.csv">
+            <i class="glyphicon glyphicon-new-window"></i> &#160;Export
+        </a>
+        <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;float:left;margin-right: 5px;font-size: 12px;" ng-init="dashVM.getProjectsList()" ng-model="dashVM.selectProjectName" ng-change="dashVM.changeProject()" ng-disabled="dashVM.disableProjectFlag">
+            <option value="{{project.clientsId}}" ng-repeat="project in dashVM.projects">{{project.clientname}}</option>
+        </select>
+
+        <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;float:left;margin-right: 5px;font-size: 12px;" ng-model="dashVM.selectCameraName" ng-change="dashVM.filterByUser()" ng-disabled="dashVM.disableProjectFlag">
+            <option value="{{camera.camerasId}}" ng-repeat="camera in dashVM.cameras">{{camera.cameracode}}</option>
+        </select>
+
+        <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;float:left;width:87px;margin-right: 5px;font-size: 12px;"
+                ng-model="dashVM.selectVideoAssignType" ng-change="dashVM.filterByUser()">
+            <option value="{{assignStatus.value}}" ng-repeat="assignStatus in dashVM.assignStatusType">{{assignStatus.text}}</option>
+        </select>
+
+        <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;float:left;margin-right: 5px;font-size: 12px;"
+                ng-model="dashVM.selectedUseId" ng-change="dashVM.filterByUser()">
+            <option value="{{user.userId}}" ng-repeat="user in dashVM.userAgentsList">{{user.firstName}}</option>
+        </select>
+
+        <datepicker date-format="yyyy-MM-dd" selector="form-control" style="width: 12%;margin-top:0px;">
+            <div class="input-group  inner-addon right-addon">
+                <i class="glyphicon glyphicon-calendar" style="line-height: 1;z-index: 100"></i>
+                <input class="form-control" ng-model="dashVM.selectedDate" placeholder="Choose a date" ng-change="dashVM.filterByUser()"/>
+            </div>
+        </datepicker>
+
+        <button class="btn btn-default" ng-if="dashVM.showvideo" ng-click="dashVM.flipShowVideoFlag()" style="margin-right: 5px;font-size: 12px;">Cancel Video</button>
+
+        <button type="button" class="btn btn-default" style="margin-right: 5px;" ng-click="dashVM.resetFilterForm('reset')"  >Reset</button>
+
+        <button type="button" class="btn btn-default" ng-if="dashVM.currentVideo.videoId" ng-click="dashVM.forwardVideo(-1)">Prev</button>
+        <button type="button" class="btn btn-default" ng-if="dashVM.currentVideo.videoId" ng-click="dashVM.forwardVideo(1)">Next</button>
+
+        <button class="btn btn-default" ng-if="dashVM.currentVideo.project && dashVM.currentVideo.status == 2" style="margin-right: 5px;font-size: 12px;" ng-click="dashVM.submitVideoFromForm()">submit</button>
+        <input type="checkbox"  ng-if="dashVM.flag.dataEntry" ng-model="dashVM.entTime.changeEndTime" style="width: auto;padding: 5px;" title="Save EndTime">
+        <!--<button class="btn btn-default" ng-if="dashVM.currentVideo.project && dashVM.currentVideo.status == 2"  style="margin-right: 5px;font-size: 12px;" ng-click="dashVM.openCharts()">Show Report</button>-->
+        <span>Count:{{dashVM.totalItems}}</span><span>({{dashVM.playingVideoPosition}})</span>
+
+        <div style="font-size:14px;display:inline-block;">
+            {{dashVM.totalRecords}}{{dashVM.discards}}{{dashVM.notSubmittedRecords}}
+        </div>
+    </table>
+    <table style="width: 100%;" ng-if="dashVM.currentVideo.project">
+        <tr style="width: 100%;">
+            <td style="width: 25%;"><span style="color: green"><b>Project:</b></span>{{dashVM.currentVideo.project.clientcode}}({{dashVM.currentVideo.project.clientsId}})</td>
+            <td style="width: 25%;"><span style="color: green"><b>Camera:</b></span>{{dashVM.currentVideo.camera.cameracode}}({{dashVM.currentVideo.camera.camerasId}})<i class="glyphicon glyphicon-camera" style="margin-top: 7px;font-size: 20px;cursor:pointer;" ng-click="showCameraImage()"/></td>
+            <td style="width: 25%;"><span style="color: green"><b>Video:</b></span>{{dashVM.currentVideo.videoId}}</td>
+            <td style="width: 25%;"><span style="color: green"><b>Date:</b></span>{{dashVM.currentVideo.dateOfTheVideo | date:"dd/MM/yyyy"}}</td>
+        </tr>
+    </table>
+    <!--<input ng-model="dashVM.formVideoIdToSubmit">
+    <button class="btn btn-default"  style="margin-right: 5px;font-size: 12px;" ng-click="dashVM.submitVideoFromForm()">submit</button>-->
+    <div class="col-xs-7" style="height: 575px;">
+        <li class="list-group-item list-group-item-header" ng-if="dashVM.showvideo" >
+            Video
+            <span class="pull-right glyphicon glyphicon-plus-sign pointer" ng-click="dashVM.addNewShopper()" ></span>
+            <span class="pull-right" style="padding-right: 10px;">
+                    Speed Rate
+                <span class="pull-right glyphicon glyphicon glyphicon-upload pointer"  ng-click="dashVM.changeSpeedOfVideo(+0.5)" style="padding-right: 8px;font-size: 16px;"></span>
+                <span> {{dashVM.selectedVideoRate}}</span>
+                <span class="pull-right glyphicon glyphicon-download pointer"  ng-click="dashVM.changeSpeedOfVideo(-0.5)" style="padding-right: 8px;;font-size: 16px;"></span>
+            </span>
+        </li>
+        <ab-video ng-if="globals.user.role == 'admin' && dashVM.showvideo" api="dashVM.mediaPlayerApi" ng-click="dashVM.getCoordinates($event)">
+        </ab-video>
+
+        <ab-video ng-if="globals.user.role != 'admin' && dashVM.showvideo" api="dashVM.mediaPlayerApi" ng-click="dashVM.getCoordinates($event)" controlsList="nodownload">
+        </ab-video>
+        <div class="panel panel-default mt-1" ng-if="!dashVM.showvideo" style="height: 600px;">
+            <table class="table table-bordered table-condensed" fixed-header  style="height:560px;" export-csv="csv">
+                <thead>
+                <tr style="font-weight: bold" class="table-head">
+                    <th style="width:10%">
+                        Id
+                    </th>
+                    <th style="width:20%">
+                        FileName
+                    </th>
+                    <th style="width:15%">
+                        Project
+                    </th>
+                    <th style="width:15%">
+                        Camera
+                    </th>
+                    <th style="width:20%">
+                        User Name
+                    </th>
+                    <th style="width:20%">
+                        Date
+                    </th>
+                </tr>
+                </thead>
+                <tr ng-repeat="video in dashVM.videos" ng-click="dashVM.openVideo(video, true)" style="background-color:{{video.color}}">
+                    <td>
+                             <span>
+                               {{ video.videoId || 'empty' }}
+                             </span>
+                    </td>
+
+                    <td>
+                            <span>
+                                {{ video.name.substring(0, 20)+'...' || 'empty' }}
+                            </span>
+                    </td>
+
+                    <td>
+                           <span>
+			                    {{ dashVM.showProject(video) }}
+			               </span>
+                    </td>
+
+                    <td>
+                           <span>
+			                    {{ dashVM.showCameras(video) }}
+			               </span>
+                    </td>
+
+                    <td>
+                            <span >
+                               {{ video.userName}}
+                            </span>
+                    </td>
+
+                    <td>
+                            <span >
+                              {{video.submittedDate | date:"dd/MM/yyyy"}}
+                            </span>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+    <div ng-class="{'col-xs-2': !dashVM.flag.dataEntry, 'col-xs-5': dashVM.flag.dataEntry}">
+        <id-events ng-if="!dashVM.flag.dataEntry"></id-events>
+
+        <!-- Widget to enter data -->
+        <div ng-if="dashVM.flag.dataEntry" class="data-entry ">
+            <div class="panel panel-default">
+
+                <div class="panel-heading">
+                    <span class="list-group-item list-group-item-header">{{(dashVM.editedCategory).toUpperCase()}}<span  ng-if="dashVM.selectedEvent.length>0">{{dashVM.selectedEvent[0].frameno}}-{{dashVM.selectedEvent[0].eventId}}</span></span>
+                </div>
+                <div class="panel-body">
+
+                    <ul class="list-group first-row-panel">
+                        <li class= "list-group-item" ng-repeat="item in dashVM['category'][dashVM.currentCategory]">
+                            <div class="col-xs-4">{{item.subCategory}}<span style="color: red;" ng-if="item.isMandatory==1">*</span></div>
+                            <div class = "col-xs-8" style="text-align:right;">
+                                <!--ng-init="dashVM.form[dashVM.currentCategory][item.subCategory]=item.selectedValue" -->
+                                    <span ng-repeat="type in item.type">
+										<input type="radio" selected id="{{item.subCategory}}-{{type.icon.name}}"
+                                               ng-click="dashVM.onInputClick(type.icon.name,item.subCategory,item,type)"
+                                               ng-change="dashVM.onInputChange(type.icon.name,item.subCategory,item,type)" ng-model="dashVM.form[dashVM.currentCategory][item.subCategory]" value="{{type.icon.name}}"/>
+										<label for="{{item.subCategory}}-{{type.icon.name}}">
+                                            <img ng-src="{{type.icon.imageUrl}}" alt="image" class="img-responsive pointer" title="{{type.icon.name}}">
+                                        </label>
+									</span>
+                            </div>
+                        </li>
+                        <input type="text"  ng-if="dashVM.flag.dataEntry"  class="form-control" ng-model="dashVM.comments" placeholder="Add Notes/Comments" style="width: 96%;margin: 10px;"
+                               maxlength="150"/>
+                    </ul>
+
+                </div>
+                <div class="panel-footer">
+						<span class="pull-left" ng-if="dashVM.hasError">
+							<span class="text-danger">Few fields are missed(*).</span>
+						</span>
+                    <span class="pull-left" ng-if="dashVM.catError">
+							<span class="text-danger">Categories are missed</span>
+						</span>
+                    <span class="pull-right">
+                            <span class="pointer btn btn-success btn-sm" ng-if="dashVM.currentIndexVal > 0"  ng-click="dashVM.backPressed()">Back</span>
+                            <span class="pointer btn btn-success btn-sm" ng-click="dashVM.resetValues()">Undo</span>
+							<span class="pointer btn btn-success btn-sm" ng-click="dashVM.saveCategory(false, true,'Add Another SKU')" ng-if="dashVM.currentCategory == dashVM.codesList[2] && dashVM.showAnother">Add another SKU </span>
+                            <span class="pointer btn btn-success btn-sm" ng-click="dashVM.saveCategory(false, true,'Add Another Staff')" ng-if="(dashVM.currentCategory == dashVM.codesList[4] || dashVM.currentCategory == dashVM.codesList[5] || dashVM.currentCategory == dashVM.codesList[6]) && dashVM.showAnother">Add another Staff Behaviour</span>
+							<span class="pointer btn btn-danger btn-sm" ng-if="dashVM.selectedCurrCategory" ng-click="dashVM.deleteDataEntry()">{{dashVM.discardRetain}} </span>
+                            <span class="pointer btn btn-default btn-sm" ng-click="dashVM.closeDataEntry()">Close </span>
+							<span class="pointer btn btn-primary btn-sm" ng-click="dashVM.saveCategory(false,false,'Save')"> Save</span>
+                            <span class="pointer btn btn-success btn-sm"  ng-click="dashVM.saveCategory(true,false,'New')" ng-if="(dashVM.currentCategory == dashVM.codesList[2] || dashVM.currentCategory == dashVM.codesList[4] || dashVM.currentCategory == dashVM.codesList[5] || dashVM.currentCategory == dashVM.codesList[6]) && (dashVM.currentLen < dashVM.event.analysis[dashVM.currentCategory].length -1)"> Next</span>
+							<span class="pointer btn btn-success btn-sm"  ng-click="dashVM.saveCategory(true,false,'New')" ng-if="!(dashVM.currentCategory == dashVM.codesList[2] || dashVM.currentCategory == dashVM.codesList[3]  || dashVM.currentCategory == dashVM.codesList[4] || dashVM.currentCategory == dashVM.codesList[5] || dashVM.currentCategory == dashVM.codesList[6])"> Next</span>
+                        <!--ng-hide="dashVM.currentCategory == 'Exit Path'"-->
+						</span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <div class="col-xs-3"  ng-if="!dashVM.flag.dataEntry">
+
+        <div class="panel panel-default mt-1">
+
+            <div class="panel-heading">
+                <span class="list-group-item list-group-item-header">{{dashVM.currentCategory}}<span ng-if="dashVM.selectedEvent.length>0">({{dashVM.selectedEvent[0].frameno}}-{{dashVM.selectedEvent[0].eventId}})</span></span>
+            </div>
+            <div class="panel-body">
+                <ul class="list-group first-row-panel">
+                    <div ng-repeat="catSelects in dashVM.catListWithCodeAndRepeat">
+                        <li class= "list-group-item" ng-repeat="event in dashVM.selectedEvent" ng-click="dashVM.createEvent(catSelects.catcode)">
+                            <div class="col-xs-3">{{catSelects.category}}
+                                <span ng-if="event['analysis'][catSelects.catcode].timeSpent">({{event['analysis'][catSelects.catcode].timeSpent}})</span>
+                            </div>
+                            <div class="col-xs-9" style="display: inline; text-align:right;">
+                                <div ng-repeat="item in event['analysis'][catSelects.catcode]  track by $index" ng-if="catSelects.isrepeats == true">
+                                    <span ng-repeat="subItem in item  track by $index">
+                                        <img ng-if="dashVM.types[subItem]" ng-src="{{dashVM.types[subItem]}}" class="img-responsive pointer" title="{{subItem}}"/>
+                                    </span>
+                                </div>
+
+                                <span ng-repeat="item in event['analysis'][catSelects.catcode]  track by $index" ng-if="catSelects.isrepeats == false">
+                                    <img ng-if="dashVM.types[item]" ng-src="{{dashVM.types[item]}}" class="img-responsive pointer" title="{{item}}"/>
+                                </span>
+                            </div>
+                        </li>
+                    </div>
+                </ul>
+
+                <div class="panel-footer">
+                                <span class="pull-right">
+                                    <span class="pointer btn btn-success btn-sm" ng-if="dashVM.currentCategory === 'Exit Path' && dashVM.selectedEventIndex !== ''" ng-click="dashVM.getNextEvent()">GET Next</span>
+                                    <span class="pointer btn btn-success btn-sm" ng-if="dashVM.currentCategory !== 'Exit Path' && dashVM.selectedEventIndex !== ''" ng-click="dashVM.getNextEvent()">GET Next</span>
+                                </span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+</div>
+<uib-pagination ng-if="dashVM.totalItems>0" total-items="dashVM.totalItems" items-per-page="20" ng-model="dashVM.currentPage" max-size="20"  ng-change="dashVM.pageChanged()" class="pagination-sm" boundary-link-numbers="true" rotate="false" style="margin: 0px !important;"></uib-pagination>
+<div id="existingShoppersList" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Existing Shoppers List.</h4>
+            </div>
+            <div class="modal-body" style="max-height: 400px;overflow-y: auto;">
+                <table class="table table-bordered table-condensed">
+                    <div ui-grid="dashVM.gridOptions"  class="grid" external-scopes="dashVM"
+                         ui-grid-selection ui-grid-auto-resize ></div>
+                </table>
+
+            </div><br>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"  ng-click="dashVM.showPreviousFramesShoppers()" ng-if="dashVM.previousVideoPosition>0 && !dashVM.loadMorePreviousFrameShoppers">Load Previous</button>
+                <button type="button" class="btn btn-default"  ng-click="dashVM.selectAlreadyInShopper()" ng-if="dashVM.gridApi.selection.getSelectedRows().length>0">Select Shopper</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="popupCameraImage" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content" style="width: 800px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Camera Image</h4>
+            </div>
+            <div class="modal-body" style="max-height: 680px;overflow-y: auto;overflow-x: auto;">
+                <image id="imageUrl" style="max-height: 530px;overflow-y: auto;overflow-x: auto;display: block;margin-left: auto;margin-right: auto;" ng-src="{{dashVM.imageUrl}}"></image>
+            </div><br>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

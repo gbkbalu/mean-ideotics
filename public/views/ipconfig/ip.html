@@ -1,0 +1,78 @@
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+<style>
+
+</style>
+<div class="container wrapper">
+    <div class="row">
+
+        <!--<div class="col-xs-1"></div>-->
+        <div class="col-xs-12 box"  style="background-color: white;">
+            <div id="confirmBox">
+                <div class="message"></div>
+                <span class="button yes">Yes</span>
+                <span class="button no">No</span>
+            </div>
+
+            <div id="alertBox">
+                <div class="message"></div>
+                <span class="button no">OK</span>
+            </div>
+
+            <div>
+
+                <table class="table table-bordered table-condensed" ng-click="rowform.$show()" >
+
+                    <button class="btn btn-default" style="margin-right: 5px;font-size: 12px;"  ng-click="ipVM.addIpConfig()" >Add Ip</button>
+
+                    <button class="btn btn-default" ng-click="ipVM.deleteSelectedIpConfigsByCheckBox()" style="margin-right: 5px;font-size: 12px;">Delete Ip</button>
+                    Count:{{ipVM.ipConfigList.length}}
+                </table>
+
+                <table class="table table-bordered"  style="{{innerHeightTable}}"  fixed-header ng-init="ipVM.getAllIpconfigs()" >
+                    <thead>
+                    <tr class="table-head">
+                        <th style="width:5%">
+                            <input type="checkbox" id="checkAll" style="vertical-align: baseline">
+                        </th>
+                        <th style="width:40%" >
+                            Start Ip
+                        </th>
+                        <th style="width:40%" >
+                            End Ip
+                        </th>
+                        <th style="width:15%">Edit</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="ipconfig in ipVM.ipConfigList | orderBy :sortColumn:reverseSort"  style="background-color:{{ipconfig.color}}" ng-click="ipVM.selectedRecordList(ipconfig)">
+
+                        <td>
+                            <input type="checkbox" ng-change="ipVM.updateSelection(ipconfig)" ng-model="ipconfig.checked" checked style="vertical-align: baseline">
+                        </td>
+
+                        <td>
+                            <span e-name="startIpAddress" e-form="rowform" e-required>
+			                  {{ ipconfig.startIpAddress || 'empty' }}
+			                </span>
+                        </td>
+                        <td>
+                            <span e-name="endIpAddress" e-form="rowform" e-required>
+			                    {{ ipconfig.endIpAddress || 'empty' }}
+			                </span>
+                        </td>
+
+                        <td style="white-space: nowrap">
+                            <div class="buttons">
+                                <button class="btn btn-primary btn-padding"  ng-click="ipVM.openIpConfigEditDetails(ipconfig)"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

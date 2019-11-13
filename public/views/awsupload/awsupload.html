@@ -1,0 +1,90 @@
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+
+<div class="container wrapper"  flow-init flow-files-submitted="uploadedFiles( $files, $event, $flow )" flow-prevent-drop="" flow-drag-enter="style={border: '5px solid green'}" flow-drag-leave="style={}">
+    <div class="container-fluid">
+        <!--<div class="page-header no-top-marg">-->
+        <div class="no-top-marg">
+            <div style="font-size: 20px !important;">Ideotics Video Sync</div>
+        </div>
+        <div class="row" style="margin-top: 10px;">
+
+            <!-- The Upload Form -->
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading" style="padding: 10px 15px;">
+                        <h3 class="panel-title" style="color:green;display: -webkit-inline-box;font-size: 14px !important;display: -webkit-inline-box">Video Upload</h3>
+                    </div>
+
+                    <div class="panel-body" style="padding: 15px;">
+                        <select class="btn-default" ng-change="changeFileUploadType()"  ng-model="fileOrDirectoryType" style="color: green;height:34px;width: 10%;border-radius: 5px;">
+                            <option value="0" selected="selected">File</option>
+                            <option value="1">Directory</option>
+                        </select>
+                        <button ng-if="!typeOfFileSelected" class="btn btn-default myFile aws-upload-btn" style="height: 34px !important;">
+                            <input  type="file" flow-btn="" style="display: -webkit-inline-box" ng-if="!typeOfFileSelected"> File Upload
+                        </button>
+                        <button ng-if="typeOfFileSelected" class="btn btn-default myFile aws-upload-btn" style="height: 34px !important;">
+                            <input  type="file" flow-btn="" flow-directory=""  style="opacity: 0" ng-if="$flow.supportDirectory">Directory Upload
+                        </button>
+
+                        <button class="btn btn-primary btn-default" style="margin-left: 20px;" ng-click="upload()">Upload</button>
+
+                        <button class="btn btn-danger btn-default" ng-if="filesToUploaded.length !== 0 || !hideCancelButton" style="margin-left: 20px;" ng-click="removeAllUploadingFilse()">Cancel</button>
+
+
+                        <div class="progress" style="margin-top: 10px;" ng-if="filesToUploaded.length=== 0">
+                            <div class="progress-bar" role="progressbar"  aria-valuemin="0" aria-valuemax="100" style="width:0%;">
+
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <table style="width: 100%;margin-top: 10px;" ng-if="filesToUploaded.length !== 0">
+                            <tr style="width: 100%;">
+                                <td ng-repeat="file in filesToUploaded" style="width: {{100/filesToUploaded.length}}%;">
+                                    <div class="progress" >
+                                        <div class="progress-bar" role="progressbar" aria-valuenow="{{ file.uploadProgress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ file.uploadProgress }}%;">
+                                            {{ file.uploadProgress == 0 ? '' : file.uploadProgress + '%' }}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <!--<a class="btn btn-primary btn-block btn-lg" ng-click="upload()">Upload</a>-->
+                        <table class="table table-bordered table-condensed" style="{{(innerHeightAwsUploadFileTable)}}" fixed-header  >
+                            <thead>
+                                <tr style="font-weight: bold" class="table-head">
+                                    <th style="width:5%">No</th>
+                                    <th style="width:45%">File Name</th>
+                                    <th style="width:10%">File Size</th>
+                                    <th style="width:35%">Upload Percentage</th>
+                                    <th style="width:5%">Delete</th>
+                                </tr>
+                            </thead>
+                            <tr ng-repeat="file in filesToUploaded" style="margin-top: 20px;">
+                                <td>{{$index+1}}</td>
+                                <td> {{typeOfFileSelected ? file.webkitRelativePath : file.name}}-({{file.fileSize}}KB)</td>
+                                <td>{{file.sizeUploaded}}</td>
+                                <!--<td>{{file.msg}}</td>-->
+                                <td>
+                                    <div class="progress" style="margin-bottom: 5px;">
+                                        <div class="progress-bar" role="progressbar"   aria-valuenow="{{ file.uploadProgress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ file.uploadProgress }}%;">
+                                            {{ file.uploadProgress == 0 ? '' : file.uploadProgress + '%' }}
+                                        </div>
+                                   </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-danger btn-padding" ng-click="removeUploadingVideo($index)" style="padding: 0px 2px;"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

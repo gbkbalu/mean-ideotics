@@ -1,0 +1,106 @@
+
+<div ng-include="'scripts/directives/header/header.html'"></div>
+<style>
+
+</style>
+<div class="container wrapper">
+<div class="row">
+<div class="col-sm-1"></div>
+<div class="col-sm-10">
+    <div class="well">
+        <span style="font-size: 20px;">{{newVideoVm.pageTitle}}</span><br><br>
+        <span style="color: red;">{{newVideoVm.errorMessage}}</span>
+        <span style="color: green;">{{newVideoVm.successMessage}}</span><br>
+        <div id="alertBox">
+            <div class="message"></div>
+            <span class="button no">OK</span>
+        </div>
+        <form class="form-horizontal"  name="myform" novalidate>
+
+            <div class="form-group" ng-class="{ 'has-error' : myform.name.$invalid && !myform.name.$pristine }">
+                <label for="name" class="col-sm-2 control-label required">Video Name</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="name" required name="name" required placeholder="Video Name"
+                           ng-model="newVideoVm.addVideo.name" ng-minlength="3" ng-maxlength="100"/>
+                </div>
+                <div class="col-sm-2">
+                    <span ng-if="myform.name.$invalid && !myform.name.$pristine" class="help-block">Video Name  is too short.</span>
+                    <span ng-if="newVideoVm.submitted && myform.name.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{ 'has-error' : myform.url.$invalid && !myform.url.$pristine }">
+                <label for="url" class="col-sm-2 control-label required">Url</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="url" required name="url" placeholder="Url"
+                           ng-model="newVideoVm.addVideo.url" ng-minlength="3" ng-maxlength="1000"/>
+                </div>
+                <div class="col-sm-2">
+                    <p ng-if="myform.url.$error.minlength" class="help-block">URL is too short.</p>
+                    <span ng-if="newVideoVm.submitted && myform.url.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                </div>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': addVideo.errors.status}">
+                <label for="status" class="col-sm-2 control-label required">Assign Status</label>
+                <div class="col-sm-6">
+                    <select id="status" class="form-control" ng-model='newVideoVm.addVideo.status'
+                            ng-options="assignStatus.value as assignStatus.text for assignStatus in newVideoVm.assignStatusType">
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': addVideo.errors.datasynced}">
+                <label for="datasynced" class="col-sm-2 control-label required">Sync Status</label>
+                <div class="col-sm-6">
+                    <select id="datasynced" class="form-control" ng-model='newVideoVm.addVideo.datasynced'
+                            ng-options="syncStatus.value as syncStatus.text for syncStatus in newVideoVm.syncStatusType">
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': addVideo.errors.videoFromAws}">
+                <label for="videoFromAws" class="col-sm-2 control-label required">Video From AWS</label>
+                <div class="col-sm-6">
+                    <select id="videoFromAws" class="form-control" ng-model='newVideoVm.addVideo.videoFromAws'
+                            ng-options="awsVideo.value as awsVideo.text for awsVideo in newVideoVm.videoFromAws">
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': addUser.errors.client}">
+                <label for="client" class="col-sm-2 control-label required">Project</label>
+                <div class="col-sm-6">
+                    <select id="client" class="form-control"  ng-model='newVideoVm.addVideo.client'  ng-change="newVideoVm.filterByProject()"
+                            ng-options="client.clientsId as client.clientname for client in newVideoVm.projectsList">
+                        <option value=''>Select Project</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': addUser.errors.cameraId}">
+                <label for="cameraId" class="col-sm-2 control-label required">Camera</label>
+                <div class="col-sm-6">
+                    <select id="cameraId" class="form-control"  ng-model='newVideoVm.addVideo.cameraId'
+                            ng-options="camera.camerasId as camera.cameracode for camera in newVideoVm.camerasList">
+                        <option value=''>Select Camera</option>
+                    </select>
+                </div>
+            </div>
+
+            <!--<button type="button" class="btn btn-default" ng-click="addNewReadPoint($event)">Save User</button>-->
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-4">
+                    <button  class="btn btn-primary" style="margin-right: 10px;" ng-click="newVideoVm.saveVideo()">{{newVideoVm.saveBtnName}}</button>
+
+                    <button type="button" class="btn btn-default" ng-click="newVideoVm.resetUserForm()">Reset</button>
+                    <button type="button" class="btn btn-default" ng-click="newVideoVm.cancelTheForm()">Cancel</button>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="col-sm-1"></div>
+</div>
+    </div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

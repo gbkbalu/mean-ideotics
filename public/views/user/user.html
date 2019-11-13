@@ -1,0 +1,317 @@
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+
+<div class="container wrapper">
+	<div class="row">
+		<!--<div class="col-xs-1"></div>-->
+		<div class="col-xs-12 box"  style="background-color: white;">
+            <div id="confirmBox">
+                <div class="message"></div>
+                <span class="button yes">Yes</span>
+                <span class="button no">No</span>
+            </div>
+            <div id="alertBox">
+                <div class="message"></div>
+                <span class="button no">OK</span>
+            </div>
+
+            <div id="usersListBox" style="height: 250px;overflow: auto;">
+                <!--<div ng-repeat="act in videoVM.active">{{act.text}}</div>-->
+                <table class="table table-bordered table-condensed"  fixed-header ng-if="userVM.showUsersListFlag">
+                    <tr style="font-weight: bold" class="table-head">
+                        <td style="width:30%">Project Id</td>
+                        <td style="width:80%">Project Name</td>
+                    </tr>
+                    <tr ng-repeat="project in userVM.projectsOrgList" style="background-color:{{project.color}}" ng-click="userVM.selectedProjectToAssign(project)">
+                        <td>
+                            <span e-form="rowform" e-required>
+			                    {{ project.clientsId || 'empty' }}
+			                </span>
+                        </td>
+                        <td>
+                            <span e-form="rowform" e-required>
+			                    {{ project.clientname || 'empty' }}
+			                </span>
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="table table-bordered table-condensed" ng-if="!userVM.showUsersListFlag" >
+                    <tr style="font-weight: bold" class="table-head">
+                        <td style="width:90%">No Projects available</td>
+                    </tr>
+                </table>
+                <span class="button yes" ng-if="userVM.showUsersListFlag">Assign</span>
+                <span class="button no">Cancel</span>
+            </div>
+
+            <table class="table table-condensed" ng-click="rowform.$show()" style="margin-bottom: 0px;border:0px !important;" >
+                <td style="border-top:0px !important;">
+                    <!--<select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;float:left;margin-right: 5px;font-size: 12px;" ng-init="userVM.getProjectsList()" ng-model="userVM.selectProjectName" ng-change="userVM.filterByProject()">
+                        <option value="{{project._id}}" ng-repeat="project in userVM.projects">{{project.clientname}}</option>
+                    </select>
+                    <span>Count:{{userVM.users.length}}</span>-->
+                    <select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;float:left;margin-right: 5px;font-size: 12px;" ng-init="userVM.getTeamsList()" ng-model="userVM.selectTeamName" ng-change="userVM.filterByTeam()"  ng-if="userVM.isAdmin">
+                        <option value="{{team._id}}" ng-repeat="team in userVM.teams">{{team.teamName}}</option>
+                    </select>
+                    <button type="button" class="btn btn-default" style="margin-right: 5px;" ng-click="userVM.resetFilterForm()"  ng-if="userVM.isAdmin">Reset</button>
+                    <span>Count:{{userVM.users.length}}</span>
+                </td>
+                <td style="float:right;border-top:0px !important;"  ng-if="userVM.isAdmin">
+                    <a class="btn" title="Export Table" ng-click='userVM.downloadCurrentGridData()'>
+                        <i class="glyphicon glyphicon-new-window"></i> &#160;Export
+                    </a>
+
+                    <button class="btn btn-default" ng-click="userVM.assignUsersToSelectedTeam(true)" style="margin-right: 5px;font-size: 12px;">Assign To Selected Team</button>
+                    <button class="btn btn-default" ng-click="userVM.assignUsersToSelectedTeam(false)" style="margin-right: 5px;font-size: 12px;">UnAssign Users</button>
+                    <!--<button class="btn btn-default" ng-click="userVM.assignUsersToSelectedProject(true)" style="margin-right: 5px;font-size: 12px;">Assign To Selected Project</button>
+
+                    <button class="btn btn-default" ng-click="userVM.assignUsersToSelectedProject(false)" style="margin-right: 5px;font-size: 12px;">UnAssign Users</button>-->
+
+                    <button class="btn btn-default" style="margin-right: 5px;font-size: 12px;"  ng-click="userVM.addUser()">Add user</button>
+
+                    <button class="btn btn-default" ng-click="userVM.deleteSelectedUsersListByCheckBox()" style="margin-right: 5px;font-size: 12px;">Delete Users</button>
+
+                    <button class="btn btn-default" ng-click="userVM.showProcessedVideosListByUser(true)" style="margin-right: 5px;font-size: 12px;">Show Videos</button>
+                    <a class="btn" title="BroadCast Message" ng-click='userVM.broadCastMessageOpen()'>
+                        <i class="glyphicon glyphicon-bullhorn"></i> &#160;BroadCast
+                    </a>
+                </td>
+            </table>
+            <div>{{userVM.errorMessage}}</div>
+
+            <table style="width: 100%;" ng-if="userVM.showListCount" >
+                <tr style="width: 100%;">
+                    <td style="width: 50%;"><span style="color: green"><b>Assigned:</b></span>{{userVM.projectVideosCount.assigned}}</td>
+                    <td style="width: 50%;float: right" ><span style="color: green"><b>Submitted:</b></span>{{userVM.projectVideosCount.submitted}}</td>
+                </tr>
+            </table>
+
+            <!--<table class="table table-bordered table-condensed"   style="{{innerHeightTable}}">-->
+            <div ui-grid="gridOptions"  class="grid" external-scopes="$scope" style="{{gridHeightTable}}"
+                 ui-grid-selection ui-grid-exporter ui-grid-edit ui-grid-resize-columns ui-grid-pagination ui-grid-auto-resize></div>
+           <!--</table>-->
+	</div>
+</div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>
+
+<div id="videosListOfSelectedProject" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header" style="padding-bottom:0px;">
+                <table class="table table-bordered table-condensed">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <!--<div class="modal-title">{{projectVM.selectedProjLists[0].clientcode}} Videos List.</div>-->
+                    <span>
+                        {{userVM.selectedProjLists[0].clientcode}} Videos List.
+                    </span>
+
+                    <select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;margin-right: 5px;font-size: 12px;" ng-model="userVM.selectPopupProjectName" ng-change="userVM.getCamerasListByProject(false)" ng-if="userVM.processedVideosByUser">
+                        <option value="{{project._id}}" ng-repeat="project in userVM.projects">{{project.clientname}}</option>
+                    </select>
+
+                    <select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;margin-right: 5px;font-size: 12px;"  ng-model='userVM.selectPopupCameraName' ng-change="userVM.showVideosListByProject(false)" ng-if="userVM.processedVideosByUser"
+                            ng-options="camera._id as camera.cameracode for camera in userVM.camerasList">
+                        <option value=''>Select Camera</option>
+                    </select>
+
+                    <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;width:120px;margin-right: 5px;font-size: 12px;"
+                            ng-model="userVM.selectVideoAssignType" ng-change="userVM.showVideosListByProject(false)" ng-if="userVM.processedVideosByUser">
+                        <option value="{{assignStatus.value}}" ng-repeat="assignStatus in userVM.assignStatusType" >{{assignStatus.text}}</option>
+                    </select>
+                 </table>
+                <table style="width: 100%;" ng-if="userVM.showListCount && userVM.processedVideosByUser">
+                    <tr style="width: 100%;">
+                        <td style="width: 50%;"><span style="color: green"><b>Assigned:</b></span>{{userVM.projectVideosCount.assigned}}</td>
+                        <td style="width: 50%;float: right" ><span style="color: green"><b>Submitted:</b></span>{{userVM.projectVideosCount.submitted}}</td>
+                    </tr>
+                </table>
+
+            </div>
+            <div class="modal-body" style="max-height: 400px;overflow-y: auto;padding-top:5px;" ng-if="userVM.processedVideosByUser">
+                <table class="table table-bordered table-condensed">
+                    <thead>
+                    <tr style="font-weight: bold" class="table-head">
+                        <th style="width:6%" >
+                            Project
+                        </th>
+                        <th style="width:6%" ng-click="sortData('cameraId')">
+                            Camera <div ng-class="getSortClass('cameraId')"></div>
+                        </th>
+                        <th style="width:7%" ng-click="sortData('name')">
+                            FileName <div ng-class="getSortClass('name')"></div>
+                        </th>
+                        <th style="width:8%" ng-click="sortData('dateOfTheVideo')">
+                            VideoDate <div ng-class="getSortClass('dateOfTheVideo')"></div>
+                        </th>
+                        <th style="width:9%" ng-click="sortData('submittedDate')">
+                            Submitted On <div ng-class="getSortClass('submittedDate')"></div>
+                        </th>
+                        <th style="width:5%" ng-click="sortData('hidden')">
+                            Hidden<div ng-class="getSortClass('hidden')"></div>
+                        </th>
+
+                        <th style="width:5%" ng-click="sortData('videoId')">
+                            Video Id <div ng-class="getSortClass('videoId')"></div>
+                        </th>
+                        <th style="width:6%">
+                            User Name
+                        </th>
+
+                    </tr>
+                    </thead>
+                    <tr ng-repeat="video in userVM.videosList  | orderBy :sortColumn:reverseSort" >
+                        <td>
+                            <span>
+			                  {{ video.project.clientcode}}
+			                </span>
+                        </td>
+                        <td>
+                            <span>
+			                  {{ video.camera.cameracode}}
+			                </span>
+                        </td>
+                        <td>
+                            <span>
+			                    {{ video.name.substring(0, 9)+'...' || 'empty' }}
+			                </span>
+                        </td>
+
+                        <td>
+                            <span  e-name="dateOfTheVideo" >
+                              {{video.dateOfTheVideo | date:"dd/MM/yyyy"}}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span e-name="submittedDate"  >
+                              {{video.submittedDate | date:"dd/MM/yyyy"}}
+                            </span>
+                        </td>
+                        <td>
+                            <span e-name="hidden" >
+			                    {{video.hidden}}
+			                </span>
+                        </td>
+
+                        <td>
+                            <span  e-name="videoId" e-form="rowform" e-required ng-class="{disabled: true}">
+			                    {{ video.videoId || 'empty' }}
+			                 </span>
+                        </td>
+
+                        <td>
+			                <span >
+			                    {{ video.userName}}
+			                </span>
+                        </td>
+                    </tr>
+                </table>
+            </div><br>
+            <div class="modal-body" style="max-height: 400px;overflow-y: auto;padding-top:5px;" ng-if="!userVM.processedVideosByUser">
+                <table class="table table-bordered table-condensed">
+                    <thead>
+                    <tr style="font-weight: bold" class="table-head">
+                        <th style="width:8%">
+                            Project Id
+                        </th>
+                        <th style="width:6%" >
+                            Project
+                        </th>
+                        <th style="width:8%">
+                            Camera Id
+                        </th>
+                        <th style="width:6%" ng-click="sortData('cameraId')">
+                            Camera <div ng-class="getSortClass('cameraId')"></div>
+                        </th>
+
+                    </tr>
+                    </thead>
+                    <tr ng-repeat="camera in userVM.camerasList  | orderBy :sortColumn:reverseSort"  style="background-color:{{camera.color}}" ng-click="userVM.selectedCameraToAssign(camera)">
+                        <td>
+                            <span>
+			                  {{ camera.project.clientsId}}
+			                </span>
+                        </td>
+                        <td>
+                            <span>
+			                  {{ camera.project.clientname}}
+			                </span>
+                        </td>
+                        <td>
+                            <span>
+			                  {{ camera.camerasId}}
+			                </span>
+                        </td>
+                        <td>
+                            <span>
+			                  {{ camera.cameracode}}
+			                </span>
+                        </td>
+                    </tr>
+                </table>
+            </div><br>
+            <div class="modal-footer">
+                <span style="color: red" ng-if="userVM.isCamSelected">Please select a camera to assign</span>
+                <button type="button" class="btn btn-default" ng-click="userVM.assignUsersToSelectedProjectCam()"  ng-if="!userVM.processedVideosByUser">Assign</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="assignToTeam" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header" style="padding-bottom:0px;">
+                <table class="table table-bordered table-condensed">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <!--<div class="modal-title">{{projectVM.selectedProjLists[0].clientcode}} Videos List.</div>-->
+                    <span>
+                        {{userVM.selectedProjLists[0].clientcode}} Teams List.
+                    </span>
+                    <select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;margin-right: 5px;font-size: 12px;" ng-model="userVM.selectTeamNameToAssign">
+                        <option value="{{team._id}}" ng-repeat="team in userVM.teams" ng-if="team.active == 1">{{team.teamName}}</option>
+                    </select>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <span style="color: red" ng-if="userVM.isTeamSelected">Please select a Team to assign</span>
+                <button type="button" class="btn btn-default" ng-click="userVM.assignUsersListToSelectedTeam()" >Assign</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+    <div id="inactiveOrDeleteModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+
+                <div class="modal-body" style="max-height: 400px;overflow-y: auto;">
+                    <div class="form-group" ng-class="{'has-error': addTeam.errors.active}">
+                        <label for="active" class="col-sm-2 control-label required">InActive/Delete</label>
+                        <div class="col-sm-6">
+                            <select id="active" class="form-control" ng-model='userVM.activeOrDelete'
+                                    ng-options="statusType.value as statusType.text for statusType in userVM.statusList">
+                            </select>
+                        </div>
+                    </div>
+
+                </div><br>
+                <div class="modal-footer">
+                    <button ng-if="userVM.activeOrDelete === 1" type="button" class="btn btn-default" ng-click="userVM.inActiveOrDelteUsers()">InActive</button>
+                    <button ng-if="userVM.activeOrDelete === 2" type="button" class="btn btn-default" ng-click="userVM.inActiveOrDelteUsers()">Delete</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

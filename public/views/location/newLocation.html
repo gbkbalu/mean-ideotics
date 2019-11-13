@@ -1,0 +1,97 @@
+
+<div ng-include="'scripts/directives/header/header.html'"></div>
+<style>
+
+</style>
+<div class="container wrapper">
+<div class="row">
+<div class="col-sm-1"></div>
+<div class="col-sm-10">
+    <div class="well">
+        <h1 style="font-size: 20px;">{{newUserVm.pageTitle}}</h1><br>
+        <!--<span>{{newUserVm.pageTitle}}</span>-->
+
+        <form class="form-horizontal" role="form"
+              ng-submit="submitLocationInformation()">
+
+            <div class="form-group" ng-class="{'has-error': newUserVm.addUser.errors.locationName}">
+                <label for="firstName" class="col-sm-2 control-label required">First Name</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="firstName" required="required"
+                           ng-model="newUserVm.addUser.firstName" maxlength="150"/> <span
+                        class="help-inline text-danger"
+                        ng-if="newUserVm.addUser.errors.firstName" ><i>{{newUserVm.addUser.errors.firstName}}</i></span>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{'has-error': newUserVm.addUser.errors.lastName}">
+                <label for="lastName" class="col-sm-2 control-label required">Last Name</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="lastName" required="required"
+                           ng-model="newUserVm.addUser.lastName" maxlength="150"/> <span
+                        class="help-inline text-danger"
+                        ng-if="newUserVm.addUser.errors.lastName" ><i>{{newUserVm.addUser.errors.lastName}}</i></span>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{'has-error': addUser.errors.email}">
+                <label for="email" class="col-sm-2 control-label required">Email</label>
+                <div class="col-sm-4">
+                    <input type="email" class="form-control" id="email" required="required"
+                           ng-model="newUserVm.addUser.email" maxlength="220"/><span class="help-inline text-danger"
+                                                                           ng-if="addUser.errors.email"><i>{{addUser.errors.email}}</i></span>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{'has-error': addUser.errors.password}">
+                <label for="password" class="col-sm-2 control-label required">Password</label>
+                <div class="col-sm-4">
+                    <input type="password" class="form-control" id="password" required="required"
+                           ng-model="newUserVm.addUser.password" maxlength="220"/><span class="help-inline text-danger"
+                                                                              ng-if="addUser.errors.password"><i>{{addUser.errors.password}}</i></span>
+                </div>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': addUser.errors.role}">
+                <label for="roleType" class="col-sm-2 control-label required">Role</label>
+                <div class="col-sm-4">
+                    <select id="roleType" class="form-control" required="required" ng-model='newUserVm.addUser.role'
+                            ng-options="roleType.value as roleType.text for roleType in newUserVm.rolesList">
+                    </select> <span class="help-inline text-danger"
+                                    ng-if="addUser.errors.role"><i>{{addUser.errors.role}}</i></span>
+                </div>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': addUser.errors.status}">
+                <label for="status" class="col-sm-2 control-label required">Status</label>
+                <div class="col-sm-4">
+                    <select id="status" class="form-control" required="required" ng-model='newUserVm.addUser.status'
+                            ng-options="statusType.value as statusType.text for statusType in newUserVm.statusList">
+                    </select> <span class="help-inline text-danger"
+                                    ng-if="addUser.errors.status"><i>{{addUser.errors.status}}</i></span>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{'has-error': addUser.errors.project}">
+                <label for="project" class="col-sm-2 control-label required">Project</label>
+                <div class="col-sm-4">
+                    <select id="project" class="form-control" required="required" ng-model='newUserVm.addUser.project'
+                            ng-options="locationVocType.clientcode as locationVocType.clientcode for locationVocType in newUserVm.projectsList">
+                        <option value=''>Select Project</option>
+                    </select> <span class="help-inline text-danger"
+                                    ng-if="addUser.errors.project"><i>{{addUser.errors.project}}</i></span>
+                </div>
+            </div>
+
+            <!--<button type="button" class="btn btn-default" ng-click="addNewReadPoint($event)">Save User</button>-->
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-4">
+                    <button type="submit" class="btn btn-primary" style="margin-right: 10px;">Save User</button>
+
+                    <button type="button" class="btn btn-default"
+                            ng-click="newUserVm.resetUserForm()">Reset</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="col-sm-1"></div>
+</div>
+    </div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

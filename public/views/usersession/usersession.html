@@ -1,0 +1,105 @@
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+
+<div class="container wrapper">
+    <div class="row">
+        <!--<div class="col-xs-1"></div>-->
+        <div class="col-xs-12 box" style="background-color: white;">
+
+            <table class="table table-bordered table-condensed" ng-click="rowform.$show()" >
+
+                <select class="editable-has-buttons editable-input form-control ng-pristine" style="display: inline;float:left;margin-right: 5px;font-size: 12px;"
+                        ng-model="userSessionVM.selectedUseId" ng-change="userSessionVM.filterByUser()">
+                    <option value="{{user.userId}}" ng-repeat="user in userSessionVM.usersList">{{user.firstName}}</option>
+                </select>
+
+                <datepicker date-format="yyyy-MM-dd" selector="form-control" style="width: 15%;">
+                    <div class="input-group   inner-addon right-addon">
+                        <i class="glyphicon glyphicon-calendar" style="line-height: 1;z-index: 100"></i>
+                        <input class="form-control" ng-model="userSessionVM.selectedDate" placeholder="Choose a date" ng-change="userSessionVM.filterByUser()" style="border-radius: 2 !important;"/>
+                    </div>
+                </datepicker>
+
+                <button type="button" class="btn btn-default" style="margin-right: 5px;" ng-click="userSessionVM.resetFilterForm()">Reset</button>
+                Count:{{userSessionVM.userSessionList.length}}
+                <a class="btn" title="Export Table" ng-click='csv.generate()' ng-href="{{ csv.link() }}"
+                   download="sessions.csv">
+                    <i class="glyphicon glyphicon-new-window"></i> &#160;Export
+                </a>
+            </table>
+
+            <div>
+
+                <table class="table table-bordered table-condensed" style="{{innerHeightTable}}" fixed-header  export-csv="csv" export-csv-ignore="ignore">
+                    <thead>
+                    <tr style="font-weight: bold" class="table-head">
+
+                        <th style="width:7%">UserId</th>
+                        <th style="width:15%">User Name</th>
+                        <th style="width:20%">Login Time</th>
+                        <th style="width:20%">Logout Time</th>
+                        <th style="width:15%">Duration</th>
+                        <th style="width:13%">VideoId</th>
+                        <th style="width:10%">Login Ip Address</th>
+
+                    </tr>
+                    </thead>
+                    <tr ng-repeat="user in userSessionVM.userSessionList" style="background-color:{{user.color}}" id="trTdVideo{{$index}}"  ng-click="userSessionVM.selectedvideoToSync($index)">
+
+                        <td>
+                           <span>
+			                    {{ user.userId }}
+			               </span>
+                        </td>
+
+                        <td>
+                           <span>
+			                    {{ user.userName }}
+			               </span>
+                        </td>
+
+                        <td>
+                            <span>
+			                  {{ user.loginTime }}
+			                </span>
+                        </td>
+                        <td>
+                            <span>
+			                    {{ user.logOutTime}}
+			                </span>
+                        </td>
+                        <td>
+                            <span>
+			                    {{ user.differnece}}
+			                </span>
+                        </td>
+                        <td>
+                            <span>
+			                    {{ user.videoId}}
+			                </span>
+                        </td>
+                        <td>
+                            <span>
+			                    {{ user.traceIpAddress}}
+			                </span>
+                        </td>
+
+
+                    </tr>
+                </table>
+
+                <!--<div class="col-sm-6">
+                    <div class="sortable-grid-paginate pull-right">-->
+                        <!--<pagination boundary-links="true" total-items="userSessionVM.totalRecords" items-per-page="userSessionVM.PageSize" ng-change="userSessionVM.pageChanged()" ng-model="userSessionVM.CurrentPageNumber" align="false"  max-size="5" rotate="false" num-pages="userSessionVM.numPages"></pagination>-->
+                    <!--</div>
+                </div>-->
+
+            </div>
+
+
+        </div>
+        <!--<div class="col-xs-1"></div>-->
+
+    </div>
+</div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

@@ -1,0 +1,47 @@
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+
+<div class="container wrapper">
+    <table class="table table-condensed" style="margin-bottom: 0px;border:0px !important;">
+        <td style="border-top:0px !important;">
+            <button class="btn btn-default" style="margin-right: 5px;font-size: 12px;"  ng-click="helperVM.addHelper()" >Add Helper</button>
+        </td>
+
+    </table>
+    <div class="row" >
+         <div class="col-md-4">
+             <div class="row">
+                 <table class="table table-bordered table-condensed"   style="{{innerHeightTable}}">
+                     <div ui-grid="helperVM.gridOptions"  class="grid" external-scopes="helperVM" style="background-color: white;"
+                          ui-grid-selection ui-grid-exporter ui-grid-edit ui-grid-resize-columns ui-grid-pagination >
+
+                     </div>
+                 </table>
+             </div>
+         </div>
+         <div class="col-md-8">
+             <div class="row" ng-if="!helperVM.enabledForEdit">
+                 <div class="form-group" style="margin-bottom: 35px;">
+                     <div class="col-sm-offset-10 col-sm-2">
+                         <button class="btn btn-primary btn-padding"  ng-click="helperVM.enableEdit()" ng-if="helperVM.gridApi.selection.getSelectedRows().length>0"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
+                     </div>
+                 </div>
+                 <div class="panel panel-primary dsPanel trix-content" ng-bind-html="helperVM.helperText" style="min-height: 400px;">
+
+                 </div>
+             </div>
+             <div class="row" ng-if="helperVM.enabledForEdit">
+                 <div class="form-group" style="margin-bottom: 35px;">
+                     <div class="col-sm-offset-8 col-sm-4" ng-if="helperVM.gridApi.selection.getSelectedRows().length>0">
+                         <button type="button" class="btn btn-default" ng-click="helperVM.enabledForEdit = !helperVM.enabledForEdit">Cancel</button>
+                         <button  class="btn btn-primary" style="margin-right: 10px;"  ng-click="helperVM.updateHelper()" >Save</button>
+                     </div>
+                 </div>
+                 <div class="panel panel-primary dsPanel">
+                     <trix-editor angular-trix ng-model="helperVM.helperText" class="trix-content" style="min-height: 400px;"></trix-editor>
+                 </div>
+             </div>
+         </div>
+    </div>
+</div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

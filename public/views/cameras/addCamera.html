@@ -1,0 +1,225 @@
+
+<div ng-include="'scripts/directives/header/header.html'"></div>
+<style>
+
+</style>
+<div class="container wrapper">
+    <div class="row">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10">
+            <div class="well">
+                <span style="font-size: 20px;">{{newCameraVm.pageTitle}}</span><br><br>
+                <span style="color: red;">{{newCameraVm.errorMessage}}</span>
+                <span style="color: green;">{{newCameraVm.successMessage}}</span><br>
+                <div id="alertBox">
+                    <div class="message"></div>
+                    <span class="button no">OK</span>
+                </div>
+                <form class="form-horizontal"  name="myform" novalidate>
+
+                    <div class="form-group" ng-class="{ 'has-error' : myform.cameracode.$invalid && !myform.cameracode.$pristine }">
+                        <label for="cameracode" class="col-sm-2 control-label required">Camera Code</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="cameracode" required name="cameracode" required placeholder="Camera Code"
+                                   ng-model="newCameraVm.addCamera.cameracode" ng-minlength="3" ng-maxlength="100"  ng-readonly="newCameraVm.showIsEdit"/>
+                        </div>
+                        <div class="col-sm-2">
+                            <span ng-if="myform.cameracode.$invalid && !myform.cameracode.$pristine" class="help-block">Camera Code  is too short.</span>
+                            <span ng-if="newCameraVm.submitted && myform.cameracode.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label required">Description</label>
+                        <div class="col-sm-6">
+                            <textarea type="text" class="form-control" placeholder="Description"
+                                      ng-model="newCameraVm.addCamera.description" ng-minlength="3" ng-maxlength="500"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-class="{ 'has-error' : myform.location.$invalid && !myform.location.$pristine }">
+                        <label for="location" class="col-sm-2 control-label required">Location</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="location" required name="location" required placeholder="Location"
+                                   ng-model="newCameraVm.addCamera.location" ng-minlength="3" ng-maxlength="100"/>
+                        </div>
+                        <div class="col-sm-2">
+                            <span ng-if="myform.location.$invalid && !myform.location.$pristine" class="help-block">Location  is too short.</span>
+                            <span ng-if="newCameraVm.submitted && myform.location.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="project" class="col-sm-2 control-label required">Project</label>
+                        <div class="col-sm-6">
+                            <select id="project" name="project" class="form-control" required ng-model='newCameraVm.addCamera.project'
+                                    ng-options="client._id as client.clientname for client in newCameraVm.projectsList"   ng-disabled="newCameraVm.showIsEdit">
+                                <option value=''>Select Project</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <span ng-if="newCameraVm.submitted && newCameraVm.addCamera.project === '0'" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" ng-class="{ 'has-error' : myform.width.$invalid && !myform.width.$pristine }">
+                        <label for="width" class="col-sm-2 control-label required">Width</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" id="width" required name="width" required placeholder="Video Width"
+                                   ng-model="newCameraVm.addCamera.width" ng-minlength="3" ng-maxlength="4" only-digits limit-to="4"/>
+                        </div>
+                        <div class="col-sm-1">
+                            <span ng-if="myform.width.$invalid && !myform.width.$pristine" class="help-block">Width is too short.</span>
+                            <span ng-if="newCameraVm.submitted && myform.width.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+
+                        <label for="height" class="col-sm-2 control-label required">Height</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" id="height" required name="height" required placeholder="Video Height"
+                                   ng-model="newCameraVm.addCamera.height" ng-minlength="3" ng-maxlength="4" only-digits limit-to="4"/>
+                        </div>
+                        <div class="col-sm-1">
+                            <span ng-if="myform.height.$invalid && !myform.height.$pristine" class="help-block">Height is too short.</span>
+                            <span ng-if="newCameraVm.submitted && myform.height.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                    </div>
+
+ <!--                   <div class="form-group" ng-class="{ 'has-error' : myform.height.$invalid && !myform.height.$pristine }">
+
+                    </div>
+-->
+                    <div class="form-group" ng-class="{ 'has-error' : myform.fps.$invalid && !myform.fps.$pristine }">
+                        <label for="fps" class="col-sm-2 control-label required">Fps</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" id="fps" required name="fps" required placeholder="Video FPS"
+                                   ng-model="newCameraVm.addCamera.fps" ng-minlength="2" ng-maxlength="2" only-digits limit-to="2"/>
+                        </div>
+                        <div class="col-sm-1">
+                            <span ng-if="myform.fps.$invalid && !myform.fps.$pristine" class="help-block">FPS is too short.</span>
+                            <span ng-if="newCameraVm.submitted && myform.fps.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+
+                        <label for="gfps" class="col-sm-2 control-label required">GFps</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" id="gfps" required name="gfps" required placeholder="Video GFPS"
+                                   ng-model="newCameraVm.addCamera.gfps" ng-minlength="2" ng-maxlength="2" only-digits limit-to="2"/>
+                        </div>
+                        <div class="col-sm-1">
+                            <span ng-if="myform.gfps.$invalid && !myform.gfps.$pristine" class="help-block">GFPS is too short.</span>
+                            <span ng-if="newCameraVm.submitted && myform.gfps.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                    </div>
+
+                    <!--<div class="form-group" ng-class="{ 'has-error' : myform.fks.$invalid && !myform.fks.$pristine }">
+
+
+                        <label for="fss" class="col-sm-2 control-label required">FSS</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" id="fss" required name="fss" required placeholder="Video FSS"
+                                   ng-model="newCameraVm.addCamera.fss" ng-minlength="1" ng-maxlength="1" only-digits limit-to="1"/>
+                        </div>
+                        <div class="col-sm-2">
+                            <span ng-if="myform.height.$invalid && !myform.fss.$pristine" class="help-block">FSS is too short.</span>
+                            <span ng-if="newCameraVm.submitted && myform.fss.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                    </div>-->
+
+                    <div class="form-group" ng-class="{ 'has-error' : myform.fss.$invalid && !myform.fss.$pristine }">
+                        <label for="fks" class="col-sm-2 control-label required">FKS</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" id="fks" required name="fks" required placeholder="Video FKS"
+                                   ng-model="newCameraVm.addCamera.fks" ng-minlength="1" ng-maxlength="1" only-digits limit-to="1"/>
+                        </div>
+                        <div class="col-sm-1">
+                            <span ng-if="myform.fks.$invalid && !myform.fks.$pristine" class="help-block">FKS is too short.</span>
+                            <span ng-if="newCameraVm.submitted && myform.fks.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+
+                        <label for="height" class="col-sm-2 control-label required">FSS</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" id="fss" required name="fss" required placeholder="Video FSS"
+                                   ng-model="newCameraVm.addCamera.fss" ng-minlength="1" ng-maxlength="1" only-digits limit-to="1"/>
+                        </div>
+                        <div class="col-sm-1">
+                            <span ng-if="myform.height.$invalid && !myform.fss.$pristine" class="help-block">FSS is too short.</span>
+                            <span ng-if="newCameraVm.submitted && myform.fss.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+
+
+                    </div>
+
+                    <!--<div class="form-group" ng-class="{ 'has-error' : myform.forwardDuration.$invalid && !myform.forwardDuration.$pristine }">
+                        <label for="forwardDuration" class="col-sm-2 control-label required"  style="color: red;">Forward (Secs)-Care Ground Truth Only</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="forwardDuration" required name="forwardDuration" required placeholder="Forward (Secs)"
+                                   ng-model="newCameraVm.addCamera.forwardDuration" limit-to="3"/>
+                        </div>
+                        <div class="col-sm-2">
+                            <span ng-if="myform.forwardDuration.$invalid && !myform.forwardDuration.$pristine" class="help-block">Duration is too short.</span>
+                            <span ng-if="newCameraVm.submitted && myform.forwardDuration.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                    </div>-->
+                    <div class="form-group">
+                        <label for="forwardDuration" class="col-sm-2 control-label required"  style="color: red;">Forward (Secs)-Care Ground Truth Only</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" id="forwardDuration" required name="forwardDuration" required placeholder="Forward (Secs)"
+                                   ng-model="newCameraVm.addCamera.forwardDuration" limit-to="3"/>
+                        </div>
+                        <div class="col-sm-1">
+                            <span ng-if="myform.forwardDuration.$invalid && !myform.forwardDuration.$pristine" class="help-block">Duration is too short.</span>
+                            <span ng-if="newCameraVm.submitted && myform.forwardDuration.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                        <label class="col-sm-2 control-label required">Is Base?</label>
+                        <div class="col-sm-1">
+                            <input type="checkbox" ng-model="newCameraVm.addCamera.isbase">
+                        </div>
+                    </div>
+
+                    <div class="form-group" ng-if="newCameraVm.showIsEdit">
+                        <label class="col-sm-2 control-label required">Camera Image</label>
+                        <div class="col-sm-6">
+                            <li class= "" >
+                                <label class="item item-input borderNone" style="background: none; border-color:white; border-top: none">
+                                    <img id="myImg" src="#" width="40px;" height="40px;" alt="your image" ng-src="{{newCameraVm.imageUrl}}" />
+                                    <input type='file' id="selectImageFile" style="position:absolute;width:100%;opacity: 0;" accept="image/*" custom-on-change="newCameraVm.uploadFile"/>
+                                    <button type="button" class="btn btn-default" ng-click="newCameraVm.showImage()">Show</button>
+                                </label>
+                            </li>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-4">
+                            <button  class="btn btn-primary" style="margin-right: 10px;" ng-click="newCameraVm.saveCamera(true)"><i class="glyphicon glyphicon-floppy-disk"></i>{{newCameraVm.saveBtnName}}</button>
+
+                            <button type="button" class="btn btn-default" ng-click="newCameraVm.resetForm()">Reset</button>
+                            <button type="button" class="btn btn-default" ng-click="newCameraVm.cancelTheForm()">Cancel</button>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-sm-1"></div>
+    </div>
+</div>
+
+<div id="popupCameraImage" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Camera Image</h4>
+            </div>
+            <div class="modal-body" style="max-height: 400px;overflow-y: auto;">
+                <image id="imageUrl" style="height: 315px;" ng-src="{{newCameraVm.imageUrl}}"></image>
+            </div><br>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

@@ -1,0 +1,39 @@
+(node:18794) DeprecationWarning: current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+(node:18794) DeprecationWarning: collection.ensureIndex is deprecated. Use createIndexes instead.
+(node:18794) DeprecationWarning: collection.update is deprecated. Use updateOne, updateMany, or bulkWrite instead.
+(node:18794) UnhandledPromiseRejectionWarning: TypeError: callback is not a function
+    at /var/node-js/i-motion/node_modules/mongoose/lib/connection.js:735:13
+    at processTicksAndRejections (internal/process/task_queues.js:93:5)
+(node:18794) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 1)
+(node:18794) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
+(node:18794) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+(node:18794) [DEP0009] DeprecationWarning: Calling pbkdf2 or pbkdf2Sync with "digest" set to null is deprecated.
+(node:18794) DeprecationWarning: collection.count is deprecated, and will be removed in a future version. Use Collection.countDocuments or Collection.estimatedDocumentCount instead
+(node:20688) DeprecationWarning: current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+(node:20688) DeprecationWarning: collection.ensureIndex is deprecated. Use createIndexes instead.
+(node:20688) DeprecationWarning: collection.update is deprecated. Use updateOne, updateMany, or bulkWrite instead.
+(node:20688) UnhandledPromiseRejectionWarning: TypeError: callback is not a function
+    at /var/node-js/i-motion/node_modules/mongoose/lib/connection.js:735:13
+    at processTicksAndRejections (internal/process/task_queues.js:93:5)
+(node:20688) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 1)
+(node:20688) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
+(node:20688) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+(node:20688) [DEP0009] DeprecationWarning: Calling pbkdf2 or pbkdf2Sync with "digest" set to null is deprecated.
+(node:20688) DeprecationWarning: collection.count is deprecated, and will be removed in a future version. Use Collection.countDocuments or Collection.estimatedDocumentCount instead
+MongooseError: Mongoose 5.x disallows passing a spread of operators to `Model.aggregate()`. Instead of `Model.aggregate({ $match }, { $skip })`, do `Model.aggregate([{ $match }, { $skip }])`
+    at new MongooseError (/var/node-js/i-motion/node_modules/mongoose/lib/error/mongooseError.js:10:11)
+    at Function.aggregate (/var/node-js/i-motion/node_modules/mongoose/lib/model.js:3838:11)
+    at exports.getEventListByVideo (/var/node-js/i-motion/server/controllers/events.js:377:28)
+    at Layer.handle [as handle_request] (/var/node-js/i-motion/node_modules/express/lib/router/layer.js:95:5)
+    at next (/var/node-js/i-motion/node_modules/express/lib/router/route.js:137:13)
+    at Command.callback (/var/node-js/i-motion/server/utils/helper.js:106:23)
+    at normal_reply (/var/node-js/i-motion/node_modules/redis/index.js:726:21)
+    at RedisClient.return_reply (/var/node-js/i-motion/node_modules/redis/index.js:824:9)
+    at JavascriptRedisParser.returnReply (/var/node-js/i-motion/node_modules/redis/index.js:192:18)
+    at JavascriptRedisParser.execute (/var/node-js/i-motion/node_modules/redis-parser/lib/parser.js:574:12)
+    at Socket.<anonymous> (/var/node-js/i-motion/node_modules/redis/index.js:274:27)
+    at Socket.emit (events.js:210:5)
+    at Socket.EventEmitter.emit (domain.js:476:20)
+    at addChunk (_stream_readable.js:308:12)
+    at readableAddChunk (_stream_readable.js:289:11)
+    at Socket.Readable.push (_stream_readable.js:223:10)

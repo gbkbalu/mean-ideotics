@@ -1,0 +1,27 @@
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+<div class="container wrapper">
+    <!--<input type="number" ng-model="heatMapVM.fmWidth">
+    <input type="number" ng-model="heatMapVM.fmHeight">-->
+    <button class="btn btn-default" ng-click="heatMapVM.uploadEvents()" style="margin-right: 5px;font-size: 12px;">Import HeatMap Events(CSV)</button>
+    <button class="btn btn-default myFile" style="margin-right: 5px;font-size: 12px;display: none;">
+        <input type="file" csv-Reader accept=".csv" id="importVideoEvents"> Import HeatMap Events
+    </button>
+    <img class="row">
+    <div class="col-xs-1"></div>
+    <div class="demo-wrapper" style="height:420px;width: 680px">
+        <div class="heatmap" id="pf_foto" ></div>
+    </div>
+    <!--<input type='file' />-->
+
+    <!--<div class="heatmap" id="pf_foto"></div>-->
+    <input type='file' id='verborgen_file' accept="image/*" image="image"/>
+    <input class="btn btn-default" type="button" value="Set BackGround" id="uploadButton" title="Set Background Image To HeatMap"/>
+    <input class="btn btn-default" type="number" ng-model="heatMapVM.inVal" min="1" numbers-only max="30">
+    <input class="btn btn-default" type="button" value="Reload" ng-click="heatMapVM.resetMapDataByVal()" title="Reload The Events"/>
+    <input class="btn btn-default" type="button" value="Reset" ng-click="heatMapVM.reset()" title="Reset All"/>
+    <div class="col-xs-1"></div>
+</div>
+</div>
+<!--
+<div ng-include="'scripts/directives/footer/footer.html'"></div>-->

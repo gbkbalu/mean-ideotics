@@ -1,0 +1,76 @@
+
+<div ng-include="'scripts/directives/header/header.html'"></div>
+<style>
+
+</style>
+<div class="container wrapper">
+    <div class="row">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10">
+            <div class="well">
+                <span style="font-size: 20px;">{{newClientVm.pageTitle}}</span><br><br>
+                <span style="color: red;">{{newClientVm.errorMessage}}</span>
+                <span style="color: green;">{{newClientVm.successMessage}}</span><br>
+                <div id="alertBox">
+                    <div class="message"></div>
+                    <span class="button no">OK</span>
+                </div>
+                <form class="form-horizontal"  name="myform" novalidate>
+
+                    <div class="form-group" ng-class="{ 'has-error' : myform.clientcode.$invalid && !myform.clientcode.$pristine }">
+                        <label for="clientcode" class="col-sm-2 control-label required">Project Code</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="clientcode" required name="clientcode" required placeholder="Project Code"
+                                   ng-model="newClientVm.addProject.clientcode" ng-minlength="3" ng-maxlength="100" ng-change="newClientVm.changingClientCode()" ng-readonly="newClientVm.showIsEdit"/>
+                        </div>
+                        <div class="col-sm-2">
+                            <span ng-if="myform.clientcode.$invalid && !myform.clientcode.$pristine" class="help-block">Project Code is too short.</span>
+                            <span ng-if="newClientVm.submitted && myform.clientcode.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-class="{ 'has-error' : myform.bucket.$invalid && !myform.bucket.$pristine }">
+                        <label for="bucket" class="col-sm-2 control-label required">Bucket Name</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="bucket" required name="bucket" placeholder="Bucket Name"
+                                   ng-model="newClientVm.addProject.bucket" ng-minlength="3" ng-maxlength="100" ng-readonly="true;"/>
+                        </div>
+                        <div class="col-sm-2">
+                            <p ng-if="myform.bucket.$error.minlength" class="help-block">Bucket Name is too short.</p>
+                            <span ng-if="newClientVm.submitted && myform.bucket.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" ng-class="{ 'has-error' : myform.destFolder.$invalid && !myform.destFolder.$pristine }">
+                        <label for="destFolder" class="col-sm-2 control-label required">Destination Folder</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="destFolder" required name="destFolder" placeholder="Destination Folder"
+                                   ng-model="newClientVm.addProject.destFolder" ng-minlength="3" ng-maxlength="100"  ng-readonly="true;"/>
+                        </div>
+                        <div class="col-sm-2">
+                            <p ng-if="myform.destFolder.$error.minlength" class="help-block">Destination folder is too short.</p>
+                            <span ng-if="newClientVm.submitted && myform.destFolder.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label required">Description</label>
+                        <div class="col-sm-6">
+                            <textarea type="text" class="form-control" placeholder="Description"
+                                      ng-model="newClientVm.addProject.description" ng-minlength="3" ng-maxlength="500"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-4">
+                            <button  class="btn btn-primary" style="margin-right: 10px;" ng-click="newClientVm.saveClient()">{{newClientVm.saveBtnName}}</button>
+
+                            <button type="button" class="btn btn-default" ng-click="newClientVm.resetForm()">Reset</button>
+                            <button type="button" class="btn btn-default" ng-click="newClientVm.cancelTheForm()">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-sm-1"></div>
+    </div>
+</div>
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

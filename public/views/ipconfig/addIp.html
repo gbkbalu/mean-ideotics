@@ -1,0 +1,77 @@
+
+<div ng-include="'scripts/directives/header/header.html'"></div>
+<style>
+
+</style>
+<div class="container wrapper">
+    <div class="row">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10">
+            <div class="well">
+                <span style="font-size: 20px;">{{newIptVm.pageTitle}}</span><br><br>
+                <span style="color: red;">{{newIptVm.errorMessage}}</span>
+                <span style="color: green;">{{newIptVm.successMessage}}</span><br>
+                <div id="alertBox">
+                    <div class="message"></div>
+                    <span class="button no">OK</span>
+                </div>
+                <form class="form-horizontal"  name="myform" novalidate>
+
+                    <div class="form-group" ng-class="{ 'has-error' : myform.startip.$invalid && !myform.startip.$pristine }">
+                        <label for="startip" class="col-sm-2 control-label required">Start Ip</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="startip" required name="startip" required placeholder="Start Ip"
+                                   ng-model="newIptVm.addNewIp.startIpAddress" ng-minlength="7" ng-maxlength="20" />
+                        </div>
+                        <div class="col-sm-2">
+                            <span ng-if="myform.startip.$invalid && !myform.startip.$pristine" class="help-block">Start Ip is too short.</span>
+                            <span ng-if="newIptVm.submitted && myform.startip.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-class="{ 'has-error' : myform.endip.$invalid && !myform.endip.$pristine }">
+                        <label for="endip" class="col-sm-2 control-label required">End Ip</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="endip" required name="endip" placeholder="End Ip"
+                                   ng-model="newIptVm.addNewIp.endIpAddress" ng-minlength="7" ng-maxlength="20"/>
+                        </div>
+                        <div class="col-sm-2">
+                            <p ng-if="myform.endip.$error.minlength" class="help-block">End Ip is too short.</p>
+                            <span ng-if="newIptVm.submitted && myform.endip.$error.required" class="help-block" style="color: red;">Requierd.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-4">
+                            <button  class="btn btn-primary" style="margin-right: 10px;" ng-click="newIptVm.saveIpConfig()">{{newIptVm.saveBtnName}}</button>
+
+                            <button type="button" class="btn btn-default" ng-click="newIptVm.resetForm()">Reset</button>
+                            <button type="button" class="btn btn-default" ng-click="newIptVm.cancelTheForm()">Cancel</button>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-sm-1"></div>
+    </div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="answerModal"
+     aria-labelledby="myLargeModalLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">You have entered an invalid {{newIptVm.information}} IP address!</h4>
+                <h5>Valid Ip like: 183.82.99.166</h5>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

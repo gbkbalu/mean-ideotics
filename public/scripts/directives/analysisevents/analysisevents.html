@@ -1,0 +1,7 @@
+<span class="list-group-item list-group-item-header">EVENTS</span>
+<ul class="list-group first-row-panel">
+	<li class="list-group-item" ng-repeat="event in dashVM.events" style="border-color: {{event.color}}" ng-click="dashVM.selectedEventInEventsList($index)" id="event{{$index}}">
+		<span>{{event.startTime}} : {{event.endTime}}</span>
+		<span class="pull-right">{{event.name}}</span>
+	</li>
+</ul>
