@@ -1,12 +1,14 @@
 'use strict';
-(function (angular) {
+
+(function(angular) {
 
     angular
         .module('abVideoWidget', [])
         .directive('abVideo', videoDirective);
 
-    function videoDirective() {
+    videoDirective.$inject = ['$rootScope'];
 
+    function videoDirective($rootScope) {
         var template = '<video id="video" controls autoplay=""></video>';
 
         return {
@@ -21,12 +23,16 @@
             }
         };
 
+
+
         function link(scope, elem, attribs, controller) {
 
             var video = elem[0];
 
             video.src = attribs.abSrc;
+
             controller.native = video;
+
         }
 
         function controller() {
@@ -47,18 +53,18 @@
                     isPaused: isVideoPaused,
                     currentTime: currentTime
                 },
-                videoStatus:isVideoPaused
+                videoStatus: isVideoPaused
             };
 
             function play() {
                 vm.native.play();
                 vm.api.properties.isPaused = false;
             }
-			
+
             // src: url, play:Boolean 
             function changeSource(src, play) {
 
-                vm.native.src = src;
+                vm.native.src = "http://localhost/test.mp4"; //src;
 
                 if (play) {
                     vm.native.play();
@@ -66,13 +72,15 @@
             }
 
             function moveBufferLocation(timeSec) {
-                vm.native.currentTime  = timeSec;
+                vm.native.currentTime = timeSec;
                 vm.native.pause();
             }
 
             function pause() {
-               // alert(vm.api.properties.currentTime())
+                // alert(vm.api.properties.currentTime())
                 //vm.native.currentTime  = 50;
+
+                $rootScope.$broadcast('pauseEvent');
 
                 vm.native.pause();
             }
@@ -87,7 +95,7 @@
 
             function currentTime(time) {
                 if (time) {
-                    vm.native.addEventListener('loadedmetadata', function () {
+                    vm.native.addEventListener('loadedmetadata', function() {
                         vm.native.currentTime = time;
                     }, false);
                 } else {

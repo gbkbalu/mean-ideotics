@@ -4,9 +4,8 @@ var videoElementInstance = document.getElementById('video');
 var videoRelativeContainer = document.createElement('div');
 var node = document.createElement('div');
 var moveObject = new Object();
-$(document).ready(function(){
-    function deleteObject(obj)
-    {
+$(document).ready(function() {
+    function deleteObject(obj) {
         $(obj).parent().remove();
     }
 });
@@ -19,16 +18,16 @@ angular
     .module('ideotics')
     .controller('DashboardController', DashboardController);
 
-DashboardController.$inject = ['$scope','$compile', '$interval', '$timeout','$rootScope','$location','$localStorage','VideoService', 'CategoryService', 'EventService', 'AuthService','SubCategoryService','IconsService','AwsService'];
+DashboardController.$inject = ['$scope', '$compile', '$interval', '$timeout', '$rootScope', '$location', '$localStorage', 'VideoService', 'CategoryService', 'EventService', 'AuthService', 'SubCategoryService', 'IconsService', 'AwsService'];
 
-function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $location, $localStorage, VideoService, CategoryService, EventService, AuthService,SubCategoryService,IconsService,AwsService) {
+function DashboardController($scope, $compile, $interval, $timeout, $rootScope, $location, $localStorage, VideoService, CategoryService, EventService, AuthService, SubCategoryService, IconsService, AwsService) {
 
     // window.dashboard === false, terminate polling
     window.dashboard = true;
     $rootScope.setHeaderglobal(0);
 
     var vm = this;
-    vm.metaDataObj = {GFPS:30};
+    vm.metaDataObj = { GFPS: 30 };
     vm.comments = '';
     vm.isProfileStaffSelected = false;
     vm.isDashBorard = true;
@@ -36,9 +35,9 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     var pausedVideoId = 0;
     var pausedVideo = {};
     var shopperNamePrefix = 'Shopper-';
-    var categories   = ['START','SHOPPERPROFILE', 'SKUBEHAVIOUR','STAFFPROFILE','G-STAFFBEHAVIOUR','S-STAFFBEHAVIOUR','C-STAFFBEHAVIOUR'];
-    var catCodesList = ['START','SHOPPERPROFILE', 'SKUBEHAVIOUR','STAFFPROFILE','G-STAFFBEHAVIOUR','S-STAFFBEHAVIOUR','C-STAFFBEHAVIOUR'];
-    vm.codesList = ['START','SHOPPERPROFILE', 'SKUBEHAVIOUR','STAFFPROFILE','G-STAFFBEHAVIOUR','S-STAFFBEHAVIOUR','C-STAFFBEHAVIOUR'];
+    var categories = ['START', 'SHOPPERPROFILE', 'SKUBEHAVIOUR', 'STAFFPROFILE', 'G-STAFFBEHAVIOUR', 'S-STAFFBEHAVIOUR', 'C-STAFFBEHAVIOUR'];
+    var catCodesList = ['START', 'SHOPPERPROFILE', 'SKUBEHAVIOUR', 'STAFFPROFILE', 'G-STAFFBEHAVIOUR', 'S-STAFFBEHAVIOUR', 'C-STAFFBEHAVIOUR'];
+    vm.codesList = ['START', 'SHOPPERPROFILE', 'SKUBEHAVIOUR', 'STAFFPROFILE', 'G-STAFFBEHAVIOUR', 'S-STAFFBEHAVIOUR', 'C-STAFFBEHAVIOUR'];
     var categoryStartTime = "";
     var startPolling = true;
     var categoriesLen = categories.length;
@@ -58,14 +57,11 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     vm.deleteOpt = false;
 
     vm['dupcategory'] = {};
-    vm.showMore = function()
-    {
-        for(var len=vm.events.length-1;len>=0;len--)
-        {
+    vm.showMore = function() {
+        for (var len = vm.events.length - 1; len >= 0; len--) {
             var element = vm.events[len];
-            if(element.startTime == vm.playingVideoPosition && element.frameno == vm.currentFrameNo)
-            {
-                vm.events.splice(len,1);
+            if (element.startTime == vm.playingVideoPosition && element.frameno == vm.currentFrameNo) {
+                vm.events.splice(len, 1);
             }
         }
 
@@ -77,18 +73,16 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
 
         vm.deleteOpt = false;
         EventService
-            .getAllShoppersByStartTime({startTime:vm.playingVideoPosition,videoId:vm.selectedVideoId,isDiscarded:0,frameno:vm.currentFrameNo})
+            .getAllShoppersByStartTime({ startTime: vm.playingVideoPosition, videoId: vm.selectedVideoId, isDiscarded: 0, frameno: vm.currentFrameNo })
             .success(function(data, status) {
-                if(data && data.length>0)
-                {
+                if (data && data.length > 0) {
                     vm.events = data.concat(vm.events);
-                    for(var lenCount=0;lenCount<data.length;lenCount++)
-                    {
+                    for (var lenCount = 0; lenCount < data.length; lenCount++) {
                         vm.deleteOpt = false;
                         vm.selectedEventInEventsList(lenCount);
                     }
                     vm.deleteOpt = true;
-                    vm.selectedEventInEventsList(0,data[0]);
+                    vm.selectedEventInEventsList(0, data[0]);
                     vm.gridOptions.data = vm.events;
                 }
 
@@ -97,23 +91,19 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             });
     }
 
-    function sortEvents()
-    {
-        vm.events.sort(function(ev1, ev2){
+    function sortEvents() {
+        vm.events.sort(function(ev1, ev2) {
             var a = parseInt(ev1['frameno']);
             var b = parseInt(ev2['frameno']);
 
-            if(a == b)
-            {
+            if (a == b) {
                 a = parseInt(ev1['eventId']);
                 b = parseInt(ev2['eventId']);
             }
 
-            if(a<b)
-            {
+            if (a < b) {
                 return -1;
-            }else if(a>b)
-            {
+            } else if (a > b) {
                 return 1
             }
             return 0;
@@ -121,43 +111,36 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     }
 
     vm.selectedVideoRate = '1.0';
-    vm.changeSpeedOfVideo = function(value)
-    {
-        if(Number(vm.selectedVideoRate) + Number(value) == 0)
-        {
+    vm.changeSpeedOfVideo = function(value) {
+        if (Number(vm.selectedVideoRate) + Number(value) == 0) {
             vm.selectedVideoRate = 0.25;
-            var video = document.getElementById('video').playbackRate  = vm.selectedVideoRate;
-        }else if((Number(vm.selectedVideoRate) + Number(value)) == 0.75)
-        {
+            var video = document.getElementById('video').playbackRate = vm.selectedVideoRate;
+        } else if ((Number(vm.selectedVideoRate) + Number(value)) == 0.75) {
             vm.selectedVideoRate = Number(0.50);
-            var video = document.getElementById('video').playbackRate  = vm.selectedVideoRate;
-        }
-        else if(Number(vm.selectedVideoRate) + Number(value) <=5 && Number(vm.selectedVideoRate) + Number(value)>=0.5)
-        {
+            var video = document.getElementById('video').playbackRate = vm.selectedVideoRate;
+        } else if (Number(vm.selectedVideoRate) + Number(value) <= 5 && Number(vm.selectedVideoRate) + Number(value) >= 0.5) {
             vm.selectedVideoRate = Number(vm.selectedVideoRate) + Number(value);
-            var video = document.getElementById('video').playbackRate  = vm.selectedVideoRate;
+            var video = document.getElementById('video').playbackRate = vm.selectedVideoRate;
         }
 
     }
 
-    vm.getSignedUrl = function(keyValue)
-    {
-        var params = {Bucket: $scope.creds.bucket, Key: keyValue, Expires: 7200};
-        var url = bucket.getSignedUrl('getObject', params, function (err, url) {
+    vm.getSignedUrl = function(keyValue) {
+        var params = { Bucket: $scope.creds.bucket, Key: keyValue, Expires: 7200 };
+        var url = bucket.getSignedUrl('getObject', params, function(err, url) {
             if (url) console.log("The URL is", url);
             return url;
         });
     }
 
-    vm.getFileContent = function()
-    {
+    vm.getFileContent = function() {
         var params = {
             Bucket: $scope.creds.bucket,
             Key: 'Ideocap/videotimetest/videoformat.txt'
         };
         bucket.getObject(params, function(err, data) {
             if (err) console.log(err, err.stack); // an error occurred
-            else     console.log(data);           // successful response
+            else console.log(data); // successful response
 
             var str = String.fromCharCode.apply(null, data.Body);
             console.log(str)
@@ -172,58 +155,50 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     vm.categoriesDataList = [];
     vm.catListWithCodeAndRepeat = [];
 
-    $rootScope.showCameraImage = function()
-    {
+    $rootScope.showCameraImage = function() {
         vm.imageUrl = "https://images-na.ssl-images-amazon.com/images/I/51M0E6J290L._SL1000_.jpg";
-        if(isVaulueValid(vm.currentSelectedVideo.camera) && isVaulueValid(vm.currentSelectedVideo.camera.camImageUrl))
-        {
+        if (isVaulueValid(vm.currentSelectedVideo.camera) && isVaulueValid(vm.currentSelectedVideo.camera.camImageUrl)) {
             vm.imageUrl = vm.currentSelectedVideo.camera.camImageUrl;
         }
 
-        $('#popupCameraImage').modal('show',{
+        $('#popupCameraImage').modal('show', {
             backdrop: true,
             keyboard: false
         });
     }
 
-    vm.getCategoriesListByProject = function(video)
-    {
-        vm.fetchedCatsList = [];
-        vm.currentSelectedVideo = video;
-        if(video.project)
-        {
-            vm.project = video.project;
-            CategoryService
+    vm.getCategoriesListByProject = function(video) {
+            vm.fetchedCatsList = [];
+            vm.currentSelectedVideo = video;
+            if (video.project) {
+                vm.project = video.project;
+                CategoryService
                 //.getCategoriesListByProject(video.project._id)
-                .getCategoriesListByFilter({camera:video.camera._id,isHidden:false})
-                .success(function(data, status) {
-                    //vm.categoriesDataList = (data);
-                    categories = [];
-                    for(var len=0;len<data.length;len++)
-                    {
-                        if(data[len].isHidden == false && data[len].isMandatory == true)
-                        {
-                            vm.requiredCats.push(data[len].category);
+                    .getCategoriesListByFilter({ camera: video.camera._id, isHidden: false })
+                    .success(function(data, status) {
+                        //vm.categoriesDataList = (data);
+                        categories = [];
+                        for (var len = 0; len < data.length; len++) {
+                            if (data[len].isHidden == false && data[len].isMandatory == true) {
+                                vm.requiredCats.push(data[len].category);
+                            }
+                            if (data[len].isHidden == false) {
+                                vm.fetchedCatsList.push(data[len].category);
+                                vm.categoriesDataList.push(data[len]);
+                                categories.push(data[len].catcode);
+                                vm.catListWithCodeAndRepeat.push({ category: data[len].category, isrepeats: data[len].isrepeats, catcode: data[len].catcode, shoporemp: data[len].shoporemp })
+                            }
                         }
-                        if(data[len].isHidden == false)
-                        {
-                            vm.fetchedCatsList.push(data[len].category);
-                            vm.categoriesDataList.push(data[len]);
-                            categories.push(data[len].catcode);
-                            vm.catListWithCodeAndRepeat.push({category:data[len].category,isrepeats:data[len].isrepeats,catcode:data[len].catcode,shoporemp:data[len].shoporemp})
-                        }
-                    }
-                    categoriesLen = categories.length;
-                }).error(function(err, status) {
-                });
+                        categoriesLen = categories.length;
+                    }).error(function(err, status) {});
+            }
         }
-    }
-    /*CategoryService
-        .getCategoriesList()
-        .success(function(data, status) {
-            vm.categoriesDataList = (data);
-        }).error(function(err, status) {
-        });*/
+        /*CategoryService
+            .getCategoriesList()
+            .success(function(data, status) {
+                vm.categoriesDataList = (data);
+            }).error(function(err, status) {
+            });*/
 
     vm.analysing = false;
     vm.eventCreated = false;
@@ -291,10 +266,8 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     var previousIndex = '';
     vm.discardRetain = 'Discard';
 
-    vm.addNewShopper = function ()
-    {
-        if(this.divObj != null && this.divObj != undefined)
-        {
+    vm.addNewShopper = function() {
+        if (this.divObj != null && this.divObj != undefined) {
             //this.divObj.remove();
         }
         vm.mediaPlayerApi.controls.pause();
@@ -322,8 +295,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
 
     var forwardDuration = 0;
     var currentVideoPositiion = 0;
-    vm.forwardVideo = function(forward)
-    {
+    vm.forwardVideo = function(forward) {
         removeAllDrawnBoxes();
 
         vm.closeDataEntry();
@@ -336,31 +308,26 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         vm.previousFrameNo = vm.currentFrameNo;
         vm.previousVideoPosition = vm.playingVideoPosition;
 
-        if(forwardDuration == null || forwardDuration == undefined || forwardDuration == 0)
-        {
+        if (forwardDuration == null || forwardDuration == undefined || forwardDuration == 0) {
             forwardDuration = 1;
         }
 
-        if(forward == 1 && totalVideoTime>=currentVideoPositiion && totalVideoTime>=(currentVideoPositiion+forwardDuration))
-        {
+        if (forward == 1 && totalVideoTime >= currentVideoPositiion && totalVideoTime >= (currentVideoPositiion + forwardDuration)) {
             vm.mediaPlayerApi.controls.play();
             currentVideoPositiion = Number(currentVideoPositiion + forwardDuration);
 
-            if(forwardDuration != 0 && (currentVideoPositiion % forwardDuration) != 0)
-            {
-                currentVideoPositiion = currentVideoPositiion - (currentVideoPositiion%forwardDuration);
+            if (forwardDuration != 0 && (currentVideoPositiion % forwardDuration) != 0) {
+                currentVideoPositiion = currentVideoPositiion - (currentVideoPositiion % forwardDuration);
             }
             vm.mediaPlayerApi.controls.changePosition(currentVideoPositiion);
             vm.mediaPlayerApi.controls.pause();
             vm.currentFrameNo = (currentVideoPositiion * vm.metaDataObj.GFPS) + 1;
             vm.playingVideoPosition = currentVideoPositiion;
-        }else if(forward == -1 && currentVideoPositiion>0 && currentVideoPositiion>=(currentVideoPositiion-forwardDuration))
-        {
+        } else if (forward == -1 && currentVideoPositiion > 0 && currentVideoPositiion >= (currentVideoPositiion - forwardDuration)) {
             vm.mediaPlayerApi.controls.play();
             currentVideoPositiion = Number(currentVideoPositiion - forwardDuration);
-            if(forwardDuration != 0 && (currentVideoPositiion % forwardDuration) != 0)
-            {
-                currentVideoPositiion = currentVideoPositiion - (currentVideoPositiion%forwardDuration);
+            if (forwardDuration != 0 && (currentVideoPositiion % forwardDuration) != 0) {
+                currentVideoPositiion = currentVideoPositiion - (currentVideoPositiion % forwardDuration);
             }
             vm.mediaPlayerApi.controls.changePosition(currentVideoPositiion);
             vm.mediaPlayerApi.controls.pause();
@@ -383,7 +350,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     //    alert('resized')
     //});
 
-    function selectedHumanInHumanList(index,event) {
+    function selectedHumanInHumanList(index, event) {
         $('#eventsList').scrollTop(0);
         if (event != null && event != undefined) {
             if (vm.currentFrameNo != event.frameno) {
@@ -396,14 +363,13 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             } else {
                 resetAllDrawnBoxes();
                 vm.deleteOpt = true;
-                selectedEventInEventsList(index,event);
+                selectedEventInEventsList(index, event);
             }
         }
     }
 
     //triggers the function when event was selected .. video moves to perticular position
-    function selectedEventInEventsList(index, currentEvent)
-    {
+    function selectedEventInEventsList(index, currentEvent) {
         //if(this.divObj != null && this.divObj != undefined)
         {
             //this.divObj.remove();
@@ -415,46 +381,37 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
 
         node.innerHTML = '';
         vm['dupcategory'] = {};
-        node.setAttribute('style','');
+        node.setAttribute('style', '');
         vm.isProfileStaffSelected = false;
         vm.isShopperAlreadyIn = false;
-        var nextElement = document.getElementById('event'+index);
-        if(nextElement !== null &&  nextElement !== undefined )
-        {
-            for(var eveLen = 0;eveLen<vm.events.length;eveLen++)
-            {
+        var nextElement = document.getElementById('event' + index);
+        if (nextElement !== null && nextElement !== undefined) {
+            for (var eveLen = 0; eveLen < vm.events.length; eveLen++) {
                 vm.events[eveLen].background = "";
                 vm.events[eveLen].color = "";
 
-                if(currentEvent != null && currentEvent != undefined && currentEvent.frameno == vm.events[eveLen].frameno)
-                {
+                if (currentEvent != null && currentEvent != undefined && currentEvent.frameno == vm.events[eveLen].frameno) {
                     vm.events[eveLen].background = "lightcyan";
                     vm.events[eveLen].color = "border-style: ridge;border-color: yellow";
-                    if(currentEvent.analysis != null || currentEvent.analysis != undefined)
-                    {
+                    if (currentEvent.analysis != null || currentEvent.analysis != undefined) {
                         var markedCats = Object.keys(currentEvent.analysis);
                         var shopper = currentEvent.analysis[categories[0]];
                         shopper.ShopperORStaff = currentEvent.shopperorstaff;
 
-                        if(shopper.ShopperORStaff == 'SHOPPER' && shopper.Shopper != undefined && (shopper.Shopper).substr(0,3) != 'NEW')
-                        {
+                        if (shopper.ShopperORStaff == 'SHOPPER' && shopper.Shopper != undefined && (shopper.Shopper).substr(0, 3) != 'NEW') {
                             vm.events[eveLen].color = "border-style: ridge;border-color: blue";
-                        }else if(shopper.ShopperORStaff == 'STAFF' && shopper.Staff != undefined &&  (shopper.Staff).substr(0,3) != 'NEW')
-                        {
+                        } else if (shopper.ShopperORStaff == 'STAFF' && shopper.Staff != undefined && (shopper.Staff).substr(0, 3) != 'NEW') {
                             vm.events[eveLen].color = "border-style: ridge;border-color: blue";
-                        }else if(markedCats.indexOf(categories[2]) > -1 || markedCats.indexOf(categories[4]) > -1 || markedCats.indexOf(categories[5]) > -1 || markedCats.indexOf(categories[6]) > -1)
-                        {
+                        } else if (markedCats.indexOf(categories[2]) > -1 || markedCats.indexOf(categories[4]) > -1 || markedCats.indexOf(categories[5]) > -1 || markedCats.indexOf(categories[6]) > -1) {
                             vm.events[eveLen].color = "border-style: solid;border-color: red";
-                        }else if(markedCats.indexOf(categories[1]) > -1 || markedCats.indexOf(categories[3]) > -1)
-                        {
+                        } else if (markedCats.indexOf(categories[1]) > -1 || markedCats.indexOf(categories[3]) > -1) {
                             vm.events[eveLen].color = "border-style: solid;border-color: green";
                         }
                     }
                 }
             }
 
-            if(currentEvent != null && currentEvent != undefined)
-            {
+            if (currentEvent != null && currentEvent != undefined) {
                 currentEvent.background = "lightblue";
             }
             previousIndex = index;
@@ -465,18 +422,15 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             vm.selectedEvent = angular.copy([vm.events[index]]);
             vm.originalSelectedEvent = angular.copy([vm.events[index]]);
 
-            vm.event =vm.events[index];
+            vm.event = vm.events[index];
 
-            if(vm.event.isDiscarded != null && vm.event.isDiscarded != undefined && vm.event.isDiscarded == 1)
-            {
+            if (vm.event.isDiscarded != null && vm.event.isDiscarded != undefined && vm.event.isDiscarded == 1) {
                 vm.discardRetain = 'Retain';
             }
 
-            if(vm.event.analysis)
-            {
+            if (vm.event.analysis) {
                 for (var catsLen = 0; catsLen < categories.length; catsLen++) {
-                    if (vm.event.analysis[categories[catsLen]])
-                    {
+                    if (vm.event.analysis[categories[catsLen]]) {
                         vm['dupcategory'][vm.fetchedCatsList[catsLen]] = vm.event.analysis[categories[catsLen]];
                     }
                 }
@@ -484,16 +438,14 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
 
             vm.eventCreated = true;
             var startTime = vm.event.startTime;
-            if(vm.event && vm.event.frameno)
-            {
-                startTime = vm.event.frameno/vm.metaDataObj.GFPS;
+            if (vm.event && vm.event.frameno) {
+                startTime = vm.event.frameno / vm.metaDataObj.GFPS;
                 startTime = startTime.toFixed(2);
             }
 
             vm.mediaPlayerApi.controls.changePosition(startTime);
 
-            if(isVaulueValid(vm.event.comments))
-            {
+            if (isVaulueValid(vm.event.comments)) {
                 vm.comments = vm.event.comments;
             }
             height = 100;
@@ -502,19 +454,16 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         }
     }
 
-    vm.drawRectangularBoxOverShopper = function()
-    {
-        if(vm.selectedEvent && vm.selectedEvent.length>0)
-        {
-            vm.selectedEvent[0]['xaxis'] = Math.round((Number(vm.selectedEvent[0]['xaxis'])*Number($("#video").innerWidth()))/Number(vm.selectedEvent[0].playingWidth)); //(oldval*newwidth/oldwidth)
-            vm.selectedEvent[0]['yaxis'] = Math.round((Number(vm.selectedEvent[0]['yaxis'])*Number($("#video").innerHeight()))/Number(vm.selectedEvent[0].playingHeight));
-            vm.selectedEvent[0]['xendaxis'] = Math.round((Number(vm.selectedEvent[0]['xendaxis'])*Number($("#video").innerWidth()))/Number(vm.selectedEvent[0].playingWidth));
-            vm.selectedEvent[0]['yendaxis'] = Math.round((Number(vm.selectedEvent[0]['yendaxis'])*Number($("#video").innerHeight()))/Number(vm.selectedEvent[0].playingHeight));
+    vm.drawRectangularBoxOverShopper = function() {
+        if (vm.selectedEvent && vm.selectedEvent.length > 0) {
+            vm.selectedEvent[0]['xaxis'] = Math.round((Number(vm.selectedEvent[0]['xaxis']) * Number($("#video").innerWidth())) / Number(vm.selectedEvent[0].playingWidth)); //(oldval*newwidth/oldwidth)
+            vm.selectedEvent[0]['yaxis'] = Math.round((Number(vm.selectedEvent[0]['yaxis']) * Number($("#video").innerHeight())) / Number(vm.selectedEvent[0].playingHeight));
+            vm.selectedEvent[0]['xendaxis'] = Math.round((Number(vm.selectedEvent[0]['xendaxis']) * Number($("#video").innerWidth())) / Number(vm.selectedEvent[0].playingWidth));
+            vm.selectedEvent[0]['yendaxis'] = Math.round((Number(vm.selectedEvent[0]['yendaxis']) * Number($("#video").innerHeight())) / Number(vm.selectedEvent[0].playingHeight));
 
             vm.selectedEvent[0].width = vm.selectedEvent[0]['xendaxis'] - vm.selectedEvent[0]['xaxis'];
             vm.selectedEvent[0].height = vm.selectedEvent[0]['yendaxis'] - vm.selectedEvent[0]['yaxis'];
-            if(vm.selectedEvent[0].height && vm.selectedEvent[0].width)
-            {
+            if (vm.selectedEvent[0].height && vm.selectedEvent[0].width) {
                 vm.selectedEvent[0].height = Number(vm.selectedEvent[0].height);
                 vm.selectedEvent[0].width = Number(vm.selectedEvent[0].width);
 
@@ -522,8 +471,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                 width = Math.round(vm.selectedEvent[0].width);
             }
 
-            if(vm.selectedEvent[0].xaxis>=0 && vm.selectedEvent[0].yaxis>=0)
-            {
+            if (vm.selectedEvent[0].xaxis >= 0 && vm.selectedEvent[0].yaxis >= 0) {
                 vm.selectedEvent[0].xaxis = Number(vm.selectedEvent[0].xaxis);
                 vm.selectedEvent[0].yaxis = Number(vm.selectedEvent[0].yaxis);
                 vm.selectedEvent[0].xendaxis = Number(vm.selectedEvent[0].xendaxis);
@@ -532,38 +480,31 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                 offsetX = Math.round(vm.selectedEvent[0].xaxis);
                 offsetY = Math.round(vm.selectedEvent[0].yaxis);
 
-                if(offsetX && offsetX >=0 && offsetY &&offsetY>=0)
-                {
-                    if(!vm.selectedEvent[0].playingWidth)
-                    {
+                if (offsetX && offsetX >= 0 && offsetY && offsetY >= 0) {
+                    if (!vm.selectedEvent[0].playingWidth) {
                         vm.selectedEvent[0].playingWidth = Number($("#video").innerWidth())
                     }
-                    if(!vm.selectedEvent[0].playingHeight)
-                    {
+                    if (!vm.selectedEvent[0].playingHeight) {
                         vm.selectedEvent[0].playingHeight = Number($("#video").innerHeight())
                     }
                     //offsetX = Math.round((Number(vm.selectedEvent[0].xaxis)/Number(vm.selectedEvent[0].playingWidth))*Number($("#video").innerWidth()));
                     //offsetY = Math.round((Number(vm.selectedEvent[0].yaxis)/Number(vm.selectedEvent[0].playingHeight))*Number($("#video").innerHeight()));
                 }
 
-                if(vm.selectedEvent[0].xaxis >= 0 && vm.selectedEvent[0].yaxis>=0)
-                {
+                if (vm.selectedEvent[0].xaxis >= 0 && vm.selectedEvent[0].yaxis >= 0) {
                     vm.shopperDisplayingId = parseInt(vm.selectedEvent[0].name.split('-')[1]);
                     vm.showSelectedEventOnTopOfVideo(false);
                 }
             }
         }
 
-        if(vm.selectedEvent[0].analysis && vm.selectedEvent[0].analysis[categories[0]])
-        {
+        if (vm.selectedEvent[0].analysis && vm.selectedEvent[0].analysis[categories[0]]) {
             var objEvent = vm.selectedEvent[0].analysis[categories[0]];
-            if((objEvent && objEvent['Staff Type'] && objEvent['Staff Type'].length>0) || (objEvent && objEvent['If Staff: Select Type'] && objEvent['If Staff: Select Type'].length>0))
-            {
+            if ((objEvent && objEvent['Staff Type'] && objEvent['Staff Type'].length > 0) || (objEvent && objEvent['If Staff: Select Type'] && objEvent['If Staff: Select Type'].length > 0)) {
                 vm.isProfileStaffSelected = true;
             }
 
-            if(objEvent && objEvent['If Shopper, Select:'] && objEvent['If Shopper, Select:'].length>0 && objEvent['If Shopper, Select:'] == 'ALREADY IN')
-            {
+            if (objEvent && objEvent['If Shopper, Select:'] && objEvent['If Shopper, Select:'].length > 0 && objEvent['If Shopper, Select:'] == 'ALREADY IN') {
                 vm.isShopperAlreadyIn = true;
             }
         }
@@ -579,23 +520,20 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                 $rootScope.stopLoadingBlockUI();
                 vm.videos = data;
                 vm.analysing = false;
-                if(vm.videos.length>0)
-                {
+                if (vm.videos.length > 0) {
                     vm.videos.forEach(function(element) {
-                        if (element.status === 1)
-                        {
+                        if (element.status === 1) {
                             window.dashboard = false;
                             pausedVideo = element;
                             pausedVideoId = element.videoId;
-                            vm.analysing = true;
+                            // vm.analysing = true;         //commented by baimin
 
                             vm.mediaPlayerApi.controls.pause();
 
                             openVideo(pausedVideo, true, pausedTime, true);
                         }
                     });
-                }else
-                {
+                } else {
                     vm.videosNoneMsg = 'Videos List Empty';
                 }
             }).error(function(err, status) {
@@ -620,7 +558,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
 
                 vm.analysing = false;
 
-                shopperCount = shopperCount | 0 ;
+                shopperCount = shopperCount | 0;
                 vm.event = {};
                 vm.events = [];
                 vm.form = {};
@@ -632,8 +570,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             });
     }
 
-    function shopperProfile(categoryType)
-    {
+    function shopperProfile(categoryType) {
         vm['dupcategory'] = {};
         vm.eventCreated = false;
         vm.comments = '';
@@ -656,8 +593,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         vm.mediaPlayerApi.controls.pause();
 
         vm.selectedCurrCategory = false;
-        if (categoryType === catCodesList[1] && vm.selectedEvent.length > 0)
-        {
+        if (categoryType === catCodesList[1] && vm.selectedEvent.length > 0) {
             vm.selectedCurrCategory = true;
         }
 
@@ -670,18 +606,18 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
 
         if (!vm.eventCreated) {
             var currentVideoPosition = vm.mediaPlayerApi.properties.currentTime();
-            var frameno = (currentVideoPosition *vm.metaDataObj.GFPS)+1;
+            var frameno = (currentVideoPosition * vm.metaDataObj.GFPS) + 1;
             vm.event = {
                 videoId: vm.currentVideo.videoId,
                 startTime: currentVideoPosition,
-                frameno:frameno,
-                height:height,
-                width:width,
-                xaxis:offsetX,
-                yaxis:offsetY
+                frameno: frameno,
+                height: height,
+                width: width,
+                xaxis: offsetX,
+                yaxis: offsetY
             };
 
-            currentVideoPosition = frameno/vm.metaDataObj.GFPS;
+            currentVideoPosition = frameno / vm.metaDataObj.GFPS;
             currentVideoPosition = currentVideoPosition.toFixed(2);
             vm.mediaPlayerApi.controls.play();
             vm.mediaPlayerApi.controls.changePosition(currentVideoPosition);
@@ -689,25 +625,22 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
 
         }
 
-        var indexVal =  categories.indexOf(categoryType);
+        var indexVal = categories.indexOf(categoryType);
 
         var subCats = '';
-        if(vm.subCategoriesList[vm.categoriesDataList[indexVal]._id])
-        {
+        if (vm.subCategoriesList[vm.categoriesDataList[indexVal]._id]) {
             subCats = vm.subCategoriesList[vm.categoriesDataList[indexVal]._id];
         }
 
-        if(vm.subCategoriesList && subCats !== '')
-        {
+        if (vm.subCategoriesList && subCats !== '') {
             vm.formResetData(vm.subCategoriesList[vm.categoriesDataList[indexVal]._id]);
-        }else
-        {
+        } else {
             SubCategoryService
-                .getAllSubCategoriesByCategory(vm.categoriesDataList[indexVal]._id,false)
-                .success(function (data, status) {
+                .getAllSubCategoriesByCategory(vm.categoriesDataList[indexVal]._id, false)
+                .success(function(data, status) {
                     vm.subCategoriesList[vm.categoriesDataList[indexVal]._id] = data;
                     vm.formResetData(data);
-                }).error(function (err, status) {
+                }).error(function(err, status) {
 
                 });
         }
@@ -719,21 +652,17 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     vm.editedCategory = '';
     vm.dataBkp = '';
     vm.currentIndexVal = 0;
-    vm.resetValues = function()
-    {
+    vm.resetValues = function() {
         vm.formResetData(vm.dataBkp);
     }
 
-    vm.backPressed = function ()
-    {
+    vm.backPressed = function() {
         var index = categories.indexOf(vm.currentCategory);
-        if (vm.currentLen>0 && (vm.currentCategory === catCodesList[2] || vm.currentCategory === catCodesList[4] || vm.currentCategory === catCodesList[5] || vm.currentCategory === catCodesList[6]) && vm.objTestDup)
-        {
+        if (vm.currentLen > 0 && (vm.currentCategory === catCodesList[2] || vm.currentCategory === catCodesList[4] || vm.currentCategory === catCodesList[5] || vm.currentCategory === catCodesList[6]) && vm.objTestDup) {
             vm.currentLen--;
             vm.createEvent(vm.currentCategory);
             //vm.mediaPlayerApi.controls.play();
-        }else
-        {
+        } else {
             vm.currentLen = 0;
             if (index > 0 && index < categories.length) {
                 /*if((index == 3))
@@ -753,20 +682,18 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                     vm.createEvent(categories[index - 1]);
                 }*/
 
-                if ((vm.currentCategory === catCodesList[1] || vm.currentCategory === catCodesList[2] ||  vm.currentCategory === catCodesList[3] || vm.currentCategory === catCodesList[4] || vm.currentCategory === catCodesList[5] || vm.currentCategory === catCodesList[6]))
-                {
+                if ((vm.currentCategory === catCodesList[1] || vm.currentCategory === catCodesList[2] || vm.currentCategory === catCodesList[3] || vm.currentCategory === catCodesList[4] || vm.currentCategory === catCodesList[5] || vm.currentCategory === catCodesList[6])) {
                     vm.createEvent(categories[0]);
                 }
             }
         }
     }
-    vm.formResetData = function(data)
-    {
+    vm.formResetData = function(data) {
         vm.dataBkp = data;
         vm.requiredFilelds = [];
         vm.form[vm.currentCategory] = {};
         for (var i = 0; i < data.length; i++) {
-            if(data[i].isMandatory == true)
+            if (data[i].isMandatory == true)
                 vm.requiredFilelds.push(data[i].subCategory);
         }
 
@@ -780,11 +707,10 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             if (isAnotherSKU !== '' && (isAnotherSKU === 'Add Another SKU' || isAnotherSKU === 'Add Another Staff')) {
 
                 for (var i = 0; i < data.length; i++) {
-                    if(data[i].isMandatory == true)
-                    {
+                    if (data[i].isMandatory == true) {
                         vm.requiredFilelds.push(data[i].subCategory);
                     }
-                    for(var typeLen=0;typeLen<data[i].type.length;typeLen++) {
+                    for (var typeLen = 0; typeLen < data[i].type.length; typeLen++) {
                         if (data[i].type[typeLen].isDefault) {
                             data[i].selectedValue = data[i].type[typeLen]['icon'].name;
                             break;
@@ -796,24 +722,20 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                 }
             } else {
                 for (var i = 0; i < data.length; i++) {
-                    if(data[i].selectedValue)
-                    {
+                    if (data[i].selectedValue) {
                         delete data[i].selectedValue;
                     }
                     if (vm.currentCategory === catCodesList[0] || vm.currentCategory === catCodesList[1] || vm.currentCategory === catCodesList[3]) {
-                        if (objTest !== undefined)
-                        {
+                        if (objTest !== undefined) {
                             data[i].selectedValue = objTest[data[i].subCategory];
-                            if(objTest.comments)
-                            {
+                            if (objTest.comments) {
                                 vm.comments = objTest.comments;
                             }
                         }
-                    }else if (vm.currentCategory === catCodesList[2] || vm.currentCategory === catCodesList[4] || vm.currentCategory === catCodesList[5] || vm.currentCategory === catCodesList[6]) {
-                        if (objTest !== undefined)
-                        {
+                    } else if (vm.currentCategory === catCodesList[2] || vm.currentCategory === catCodesList[4] || vm.currentCategory === catCodesList[5] || vm.currentCategory === catCodesList[6]) {
+                        if (objTest !== undefined) {
                             data[i].selectedValue = objTest[vm.currentLen][data[i].subCategory];
-                            if(objTest[vm.currentLen] != undefined && objTest[vm.currentLen].comments != undefined)
+                            if (objTest[vm.currentLen] != undefined && objTest[vm.currentLen].comments != undefined)
                                 vm.comments = objTest[vm.currentLen].comments;
                         }
                     }
@@ -822,23 +744,19 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                         vm.form[vm.currentCategory][data[i].subCategory] = data[i].selectedValue;
                     }
 
-                    if(data[i].isMandatory == true)
+                    if (data[i].isMandatory == true)
                         vm.requiredFilelds.push(data[i].subCategory);
                 }
             }
-        }else if(vm.currentCategory !== categories[0])
-        {
+        } else if (vm.currentCategory !== categories[0]) {
             for (var i = 0; i < data.length; i++) {
-                if(data[i].selectedValue)
-                {
+                if (data[i].selectedValue) {
                     delete data[i].selectedValue;
                 }
 
                 if (vm.currentCategory !== catCodesList[0]) {
-                    for(var typeLen=0;typeLen<data[i].type.length;typeLen++)
-                    {
-                        if(data[i].type[typeLen].isDefault)
-                        {
+                    for (var typeLen = 0; typeLen < data[i].type.length; typeLen++) {
+                        if (data[i].type[typeLen].isDefault) {
                             data[i].selectedValue = data[i].type[typeLen]['icon'].name;
                             break;
                         }
@@ -849,7 +767,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                     vm.form[vm.currentCategory][data[i].subCategory] = data[i].selectedValue;
                 }
 
-                if(data[i].isMandatory == true)
+                if (data[i].isMandatory == true)
                     vm.requiredFilelds.push(data[i].subCategory);
             }
         }
@@ -860,18 +778,14 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         vm['dupcategory'][vm.fetchedCatsList[indexVal]] = data;
         vm.editedCategory = vm.fetchedCatsList[indexVal];
         var currentCat = vm.form[vm.currentCategory];
-        if(currentCat != null && Object.keys(vm.form[vm.currentCategory]).length>0)
-        {
+        if (currentCat != null && Object.keys(vm.form[vm.currentCategory]).length > 0) {
             vm.showAnother = true;
         }
-        if(vm.currentCategory == categories[0] && Object.keys(vm.form[vm.currentCategory]).length > 0)
-        {
+        if (vm.currentCategory == categories[0] && Object.keys(vm.form[vm.currentCategory]).length > 0) {
 
-            if((Object.keys(vm.form[vm.currentCategory])).indexOf('Staff Type')>=0 || (Object.keys(vm.form[vm.currentCategory])).indexOf('If Staff: Select Type')>=0)
-            {
+            if ((Object.keys(vm.form[vm.currentCategory])).indexOf('Staff Type') >= 0 || (Object.keys(vm.form[vm.currentCategory])).indexOf('If Staff: Select Type') >= 0) {
                 vm.isProfileStaffSelected = true;
-            }else
-            {
+            } else {
                 vm.isProfileStaffSelected = false;
             }
         }
@@ -883,12 +797,11 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         offsetX = 0;
         offsetY = 0;
         node.innerHTML = '';
-        node.setAttribute('style','');
+        node.setAttribute('style', '');
         vm.flag.dataEntry = false;
         vm.comments = '';
         vm.isNewShopper = false;
-        if(this.divObj != null && this.divObj != undefined)
-        {
+        if (this.divObj != null && this.divObj != undefined) {
             //this.divObj.remove();
         }
         resetAllDrawnBoxes();
@@ -899,15 +812,14 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     function resetAllDrawnBoxes() {
         var len = 1;
         angular.forEach(vm.drawnObjs, function(value, key) {
-                vm.drawnObjs[key].draggable({disabled:true});
-                vm.drawnObjs[key].resizable({disabled:true});
-                vm.drawnObjs[key].css(vm.cssObjs[key]).html(vm.contentObjs[key]);
-            });
+            vm.drawnObjs[key].draggable({ disabled: true });
+            vm.drawnObjs[key].resizable({ disabled: true });
+            vm.drawnObjs[key].css(vm.cssObjs[key]).html(vm.contentObjs[key]);
+        });
     }
 
-    function removeAllDrawnBoxes()
-    {
-        angular.forEach(vm.drawnObjs, function (value, key) {
+    function removeAllDrawnBoxes() {
+        angular.forEach(vm.drawnObjs, function(value, key) {
             vm.drawnObjs[key].remove();
         });
 
@@ -921,53 +833,46 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     vm.currentLen = 0;
     $scope.timeSpentCounter = 0;
     var countSpentTime = '';
-    function setTimeInterval()
-    {
+
+    function setTimeInterval() {
         $scope.timeSpentCounter = $scope.timeSpentCounter + 100;
     }
 
-    function clearAndSetInterval(resetFlag)
-    {
+    function clearAndSetInterval(resetFlag) {
         $interval.cancel(countSpentTime);
-        if(resetFlag)
-        {
+        if (resetFlag) {
             $scope.timeSpentCounter = 0;
             countSpentTime = $interval(setTimeInterval, 100);
         }
     }
 
     vm.startDate = new Date();
-    function saveCategory(openNext, addAnother,saveOrNext) {
+
+    function saveCategory(openNext, addAnother, saveOrNext) {
 
         var keys = [];
         var currentCat = vm.form[vm.currentCategory];
-        if(currentCat != null && Object.keys(vm.form[vm.currentCategory]).length>0)
-        {
+        if (currentCat != null && Object.keys(vm.form[vm.currentCategory]).length > 0) {
             keys = Object.keys(vm.form[vm.currentCategory]);
         }
 
-        if(vm.currentCategory == categories[0] && vm.requiredFilelds.indexOf('Shopper') >= 0)
-        {
+        if (vm.currentCategory == categories[0] && vm.requiredFilelds.indexOf('Shopper') >= 0) {
             const index = vm.requiredFilelds.indexOf('Shopper');
             vm.requiredFilelds.splice(index, 1);
         }
 
         var isSuperset = (vm.requiredFilelds).every(function(val) { return keys.indexOf(val) >= 0; });
         vm.hasError = false;
-        if((vm.isProfileStaffSelected || vm.isShopperAlreadyIn) && vm.currentCategory == categories[0])
-        {
-            isSuperset  = true;
+        if ((vm.isProfileStaffSelected || vm.isShopperAlreadyIn) && vm.currentCategory == categories[0]) {
+            isSuperset = true;
         }
-        if(!isSuperset)
-        {
+        if (!isSuperset) {
             vm.hasError = true;
         }
 
-        if(vm.currentCategory == catCodesList[0])
-        {
-            if(keys.length == 0)
-            {
-                isSuperset  = false;
+        if (vm.currentCategory == catCodesList[0]) {
+            if (keys.length == 0) {
+                isSuperset = false;
             }
         }
 
@@ -994,42 +899,35 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         var isCatAnalysed = true;
         vm.catError = false;
 
-        if(saveOrNext === 'Save')
-        {
+        if (saveOrNext === 'Save') {
             var copyOfReqCats = angular.copy(vm.requiredCats);
-            if(vm.isProfileStaffSelected)
-            {
+            if (vm.isProfileStaffSelected) {
                 var index = copyOfReqCats.indexOf(categories[1]);
                 copyOfReqCats.splice(index, 1);
-            }else
-            {
+            } else {
                 var index = copyOfReqCats.indexOf(categories[2]);
                 copyOfReqCats.splice(index, 1);
             }
 
             var pathIndex = copyOfReqCats.indexOf("Path");
-            if(pathIndex>=0)
-            {
+            if (pathIndex >= 0) {
                 //copyOfReqCats.splice(pathIndex, 1);
                 //copyOfReqCats.push(categories[4]);
             }
 
             isCatAnalysed = (copyOfReqCats).every(function(val) { return catKeys.indexOf(val) >= 0; });
 
-            if(!isCatAnalysed && vm.event.analysis != null) {
-                isCatAnalysed = (copyOfReqCats).every(function (val) {
-                    if(vm.event && vm.event.analysis && vm.event.analysis.length>0)
-                    {
+            if (!isCatAnalysed && vm.event.analysis != null) {
+                isCatAnalysed = (copyOfReqCats).every(function(val) {
+                    if (vm.event && vm.event.analysis && vm.event.analysis.length > 0) {
                         return (Object.keys(vm.event.analysis)).indexOf(val) >= 0;
                     }
                     return false;
                 });
             }
             isCatAnalysed = true;
-            if(!isCatAnalysed)
-            {
-                if(!vm.hasError)
-                {
+            if (!isCatAnalysed) {
+                if (!vm.hasError) {
                     vm.catError = true;
                 }
                 saveOrNext = "New";
@@ -1038,12 +936,10 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             }
         }
 
-        if(vm.changeOnSelection == true)
-        {
+        if (vm.changeOnSelection == true) {
             //vm.changeOnSelection = false;
 
-            if(vm.currentCategory == categories[0] && vm.isShopperSubCat)
-            {
+            if (vm.currentCategory == categories[0] && vm.isShopperSubCat) {
                 isSuperset = true;
                 isCatAnalysed = true;
                 vm.isShopperSubCat = false;
@@ -1051,23 +947,16 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             }
         }
 
-        if(!isSuperset || !isCatAnalysed)
-        {
+        if (!isSuperset || !isCatAnalysed) {
             vm.hasError = true;
-        }else if(isSuperset && isCatAnalysed)
-        {
-            if(saveOrNext === 'Save')
-            {
-                if(vm.isProfileStaffSelected)
-                {
-                    if(vm.event && vm.event.analysis && vm.event.analysis[categories[1]] != undefined)
-                    {
+        } else if (isSuperset && isCatAnalysed) {
+            if (saveOrNext === 'Save') {
+                if (vm.isProfileStaffSelected) {
+                    if (vm.event && vm.event.analysis && vm.event.analysis[categories[1]] != undefined) {
                         //delete vm.event.analysis[categories[1]]
                     }
-                }else
-                {
-                    if(vm.event && vm.event.analysis && vm.event.analysis[categories[2]] != undefined)
-                    {
+                } else {
+                    if (vm.event && vm.event.analysis && vm.event.analysis[categories[2]] != undefined) {
                         //delete vm.event.analysis[categories[2]]
                     }
                 }
@@ -1128,10 +1017,9 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                     obj = setActionTimings(obj);
                     obj.exitTime = angular.copy(vm.exitTime);
                     vm.exitTime = 0;
-                    
-                    if(addAnother)
-                    {
-                        vm.currentLen = vm.event.analysis[vm.currentCategory].length -1;
+
+                    if (addAnother) {
+                        vm.currentLen = vm.event.analysis[vm.currentCategory].length - 1;
                     }
 
                     break;
@@ -1163,9 +1051,8 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                     }
                     var obj = new CreateObj(vm.form[vm.currentCategory]);
                     obj = setActionTimings(obj);
-                    if(addAnother)
-                    {
-                        vm.currentLen = vm.event.analysis[vm.currentCategory].length -1;
+                    if (addAnother) {
+                        vm.currentLen = vm.event.analysis[vm.currentCategory].length - 1;
                     }
                     break;
 
@@ -1183,9 +1070,8 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                     }
                     var obj = new CreateObj(vm.form[vm.currentCategory]);
                     obj = setActionTimings(obj);
-                    if(addAnother)
-                    {
-                        vm.currentLen = vm.event.analysis[vm.currentCategory].length -1;
+                    if (addAnother) {
+                        vm.currentLen = vm.event.analysis[vm.currentCategory].length - 1;
                     }
                     break;
 
@@ -1203,23 +1089,19 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                     }
                     var obj = new CreateObj(vm.form[vm.currentCategory]);
                     obj = setActionTimings(obj);
-                    if(addAnother)
-                    {
-                        vm.currentLen = vm.event.analysis[vm.currentCategory].length -1;
+                    if (addAnother) {
+                        vm.currentLen = vm.event.analysis[vm.currentCategory].length - 1;
                     }
                     break;
             }
 
-            if(vm.currentCategory == catCodesList[0] && vm.form && vm.form[vm.currentCategory] && Object.keys(vm.form[vm.currentCategory]).length > 0)
-            {
+            if (vm.currentCategory == catCodesList[0] && vm.form && vm.form[vm.currentCategory] && Object.keys(vm.form[vm.currentCategory]).length > 0) {
                 vm.isProfileStaffSelected = false;
                 vm.isShopperAlreadyIn = false;
-                if(Object.keys(vm.form[vm.currentCategory]).indexOf('Staff')>=0)
-                {
+                if (Object.keys(vm.form[vm.currentCategory]).indexOf('Staff') >= 0) {
                     vm.isProfileStaffSelected = true;
                     vm.createEvent(categories[2]);
-                }else if(Object.keys(vm.form[vm.currentCategory]).indexOf('Shopper')>=0)
-                {
+                } else if (Object.keys(vm.form[vm.currentCategory]).indexOf('Shopper') >= 0) {
                     vm.isShopperAlreadyIn = true;
                     //vm.createEvent(categories[1]);
                 }
@@ -1244,22 +1126,17 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             // Save and next  && !vm.event.analysis['Exit Path']
             if (openNext) {
                 var index = categories.indexOf(vm.currentCategory);
-                if ((vm.currentCategory === catCodesList[2] || vm.currentCategory === catCodesList[4]  || vm.currentCategory === catCodesList[5] || vm.currentCategory === catCodesList[6]) && vm.objTestDup && vm.currentLen<(vm.objTestDup.length-1))
-                {
+                if ((vm.currentCategory === catCodesList[2] || vm.currentCategory === catCodesList[4] || vm.currentCategory === catCodesList[5] || vm.currentCategory === catCodesList[6]) && vm.objTestDup && vm.currentLen < (vm.objTestDup.length - 1)) {
                     vm.currentLen++;
                     vm.createEvent(vm.currentCategory);
                     //vm.mediaPlayerApi.controls.play();
-                }else
-                {
+                } else {
                     vm.currentLen = 0;
-                    if (index > -1 && index < categories.length - 1)
-                    {
-                        if(vm.changeOnSelection)
-                        {
+                    if (index > -1 && index < categories.length - 1) {
+                        if (vm.changeOnSelection) {
                             vm.changeOnSelection = false;
                             vm.createEvent(categories[vm.changeToIndex]);
-                        }else
-                        {
+                        } else {
                             vm.createEvent(categories[index + 1]);
                             //if ((vm.isProfileStaffSelected && index == 0) || index == 1) {
                             //    vm.createEvent(categories[index + 2]);
@@ -1272,14 +1149,14 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             }
             //if (openNext || addAnother) {
             if (openNext) {
-                if (!(vm.currentCategory === catCodesList[2] || vm.currentCategory === catCodesList[3] || vm.currentCategory === catCodesList[4]  || vm.currentCategory === catCodesList[5] || vm.currentCategory === catCodesList[6])) {
+                if (!(vm.currentCategory === catCodesList[2] || vm.currentCategory === catCodesList[3] || vm.currentCategory === catCodesList[4] || vm.currentCategory === catCodesList[5] || vm.currentCategory === catCodesList[6])) {
                     vm.mediaPlayerApi.controls.changePosition(vm.event.startTime);
                 }
                 currentVideoPositiion = vm.event.startTime;
                 //vm.mediaPlayerApi.controls.play();
             }
 
-            if (addAnother && ((vm.currentCategory === catCodesList[2] || vm.currentCategory === catCodesList[4]  || vm.currentCategory === catCodesList[5] || vm.currentCategory === catCodesList[6]))) {
+            if (addAnother && ((vm.currentCategory === catCodesList[2] || vm.currentCategory === catCodesList[4] || vm.currentCategory === catCodesList[5] || vm.currentCategory === catCodesList[6]))) {
                 vm.currentLen++;
                 vm.createEvent(vm.currentCategory);
                 //vm.mediaPlayerApi.controls.play();
@@ -1287,27 +1164,25 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         }
     }
 
-    function setActionTimings(obj)
-    {
+    function setActionTimings(obj) {
         var currentChildCat = vm.event.analysis[vm.currentCategory][vm.currentLen];
-        if(currentChildCat && currentChildCat != null && currentChildCat != undefined)
-        {
+        if (currentChildCat && currentChildCat != null && currentChildCat != undefined) {
             obj.actionStartTime = angular.copy(currentChildCat.actionStartTime);
             obj.actionStopTime = angular.copy(currentChildCat.actionStopTime);
             obj.interActionStartTime = angular.copy(currentChildCat.interActionStartTime);
             obj.interActionStopTime = angular.copy(currentChildCat.interActionStopTime);
         }
 
-        if(vm.actionStartTime != 0)
+        if (vm.actionStartTime != 0)
             obj.actionStartTime = angular.copy(vm.actionStartTime);
-        if(vm.actionStopTime != 0)
+        if (vm.actionStopTime != 0)
             obj.actionStopTime = angular.copy(vm.actionStopTime);
-        if(vm.interActionStartTime != 0)
+        if (vm.interActionStartTime != 0)
             obj.interActionStartTime = angular.copy(vm.interActionStartTime);
-        if(vm.interActionStopTime != 0)
+        if (vm.interActionStopTime != 0)
             obj.interActionStopTime = angular.copy(vm.interActionStopTime);
 
-        vm.event.analysis[vm.currentCategory][vm.currentLen]=obj;
+        vm.event.analysis[vm.currentCategory][vm.currentLen] = obj;
         vm.actionStartTime = 0;
         vm.actionStopTime = 0;
         vm.interActionStartTime = 0;
@@ -1316,19 +1191,16 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         return obj;
     }
 
-    function deleteSelectedEvent()
-    {
-        var discarded =  vm.events[vm.selectedEventIndex].isDiscarded;
+    function deleteSelectedEvent() {
+        var discarded = vm.events[vm.selectedEventIndex].isDiscarded;
         EventService
-            .removeEvent(vm.selectedEvent[0]._id,vm.selectedEvent[0].videoId,discarded,$localStorage.user.userId)
+            .removeEvent(vm.selectedEvent[0]._id, vm.selectedEvent[0].videoId, discarded, $localStorage.user.userId)
             .success(function(data, status) {
 
-                if(discarded == 0)
-                {
+                if (discarded == 0) {
                     vm.events[vm.selectedEventIndex].isDiscarded = 1;
                     vm.events[vm.selectedEventIndex].color = 'red';
-                }else
-                {
+                } else {
                     vm.events[vm.selectedEventIndex].isDiscarded = 0;
                     vm.events[vm.selectedEventIndex].color = 'green';
                 }
@@ -1345,26 +1217,19 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             });
     }
 
-    function calculateTotalTimeSpent(obj)
-    {
+    function calculateTotalTimeSpent(obj) {
         var totalTimeSpent = 0;
-        if(obj == null || obj == undefined || obj.analysis == null || obj.analysis == undefined)
-        {
+        if (obj == null || obj == undefined || obj.analysis == null || obj.analysis == undefined) {
             return totalTimeSpent;
         }
 
-        for(var catLen =0;catLen<categories.length;catLen++)
-        {
+        for (var catLen = 0; catLen < categories.length; catLen++) {
             var catObj = obj.analysis[categories[catLen]];
-            if(catObj != null && catObj != undefined)
-            {
-                if(catLen == 0 || catLen == 1 || catLen == 3)
-                {
+            if (catObj != null && catObj != undefined) {
+                if (catLen == 0 || catLen == 1 || catLen == 3) {
                     totalTimeSpent = totalTimeSpent + catObj.timeSpent;
-                }else
-                {
-                    for(var subListLen =0;subListLen<catObj.length;subListLen++)
-                    {
+                } else {
+                    for (var subListLen = 0; subListLen < catObj.length; subListLen++) {
                         totalTimeSpent = totalTimeSpent + catObj[subListLen].timeSpent;
                     }
                 }
@@ -1372,10 +1237,10 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         }
         return totalTimeSpent;
     }
+
     function submitEvent() {
         var obj = vm.event;
-        if(vm.selectedEvent[0] != undefined && vm.selectedEvent[0].eventId != undefined && vm.selectedEvent[0].eventId != '')
-        {
+        if (vm.selectedEvent[0] != undefined && vm.selectedEvent[0].eventId != undefined && vm.selectedEvent[0].eventId != '') {
             obj.eventId = vm.selectedEvent[0].eventId;
         }
 
@@ -1385,8 +1250,8 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         obj.comments = vm.comments;
         obj.height = height;
         obj.width = width;
-        obj.xendaxis = Number(obj.xaxis)+Number(width);
-        obj.yendaxis = Number(obj.yaxis)+Number(height);
+        obj.xendaxis = Number(obj.xaxis) + Number(width);
+        obj.yendaxis = Number(obj.yaxis) + Number(height);
         vm.isNewShopper = false;
         videoElementInstance = document.getElementById('video');
         obj.screenWidth = Number(screen.width);
@@ -1404,8 +1269,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             .newEvent(obj)
             .success(function(data, status) {
                 vm.comments = '';
-                if(data.eventId && !data.msg)
-                {
+                if (data.eventId && !data.msg) {
                     vm.events.push(data);
                 }
 
@@ -1413,14 +1277,12 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                 //vm.event = {};
                 //vm.eventCreated = false;
                 var updatableIndex = previousIndex;
-                if(updatableIndex !== '')
-                {
-                    updatableIndex = updatableIndex +1;
+                if (updatableIndex !== '') {
+                    updatableIndex = updatableIndex + 1;
                 }
 
                 vm.closeDataEntry();
-                if(vm.events.length> updatableIndex)
-                {
+                if (vm.events.length > updatableIndex) {
                     selectedEventInEventsList(updatableIndex)
                 }
 
@@ -1433,7 +1295,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             });
     }
 
-    function pauseAnalysis (play) {
+    function pauseAnalysis(play) {
         var userId = $localStorage.user.userId;
         var videoId = vm.currentVideo.videoId;
         var currentTime = vm.mediaPlayerApi.properties.currentTime();
@@ -1443,8 +1305,8 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
 
         VideoService
             .pauseAnalysis(userId, videoId, currentTime)
-            .success(function(data, success){
-                if(!play) {
+            .success(function(data, success) {
+                if (!play) {
                     vm.mediaPlayerApi.controls.pause();
                 }
             }).error(function(err, status) {
@@ -1461,7 +1323,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         pausedVideoId = video.videoId;
         vm.selectedVideoId = video.videoId;
 
-        time = time ? time: 0;
+        time = time ? time : 0;
 
         //Call API to lock this video
         //TBD
@@ -1470,14 +1332,13 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         VideoService
             .getStatus(videoId)
             .success(function(data, status) {
-                if(data.status === 0 || (data.status === 1 && data.userId === userId)){
+                if (data.status === 0 || (data.status === 1 && data.userId === userId)) {
                     VideoService
                         .lockVideo(userId, videoId)
                         .success(function(data, success) {
                             vm.getCategoriesListByProject(video);
-                            vm.metaDataObj = {GFPS:30};
-                            if(video.metaDataObj && video.metaDataObj != null && video.metaDataObj != undefined && video.metaDataObj.GFPS)
-                            {
+                            vm.metaDataObj = { GFPS: 30 };
+                            if (video.metaDataObj && video.metaDataObj != null && video.metaDataObj != undefined && video.metaDataObj.GFPS) {
                                 vm.metaDataObj = video.metaDataObj;
                             }
 
@@ -1485,13 +1346,11 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                             getEventsListBySelectedVideo(videoId);
 
                             var bucketUrl = '';
-                            if((video.project && video.project.bucket) || video.bucket)
-                            {
-                                var paramsObj = {Bucket: video.bucket, Key: video.url, Expires: 7200};
+                            if ((video.project && video.project.bucket) || video.bucket) {
+                                var paramsObj = { Bucket: video.bucket, Key: video.url, Expires: 7200 };
                                 AwsService
-                                    .authenticateUrl({paramsObj:paramsObj})
-                                    .success(function(data, status)
-                                    {
+                                    .authenticateUrl({ paramsObj: paramsObj })
+                                    .success(function(data, status) {
                                         vm.mediaPlayerApi.controls.changeSource(data.signedUrl, play);
                                         vm.mediaPlayerApi.controls.pause();
                                         //showCustomProgressBar();
@@ -1499,8 +1358,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                                         console.log(err);
                                         console.log(status);
                                     });
-                            }else
-                            {
+                            } else {
                                 bucketUrl = video.url;
                                 vm.mediaPlayerApi.controls.changeSource(bucketUrl, play);
                                 vm.mediaPlayerApi.controls.pause();
@@ -1514,10 +1372,10 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                             vm.mediaPlayerApi.properties.currentTime(time);
 
 
-                            if(pausedAnalysis) {
-                                shopperCount = vm.events.length ;
+                            if (pausedAnalysis) {
+                                shopperCount = vm.events.length;
                             } else {
-                                shopperCount = shopperCount | 0 ;
+                                shopperCount = shopperCount | 0;
                                 vm.event = {};
                                 vm.events = [];
                                 vm.form = {};
@@ -1526,20 +1384,118 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                             vm.eventCreated = false;
                             vm.closeDataEntry();
 
-                        }).error(function(err,status) {
-                        });
+                        }).error(function(err, status) {});
 
 
-                }
-                else {
+                } else {
                     // Todo
                     // Show error message saying video is locked if it is locked by ANOTHER USER
                     // And remove video from videos array if it is locked by ANOTHER USER
                 }
-            }).error(function(err,status){
+            }).error(function(err, status) {
 
             });
+
+
     }
+
+    $scope.openVideoTracking = function(video, play, time, pausedAnalysis) {
+
+        userFirstTimeOpen = true;
+        window.dashboard = false;
+        pausedVideo = video;
+        pausedVideoId = video.videoId;
+        vm.selectedVideoId = video.videoId;
+
+        time = time ? time : 0;
+
+        //Call API to lock this video
+        //TBD
+        var userId = $localStorage.user.userId;
+        var videoId = video.videoId;
+        VideoService
+            .getStatus(videoId)
+            .success(function(data, status) {
+                if (data.status === 0 || (data.status === 1 && data.userId === userId)) {
+                    VideoService
+                        .lockVideo(userId, videoId)
+                        .success(function(data, success) {
+                            vm.getCategoriesListByProject(video);
+                            vm.metaDataObj = { GFPS: 30 };
+                            if (video.metaDataObj && video.metaDataObj != null && video.metaDataObj != undefined && video.metaDataObj.GFPS) {
+                                vm.metaDataObj = video.metaDataObj;
+                            }
+
+                            $localStorage.user.pausedVideoId = videoId;
+                            getEventsListBySelectedVideo(videoId);
+
+                            var bucketUrl = '';
+                            if ((video.project && video.project.bucket) || video.bucket) {
+                                var paramsObj = { Bucket: video.bucket, Key: video.url, Expires: 7200 };
+                                AwsService
+                                    .authenticateUrl({ paramsObj: paramsObj })
+                                    .success(function(data, status) {
+                                        vm.mediaPlayerApi.controls.changeSource(data.signedUrl, play);
+                                        // vm.mediaPlayerApi.controls.pause();
+                                        //showCustomProgressBar();
+                                    }).error(function(err, status) {
+                                        console.log(err);
+                                        console.log(status);
+                                    });
+                            } else {
+                                bucketUrl = video.url;
+                                vm.mediaPlayerApi.controls.changeSource(bucketUrl, play);
+                                // vm.mediaPlayerApi.controls.pause();
+                            }
+
+                            // vm.mediaPlayerApi.controls.pause();
+                            vm.currentVideo = video;
+
+                            vm.analysing = true;
+
+                            vm.mediaPlayerApi.properties.currentTime(time);
+
+
+                            if (pausedAnalysis) {
+                                shopperCount = vm.events.length;
+                            } else {
+                                shopperCount = shopperCount | 0;
+                                vm.event = {};
+                                vm.events = [];
+                                vm.form = {};
+                            }
+
+                            vm.eventCreated = false;
+                            vm.closeDataEntry();
+
+                        }).error(function(err, status) {});
+
+
+                } else {
+                    // Todo
+                    // Show error message saying video is locked if it is locked by ANOTHER USER
+                    // And remove video from videos array if it is locked by ANOTHER USER
+                }
+            }).error(function(err, status) {
+
+            });
+
+        $rootScope.isTracking = true;
+    }
+
+    setInterval(function() {
+
+        if (!$rootScope.isTracking)
+            return;
+
+        console.log(222);
+
+    }, 1000);
+
+    $rootScope.$on('pauseEvent', function() {
+        $rootScope.isTracking = false;
+    })
+
 
     vm.totalNumberOfEvents = 0;
     vm.noOfRecordsDiscarded = 0;
@@ -1550,32 +1506,28 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     vm.staffEvents = [];
     vm.dupCopyEvents = [];
 
-    vm.fetchStaffOrAllEvents = function () {
+    vm.fetchStaffOrAllEvents = function() {
         vm.closeDataEntry();
         vm.staffFlag = !vm.staffFlag;
         vm.staffEvents = [];
         vm.selectedEvent = [];
-        if(vm.staffFlag)
-        {
+        if (vm.staffFlag) {
             vm.staffOrAll = "Adult Events";
             vm.pageNo = 0;
             vm.fetchData = true;
             vm.events = [];
             vm.showMore();
-        }else
-        {
+        } else {
             vm.staffOrAll = "All Events";
 
             var lenCount = 0;
             var eventsLength = vm.events.length;
 
-            for(;lenCount<eventsLength;lenCount++)
-            {
+            for (; lenCount < eventsLength; lenCount++) {
                 var currentEvent = vm.events[lenCount];
                 var catLoopLen = 0;
 
-                if (currentEvent.analysis != undefined && currentEvent.analysis[categories[1]] != undefined && currentEvent.analysis[categories[1]]['Age'] && currentEvent.analysis[categories[1]]['Age'] == 'ADULT')
-                {
+                if (currentEvent.analysis != undefined && currentEvent.analysis[categories[1]] != undefined && currentEvent.analysis[categories[1]]['Age'] && currentEvent.analysis[categories[1]]['Age'] == 'ADULT') {
                     vm.staffEvents.push(angular.copy(currentEvent));
                 }
             }
@@ -1583,12 +1535,11 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         }
     }
 
-    function getEventsListBySelectedVideo(selectedVideoId)
-    {
+    function getEventsListBySelectedVideo(selectedVideoId) {
         vm.selectedVideoId = selectedVideoId;
 
         EventService
-            .getAllShoppersByStartTime({videoId:vm.selectedVideoId,isDiscarded:0})
+            .getAllShoppersByStartTime({ videoId: vm.selectedVideoId, isDiscarded: 0 })
             .success(function(data, status) {
                 vm.gridOptions.data = data;
                 vm.events = data;
@@ -1600,49 +1551,41 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     }
 
     var notCheckedRecords = 0;
-    vm.checkEventsNotChecked = function()
-    {
+    vm.checkEventsNotChecked = function() {
         notCheckedRecords = 0;
         var lenCount = 0;
         var eventsLength = vm.events.length;
 
-        for(;lenCount<eventsLength;lenCount++)
-        {
+        for (; lenCount < eventsLength; lenCount++) {
             var currentEvent = vm.events[lenCount];
             var catLoopLen = 0;
 
-            if(!currentEvent.analysis && vm.isOpenedForReview)
-            {
-                vm.events[lenCount].color='red';
+            if (!currentEvent.analysis && vm.isOpenedForReview) {
+                vm.events[lenCount].color = 'red';
             }
-            for(;catLoopLen<categoriesLen;catLoopLen++)
-            {
-                if(!currentEvent.analysis || !currentEvent.analysis[categories[catLoopLen]])
-                {
+            for (; catLoopLen < categoriesLen; catLoopLen++) {
+                if (!currentEvent.analysis || !currentEvent.analysis[categories[catLoopLen]]) {
                     notCheckedRecords++;
-                    if(vm.isOpenedForReview)
-                    {
-                        vm.events[lenCount].color='red';
+                    if (vm.isOpenedForReview) {
+                        vm.events[lenCount].color = 'red';
                     }
                     break;
                 }
             }
 
-            if(currentEvent.isDiscarded && currentEvent.isDiscarded === 1)
-            {
+            if (currentEvent.isDiscarded && currentEvent.isDiscarded === 1) {
                 vm.events[lenCount].color = 'yellow';
             }
         }
     }
 
     vm.isOpenedForReview = false;
-    vm.askForConfirmation = function()
-    {
+    vm.askForConfirmation = function() {
         vm.checkEventsNotChecked();
         vm.mediaPlayerApi.controls.pause();
         notCheckedRecords = 0;
-        vm.noOfRecordsDiscarded=0;
-        vm.totalEventsCount=0;
+        vm.noOfRecordsDiscarded = 0;
+        vm.totalEventsCount = 0;
         EventService
             .getEventListByVideo(vm.currentVideo.videoId)
             .success(function(data, status) {
@@ -1663,16 +1606,16 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             });
     }
 
-    vm.doConfirm = function(msg, yesFn,submitFn, noFn) {
+    vm.doConfirm = function(msg, yesFn, submitFn, noFn) {
         var doConfirmBox = $("#confirmBox");
         doConfirmBox.find(".message").text(msg);
         //doConfirmBox.find(".message1").text('Total Number Of Events:'+vm.events.length);
         //doConfirmBox.find(".message2").text('Total Number Of Events Discarded:'+vm.noOfRecordsDiscarded);
         //doConfirmBox.find(".message3").text('No.of Events Not Checked By The User:'+notCheckedRecords);
-        doConfirmBox.find(".message1").text('Total Number Of Events:'+vm.totalEventsCount);
-        doConfirmBox.find(".message2").text('Total Number Of Events Discarded:'+vm.noOfRecordsDiscarded);
-        doConfirmBox.find(".message3").text('No.of Events Not Checked By The User:'+notCheckedRecords);
-        doConfirmBox.find(".yes,.submit,.no").unbind().click(function () {
+        doConfirmBox.find(".message1").text('Total Number Of Events:' + vm.totalEventsCount);
+        doConfirmBox.find(".message2").text('Total Number Of Events Discarded:' + vm.noOfRecordsDiscarded);
+        doConfirmBox.find(".message3").text('No.of Events Not Checked By The User:' + notCheckedRecords);
+        doConfirmBox.find(".yes,.submit,.no").unbind().click(function() {
             doConfirmBox.hide();
         });
         doConfirmBox.find(".yes").click(yesFn);
@@ -1686,10 +1629,11 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         var videoId = vm.formVideoIdToSubmit;
         VideoService
             .updateVideoStatus(videoId, 2, 10)
-            .success(function (data, status) {
+            .success(function(data, status) {
 
             });
     }
+
     function submitVideo() {
 
         /*if(this.divObj && this.divObj != null && this.divObj != undefined)
@@ -1701,7 +1645,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         var videoId = vm.currentVideo.videoId;
         var videoTimeAtSubmitted = vm.mediaPlayerApi.properties.currentTime();
         VideoService
-            .updateVideoStatus(videoId, 2,videoTimeAtSubmitted)
+            .updateVideoStatus(videoId, 2, videoTimeAtSubmitted)
             .success(function(data, status) {
                 window.dashboard === true;
                 getUnlockVideos();
@@ -1711,7 +1655,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
 
                 vm.analysing = false;
 
-                shopperCount = shopperCount | 0 ;
+                shopperCount = shopperCount | 0;
                 vm.event = {};
                 vm.events = [];
                 vm.form = {};
@@ -1734,17 +1678,16 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     vm.interActionStopTime = 0;
 
     vm.isChangeTriggered = false;
-    function onInputClick(paramName,subCatName,item,type) {
-        if(!vm.isChangeTriggered)
-        {
+
+    function onInputClick(paramName, subCatName, item, type) {
+        if (!vm.isChangeTriggered) {
             vm.form[vm.currentCategory][item.subCategory] = '';
             delete vm.form[vm.currentCategory][item.subCategory];
         }
         vm.isChangeTriggered = false;
     }
 
-    vm.changeComments = function()
-    {
+    vm.changeComments = function() {
         vm.mediaPlayerApi.controls.pause();
         clearInterval(intervalRewind);
         vm.mediaPlayerApi.controls.pause();
@@ -1759,28 +1702,24 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             } else {
                 vm.mediaPlayerApi.controls.pause();
             }
-        }else if (e.keyCode == 68 || e.keyCode == 100) {
+        } else if (e.keyCode == 68 || e.keyCode == 100) {
             var rewindVideo = document.getElementById('video');
-            if (vm.mediaPlayerApi.videoStatus())
-            {
+            if (vm.mediaPlayerApi.videoStatus()) {
                 vm.mediaPlayerApi.controls.play();
                 clearInterval(intervalRewind);
-                intervalRewind = setInterval(function(){
+                intervalRewind = setInterval(function() {
 
-                    if(rewindVideo != null && rewindVideo != undefined)
-                    {
-                        rewindVideo.playbackRate  = 1.0;
-                        if(rewindVideo.currentTime == 0){
+                    if (rewindVideo != null && rewindVideo != undefined) {
+                        rewindVideo.playbackRate = 1.0;
+                        if (rewindVideo.currentTime == 0) {
                             clearInterval(intervalRewind);
                             vm.mediaPlayerApi.controls.pause();
-                        }
-                        else{
+                        } else {
                             rewindVideo.currentTime += -.05;
                         }
                     }
-                },50);
-            }else
-            {
+                }, 50);
+            } else {
                 vm.mediaPlayerApi.controls.pause();
                 clearInterval(intervalRewind);
             }
@@ -1788,40 +1727,34 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     });
 
     vm.isShopperSubCat = false;
-    function onInputChange(paramName,subCatName,item,type) {
+
+    function onInputChange(paramName, subCatName, item, type) {
         vm.isChangeTriggered = true;
 
-        if(Object.keys(vm.form[vm.currentCategory]).length === 1) {
+        if (Object.keys(vm.form[vm.currentCategory]).length === 1) {
             vm.mediaPlayerApi.controls.pause();
             categoryStartTime = vm.mediaPlayerApi.properties.currentTime();
         }
 
-        if(Object.keys(vm.form[vm.currentCategory]).length > 0) {
+        if (Object.keys(vm.form[vm.currentCategory]).length > 0) {
             vm.mediaPlayerApi.controls.pause();
             vm.showAnother = true;
         }
 
-        if((vm.currentCategory == catCodesList[2] || vm.currentCategory == catCodesList[4] || vm.currentCategory == catCodesList[5] || vm.currentCategory == catCodesList[6]) && Object.keys(vm.form[vm.currentCategory]).length > 0)
-        {
-            if((Object.keys(vm.form[vm.currentCategory])).indexOf('ActionStart')>=0 && subCatName == 'ActionStart' && type.icon.name != "NOT APPLICABLE")
-            {
+        if ((vm.currentCategory == catCodesList[2] || vm.currentCategory == catCodesList[4] || vm.currentCategory == catCodesList[5] || vm.currentCategory == catCodesList[6]) && Object.keys(vm.form[vm.currentCategory]).length > 0) {
+            if ((Object.keys(vm.form[vm.currentCategory])).indexOf('ActionStart') >= 0 && subCatName == 'ActionStart' && type.icon.name != "NOT APPLICABLE") {
                 vm.actionStartTime = vm.mediaPlayerApi.properties.currentTime();
-            }else if((Object.keys(vm.form[vm.currentCategory])).indexOf('ActionStopContinue')>=0 && subCatName == 'ActionStopContinue' && type.icon.name != "NOT APPLICABLE")
-            {
+            } else if ((Object.keys(vm.form[vm.currentCategory])).indexOf('ActionStopContinue') >= 0 && subCatName == 'ActionStopContinue' && type.icon.name != "NOT APPLICABLE") {
                 vm.actionStopTime = vm.mediaPlayerApi.properties.currentTime();
-            }else if((Object.keys(vm.form[vm.currentCategory])).indexOf('InterActionStart')>=0 && subCatName == 'InterActionStart' && type.icon.name != "NOT APPLICABLE")
-            {
+            } else if ((Object.keys(vm.form[vm.currentCategory])).indexOf('InterActionStart') >= 0 && subCatName == 'InterActionStart' && type.icon.name != "NOT APPLICABLE") {
                 vm.interActionStartTime = vm.mediaPlayerApi.properties.currentTime();
-            }else if((Object.keys(vm.form[vm.currentCategory])).indexOf('InterActionStopContinue')>=0 && subCatName == 'InterActionStopContinue' && type.icon.name != "NOT APPLICABLE")
-            {
+            } else if ((Object.keys(vm.form[vm.currentCategory])).indexOf('InterActionStopContinue') >= 0 && subCatName == 'InterActionStopContinue' && type.icon.name != "NOT APPLICABLE") {
                 vm.interActionStopTime = vm.mediaPlayerApi.properties.currentTime();
             }
         }
 
-        if(vm.currentCategory == catCodesList[2] && Object.keys(vm.form[vm.currentCategory]).length > 0)
-        {
-            if((Object.keys(vm.form[vm.currentCategory])).indexOf('Exit')>=0 && subCatName == 'Exit')
-            {
+        if (vm.currentCategory == catCodesList[2] && Object.keys(vm.form[vm.currentCategory]).length > 0) {
+            if ((Object.keys(vm.form[vm.currentCategory])).indexOf('Exit') >= 0 && subCatName == 'Exit') {
                 vm.exitTime = vm.mediaPlayerApi.properties.currentTime();
             }
         }
@@ -1830,88 +1763,75 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         vm.changeOnSelection = false;
 
         vm.isShopperSubCat = false;
-        if(item.name && item.name == 'Shopper')
-        {
+        if (item.name && item.name == 'Shopper') {
             vm.isShopperSubCat = true;
         }
 
-        if(type && type.alreadyIn)
-        {
+        if (type && type.alreadyIn) {
             vm.loadMorePreviousFrameShoppers = false;
 
-            if(type && type.refcatcode && type.refcatcode !== '0' && categories.length>0 && categories.indexOf(type.refcatcode)>0 && vm.currentCategory != type.refcatcode)
-            {
+            if (type && type.refcatcode && type.refcatcode !== '0' && categories.length > 0 && categories.indexOf(type.refcatcode) > 0 && vm.currentCategory != type.refcatcode) {
                 vm.changeToIndex = categories.indexOf(type.refcatcode);
                 vm.changeOnSelection = true;
-            }else if(item && item.refcatcode && item.refcatcode !== '0' && categories.length>0 && categories.indexOf(item.refcatcode)>0 && vm.currentCategory != item.refcatcode)
-            {
+            } else if (item && item.refcatcode && item.refcatcode !== '0' && categories.length > 0 && categories.indexOf(item.refcatcode) > 0 && vm.currentCategory != item.refcatcode) {
                 vm.changeToIndex = categories.indexOf(item.refcatcode);
                 vm.changeOnSelection = true;
             }
 
             vm.showExistingShoppers();
-        }
-        else if(type && type.refcatcode && type.refcatcode !== '0' && categories.length>0 && categories.indexOf(type.refcatcode)>0 && vm.currentCategory != type.refcatcode)
-        {
+        } else if (type && type.refcatcode && type.refcatcode !== '0' && categories.length > 0 && categories.indexOf(type.refcatcode) > 0 && vm.currentCategory != type.refcatcode) {
             vm.changeToIndex = categories.indexOf(type.refcatcode);
             vm.changeOnSelection = true;
-            vm.saveCategory(true,false,'New');
-        }else if(item && item.refcatcode && item.refcatcode !== '0' && categories.length>0 && categories.indexOf(item.refcatcode)>0 && vm.currentCategory != item.refcatcode)
-        {
+            vm.saveCategory(true, false, 'New');
+        } else if (item && item.refcatcode && item.refcatcode !== '0' && categories.length > 0 && categories.indexOf(item.refcatcode) > 0 && vm.currentCategory != item.refcatcode) {
             vm.changeToIndex = categories.indexOf(item.refcatcode);
             vm.changeOnSelection = true;
-            vm.saveCategory(true,false,'New');
+            vm.saveCategory(true, false, 'New');
         }
 
-        if(vm.currentCategory == catCodesList[1] && vm.form && vm.form[vm.currentCategory] && Object.keys(vm.form[vm.currentCategory]).length > 0)
-        {
+        if (vm.currentCategory == catCodesList[1] && vm.form && vm.form[vm.currentCategory] && Object.keys(vm.form[vm.currentCategory]).length > 0) {
             vm.isProfileStaffSelected = false;
             vm.isShopperAlreadyIn = false;
-            if((Object.keys(vm.form[vm.currentCategory])).indexOf('Staff Type')>=0 || (Object.keys(vm.form[vm.currentCategory])).indexOf('If Staff: Select Type')>=0)
-            {
+            if ((Object.keys(vm.form[vm.currentCategory])).indexOf('Staff Type') >= 0 || (Object.keys(vm.form[vm.currentCategory])).indexOf('If Staff: Select Type') >= 0) {
                 vm.isProfileStaffSelected = true;
-                vm.saveCategory(true,false,'New');
-            }else if((Object.keys(vm.form[vm.currentCategory])).indexOf('If Shopper, Select:')>=0 && vm.form[vm.currentCategory]['If Shopper, Select:'] == 'ALREADY IN')
-            {
+                vm.saveCategory(true, false, 'New');
+            } else if ((Object.keys(vm.form[vm.currentCategory])).indexOf('If Shopper, Select:') >= 0 && vm.form[vm.currentCategory]['If Shopper, Select:'] == 'ALREADY IN') {
                 vm.isShopperAlreadyIn = true;
-                vm.saveCategory(true,false,'New');
+                vm.saveCategory(true, false, 'New');
             }
         }
     }
 
     vm.gridOptions = {
         columnDefs: [
-            { field: 'eventId' , displayName: 'Event Id',enableHiding: false},
-            { field: 'humanid' , displayName: 'Human Id',enableHiding: false},
-            { field:'frameno', displayName: 'Frame No',enableHiding: false},
-            { field:'startTime', displayName: 'Start Time',enableHiding: false},
-            { field:'details', displayName: 'Details',enableHiding: false}
+            { field: 'eventId', displayName: 'Event Id', enableHiding: false },
+            { field: 'humanid', displayName: 'Human Id', enableHiding: false },
+            { field: 'frameno', displayName: 'Frame No', enableHiding: false },
+            { field: 'startTime', displayName: 'Start Time', enableHiding: false },
+            { field: 'details', displayName: 'Details', enableHiding: false }
         ],
         multiSelect: false,
-        onRegisterApi: function(gridApi){
+        onRegisterApi: function(gridApi) {
             vm.gridApi = gridApi;
 
-            gridApi.selection.on.rowSelectionChanged($scope, function(row){
-                if(vm.gridApi.selection.getSelectedRows().length>0)
-                {
+            gridApi.selection.on.rowSelectionChanged($scope, function(row) {
+                if (vm.gridApi.selection.getSelectedRows().length > 0) {
 
                     console.log(vm.gridApi.selection.getSelectedRows()[0])
                 }
             });
 
-            $interval( function() {
+            $interval(function() {
                 vm.gridApi.core.handleWindowResize();
             }, 100);
         }
     };
 
     vm.existingShopperDet = {};
-    vm.selectAlreadyInShopper = function()
-    {
-        if(vm.gridApi.selection.getSelectedRows().length>0)
-        {
+    vm.selectAlreadyInShopper = function() {
+        if (vm.gridApi.selection.getSelectedRows().length > 0) {
             var existingShopper = angular.copy(vm.gridApi.selection.getSelectedRows()[0]);
-            vm.existingShopperDet = {eventId:existingShopper.eventId,name:"Shopper-"+existingShopper.eventId};
+            vm.existingShopperDet = { eventId: existingShopper.eventId, name: "Shopper-" + existingShopper.eventId };
 
             offsetX = existingShopper.xaxis;
             offsetY = existingShopper.yaxis;
@@ -1929,9 +1849,8 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                     confirmButtonText: "Yes, Existing shopper!",
                     closeOnConfirm: true
                 },
-                function(isConfirm){
-                    if(isConfirm)
-                    {
+                function(isConfirm) {
+                    if (isConfirm) {
                         vm.event.height = existingShopper.height;
                         vm.event.width = existingShopper.width;
                         vm.event.xaxis = existingShopper.xaxis;
@@ -1939,10 +1858,9 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                         vm.event.yaxis = existingShopper.yaxis;
                         vm.event.yendaxis = existingShopper.yendaxis;
 
-                        vm.saveCategory(true,false,'New');
-                    }else
-                    {
-                        $('#existingShoppersList').modal('show',{
+                        vm.saveCategory(true, false, 'New');
+                    } else {
+                        $('#existingShoppersList').modal('show', {
                             backdrop: true,
                             keyboard: false
                         });
@@ -1954,7 +1872,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                         vm.showSelectedEventOnTopOfVideo(false);*/
                     }
                 },
-                function(){
+                function() {
 
                 }
             );
@@ -1964,56 +1882,45 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         }
     }
     vm.loadMorePreviousFrameShoppers = false;
-    vm.showPreviousFramesShoppers = function()
-    {
+    vm.showPreviousFramesShoppers = function() {
         vm.loadMorePreviousFrameShoppers = true;
         vm.showExistingShoppers();
     }
 
-    vm.showExistingShoppers = function()
-    {
+    vm.showExistingShoppers = function() {
         vm.gridOptions.data = [];
         vm.previousVideoPosition = vm.playingVideoPosition - forwardDuration;
 
-        if(vm.previousVideoPosition>=0)
-        {
+        if (vm.previousVideoPosition >= 0) {
             vm.previousFrameNo = (vm.previousVideoPosition * vm.metaDataObj.GFPS) + 1;
-            var filterObject = {startTime:vm.previousVideoPosition,videoId:vm.selectedVideoId,isDiscarded:0,frameno:vm.previousFrameNo};
-            if(vm.previousFrameNo>1 && vm.loadMorePreviousFrameShoppers)
-            {
-                filterObject = {videoId:vm.selectedVideoId,isDiscarded:0,frameno:{$lt:vm.previousFrameNo}};
+            var filterObject = { startTime: vm.previousVideoPosition, videoId: vm.selectedVideoId, isDiscarded: 0, frameno: vm.previousFrameNo };
+            if (vm.previousFrameNo > 1 && vm.loadMorePreviousFrameShoppers) {
+                filterObject = { videoId: vm.selectedVideoId, isDiscarded: 0, frameno: { $lt: vm.previousFrameNo } };
             }
             EventService
                 .getAllShoppersByStartTime(filterObject)
                 .success(function(data, status) {
-                    for(var len=0;len<data.length;len++)
-                    {
-                        if(data[len].analysis && data[len].analysis['SHOPPERPROFILE'])
-                        {
+                    for (var len = 0; len < data.length; len++) {
+                        if (data[len].analysis && data[len].analysis['SHOPPERPROFILE']) {
                             data[len]['details'] = '';
-                            if(data[len].analysis['SHOPPERPROFILE']['Gender'])
-                            {
-                                data[len]['details'] = data[len]['details'] + data[len].analysis['SHOPPERPROFILE']['Gender'].substring(0, 1)+',';
+                            if (data[len].analysis['SHOPPERPROFILE']['Gender']) {
+                                data[len]['details'] = data[len]['details'] + data[len].analysis['SHOPPERPROFILE']['Gender'].substring(0, 1) + ',';
                             }
 
-                            if(data[len].analysis['SHOPPERPROFILE']['Group'])
-                            {
-                                data[len]['details'] = data[len]['details'] + data[len].analysis['SHOPPERPROFILE']['Group'].substring(0, 2)+',';
+                            if (data[len].analysis['SHOPPERPROFILE']['Group']) {
+                                data[len]['details'] = data[len]['details'] + data[len].analysis['SHOPPERPROFILE']['Group'].substring(0, 2) + ',';
                             }
 
-                            if(data[len].analysis['SHOPPERPROFILE']['Age'])
-                            {
-                                data[len]['details'] = data[len]['details'] + data[len].analysis['SHOPPERPROFILE']['Age'].substring(0, 2)+',';
+                            if (data[len].analysis['SHOPPERPROFILE']['Age']) {
+                                data[len]['details'] = data[len]['details'] + data[len].analysis['SHOPPERPROFILE']['Age'].substring(0, 2) + ',';
                             }
 
-                            if(data[len].analysis['SHOPPERPROFILE']['Color of Top'])
-                            {
-                                data[len]['details'] = data[len]['details'] + data[len].analysis['SHOPPERPROFILE']['Color of Top'].substring(0, 2)+',';
+                            if (data[len].analysis['SHOPPERPROFILE']['Color of Top']) {
+                                data[len]['details'] = data[len]['details'] + data[len].analysis['SHOPPERPROFILE']['Color of Top'].substring(0, 2) + ',';
                             }
 
-                            if(data[len]['details'].endsWith(","))
-                            {
-                                data[len]['details'] = data[len]['details'].substring(0,data[len]['details'].length-1);
+                            if (data[len]['details'].endsWith(",")) {
+                                data[len]['details'] = data[len]['details'].substring(0, data[len]['details'].length - 1);
                             }
                         }
                     }
@@ -2023,7 +1930,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                 });
         }
 
-        $('#existingShoppersList').modal('show',{
+        $('#existingShoppersList').modal('show', {
             backdrop: true,
             keyboard: false
         });
@@ -2045,24 +1952,24 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                 angular.forEach(data, function(item) {
                     vm.types[item.name] = item.imageUrl;
                 });
-            }).error(function(err, status) {
-            });
+            }).error(function(err, status) {});
     }
 
     vm.videosNoneMsg = '';
 
-    vm.getCoordinates = function(event)
-    {
-        if((vm.flag.dataEntry) || (vm.selectedEvent && vm.selectedEvent != undefined && (vm.selectedEvent.length>0 || vm.isNewShopper) && vm.flag  && vm.currentSelectedVideo && vm.currentSelectedVideo !== ''))
-        {
+    vm.getCoordinates = function(event) {
+
+        var pause_state = document.getElementById("video").paused;
+        $rootScope.isTracking = pause_state;
+
+        if ((vm.flag.dataEntry) || (vm.selectedEvent && vm.selectedEvent != undefined && (vm.selectedEvent.length > 0 || vm.isNewShopper) && vm.flag && vm.currentSelectedVideo && vm.currentSelectedVideo !== '')) {
             offsetX = event.offsetX;
             offsetY = event.offsetY;
             vm.showSelectedEventOnTopOfVideo(false);
         }
     }
 
-    $scope.deleteObjcect = function(obj)
-    {
+    $scope.deleteObjcect = function(obj) {
         swal({
                 title: "Are you sure?",
                 text: "Would You Like To Delete An Event?",
@@ -2072,14 +1979,12 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
                 confirmButtonText: "Yes, delete it!",
                 closeOnConfirm: true
             },
-            function(){
-                if(moveObject != null && moveObject != undefined && !jQuery.isEmptyObject(moveObject))
-                {
+            function() {
+                if (moveObject != null && moveObject != undefined && !jQuery.isEmptyObject(moveObject)) {
                     moveObject.remove();
                     vm.closeDataEntry();
                 }
-                if(vm.selectedCurrCategory)
-                {
+                if (vm.selectedCurrCategory) {
                     deleteSelectedEvent();
                     vm.closeDataEntry();
                 }
@@ -2090,7 +1995,9 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     vm.contentObjs = {};
     vm.cssObjs = {};
 
-    vm.points = [[]];
+    vm.points = [
+        []
+    ];
     vm.imageSrc = "https://cloud.githubusercontent.com/assets/121322/18649301/a9740512-7e73-11e6-8db1-e266cd1c2a3b.jpg";
     vm.enabled = true;
     vm.colorArray = ['#FF0000', '#FFFF00', '#0000FF', '#008000', '#C0C0C0'];
@@ -2100,8 +2007,7 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
     vm.points.push([]);
     vm.activePolygon = vm.points.length - 1;
 
-    vm.showSelectedEventOnTopOfVideo = function(firstTimeEdit)
-    {
+    vm.showSelectedEventOnTopOfVideo = function(firstTimeEdit) {
         //$compile(angular.element('#video'))(vm);
         videoElementInstance = document.getElementById('video');
         videoRelativeContainer = document.createElement('div');
@@ -2137,8 +2043,8 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
         var divVid = document.getElementById("video");
         videoElementInstance.parentNode.appendChild(svg,videoElementInstance);*/
 
-        var pinPointBoxHTML = 'User Selected<br>'+
-            'Time:'+vm.mediaPlayerApi.properties.currentTime();
+        var pinPointBoxHTML = 'User Selected<br>' +
+            'Time:' + vm.mediaPlayerApi.properties.currentTime();
         node.innerHTML = pinPointBoxHTML;
 
         var css = {
@@ -2151,24 +2057,23 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             "box-sizing": "border-box",
             "color": "white",
             "padding": "2px",
-            "width":"50px",
-            "height":"100px"
+            "width": "50px",
+            "height": "100px"
 
         }
 
         node.setAttribute('style', JSON.stringify(css).replace(/"*\{*\}*/gi, '').replace(/,/gi, ';'))
 
-        if(firstTimeEdit)
-        {
+        if (firstTimeEdit) {
             vm.shopperDisplayingId = angular.copy(shopperCount);
-            vm.shopperDisplayingId = vm.shopperDisplayingId+1;
+            vm.shopperDisplayingId = vm.shopperDisplayingId + 1;
         }
 
         node.style.left = offsetX + 'px';
         node.style.top = offsetY + 'px';
-        var pinPointBoxHTML = 'ID:'+vm.shopperDisplayingId+'<br>'+
-                              'X:'+offsetX+'<br>'+
-                              'Y:'+offsetY+'<br>';
+        var pinPointBoxHTML = 'ID:' + vm.shopperDisplayingId + '<br>' +
+            'X:' + offsetX + '<br>' +
+            'Y:' + offsetY + '<br>';
 
         node.innerHTML = pinPointBoxHTML;
 
@@ -2181,39 +2086,37 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             "box-sizing": "border-box",
             "color": "white",
             "padding": "2px",
-            "min-width":"25px",
-            "min-height":"50px",
-            "max-width":"320px",
-            "max-height":"600px",
-            "z-index":"1",
-            "resize":"both",
-            "cursor":"move",
-            "left":node.style.left,
-            "top":node.style.top,
-            "height":height,
-            "width":width
+            "min-width": "25px",
+            "min-height": "50px",
+            "max-width": "320px",
+            "max-height": "600px",
+            "z-index": "1",
+            "resize": "both",
+            "cursor": "move",
+            "left": node.style.left,
+            "top": node.style.top,
+            "height": height,
+            "width": width
         }
 
         var eventId = vm.event.eventId;
         vm.contentObjs[eventId] = angular.copy(pinPointBoxHTML);
         vm.cssObjs[eventId] = angular.copy(css);
 
-        if(vm.drawnObjs[eventId] != null && vm.drawnObjs[eventId] != undefined)
-        {
-           vm.drawnObjs[eventId].remove();
-           resetAllDrawnBoxes();
+        if (vm.drawnObjs[eventId] != null && vm.drawnObjs[eventId] != undefined) {
+            vm.drawnObjs[eventId].remove();
+            resetAllDrawnBoxes();
         }
 
         css.border = "3px solid #16ef16";
 
-        if(vm.deleteOpt)
-        {
-            pinPointBoxHTML = $compile("<span ng-click='deleteObjcect(this)' style=\"cursor: pointer;position: absolute;background-color: red;right: 0px;top: 0;color: white;padding: 3px;border-radius: 3px;line-height: 15px;font-family: monospace;font-size: medium;z-index:1;\">X</span><br>"+pinPointBoxHTML)($scope);
+        if (vm.deleteOpt) {
+            pinPointBoxHTML = $compile("<span ng-click='deleteObjcect(this)' style=\"cursor: pointer;position: absolute;background-color: red;right: 0px;top: 0;color: white;padding: 3px;border-radius: 3px;line-height: 15px;font-family: monospace;font-size: medium;z-index:1;\">X</span><br>" + pinPointBoxHTML)($scope);
         }
         vm.display = pinPointBoxHTML;
 
         this.divObj = $('<div id="rectDranEle"/>').addClass("ui-resizable").css(css).html(vm.display).appendTo(videoRelativeContainer);
-        this.divObj.draggable({ containment: videoElementInstance }).resizable({containment: videoElementInstance});
+        this.divObj.draggable({ containment: videoElementInstance }).resizable({ containment: videoElementInstance });
         moveObject = this.divObj;
 
         vm.drawnObjs[eventId] = moveObject;
@@ -2225,56 +2128,53 @@ function DashboardController($scope,$compile,$interval,$timeout,$rootScope, $loc
             offsetX = Math.round(objDrawn.left);
             offsetY = Math.round(objDrawn.top);
         });
-        this.divObj.on( "dragstop", function( event, ui ) {
+        this.divObj.on("dragstop", function(event, ui) {
             var objDrawn = moveObject.position();
-            height = moveObject.height()+8;
-            width = moveObject.width()+8;
+            height = moveObject.height() + 8;
+            width = moveObject.width() + 8;
             offsetX = objDrawn.left;
             offsetY = objDrawn.top;
-            pinPointBoxHTML = 'ID:'+vm.shopperDisplayingId+'<br>'+
-                'X:'+offsetX+'<br>'+
-                'Y:'+offsetY+'<br>';
+            pinPointBoxHTML = 'ID:' + vm.shopperDisplayingId + '<br>' +
+                'X:' + offsetX + '<br>' +
+                'Y:' + offsetY + '<br>';
 
-            if(vm.event.ideocapid != null && vm.event.ideocapid != undefined && vm.event.ideocapid != '')
-            {
-                pinPointBoxHTML = 'ID:'+vm.currentEventID+'<br>'+
-                    'X:'+offsetX+'<br>'+
-                    'Y:'+offsetY+'<br>'+
-                    'IC:'+vm.event.ideocapid+'<br>';
+            if (vm.event.ideocapid != null && vm.event.ideocapid != undefined && vm.event.ideocapid != '') {
+                pinPointBoxHTML = 'ID:' + vm.currentEventID + '<br>' +
+                    'X:' + offsetX + '<br>' +
+                    'Y:' + offsetY + '<br>' +
+                    'IC:' + vm.event.ideocapid + '<br>';
             }
 
             vm.display = pinPointBoxHTML;
             vm.contentObjs[eventId] = angular.copy(pinPointBoxHTML);
-        } );
+        });
 
-        if(!vm.deleteOpt) {
-            this.divObj.draggable({disabled: true});
-            this.divObj.resizable({disabled: true});
+        if (!vm.deleteOpt) {
+            this.divObj.draggable({ disabled: true });
+            this.divObj.resizable({ disabled: true });
             this.divObj.css(vm.cssObjs[eventId]).html(vm.contentObjs[eventId]);
         }
 
-        if(userFirstTimeOpen)
-        {
+        if (userFirstTimeOpen) {
             userFirstTimeOpen = false;
             $timeout(function() {
-                if(vm.selectedEventIndex != undefined && vm.selectedEvent && vm.selectedEvent.length>0)
-                {
+                if (vm.selectedEventIndex != undefined && vm.selectedEvent && vm.selectedEvent.length > 0) {
                     vm.selectedEvent = angular.copy(vm.originalSelectedEvent);
                     vm.drawRectangularBoxOverShopper();
                 }
 
-                selectedHumanInHumanList(0,vm.events[0]);
+                selectedHumanInHumanList(0, vm.events[0]);
             }, 1000);
         }
     }
 
     var q = setInterval(function() {
-        var userId = $localStorage.user ? $localStorage.user.userId: null;
+        var userId = $localStorage.user ? $localStorage.user.userId : null;
         // if window.dashboard === false, terminate polling
-        if(!window.dashboard) {
+        if (!window.dashboard) {
             clearInterval(q);
         }
-        if(vm.analysing === false && startPolling) {
+        if (vm.analysing === false && startPolling) {
             startPolling = false;
             VideoService
                 .getUnlockedVideos(userId)
@@ -2456,4 +2356,3 @@ function VideoMonitorHandler(eventsData, videoElementInstance, options) {
     }
 
 }*/
-
