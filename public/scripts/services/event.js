@@ -4,6 +4,7 @@ angular
     .factory('EventService', EventService);
 
 EventService.$inject = ['$http', '$localStorage'];
+
 function EventService($http, $localStorage) {
 
     var selectedVideo = new Object();
@@ -12,39 +13,35 @@ function EventService($http, $localStorage) {
         getEvents: getEvents,
         newEvent: newEvent,
         updateEvent: updateEvent,
-        getEventsByVideoPagination:getEventsByVideoPagination,
+        getEventsByVideoPagination: getEventsByVideoPagination,
         removeEvent: deleteEvent,
-        getEventsByVideoAggregation:getEventsByVideoAggregation,
+        getEventsByVideoAggregation: getEventsByVideoAggregation,
 
-        setSelectedVideo : setSelectedVideo,
-        getSelectedVideo : getSelectedVideo,
+        setSelectedVideo: setSelectedVideo,
+        getSelectedVideo: getSelectedVideo,
 
-        setHeatMapFilterObj : setHeatMapFilterObj,
-        getHeatMapFilterObj : getHeatMapFilterObj,
-        getEventsByVideoForHeatMap:getEventsByVideoForHeatMap,
-        saveEventssFromCSVWithForm:saveEventssFromCSVWithForm,
-        getEventListByVideo : getEventListByVideo,
-        getAllShoppersByStartTime:getAllShoppersByStartTime
+        setHeatMapFilterObj: setHeatMapFilterObj,
+        getHeatMapFilterObj: getHeatMapFilterObj,
+        getEventsByVideoForHeatMap: getEventsByVideoForHeatMap,
+        saveEventssFromCSVWithForm: saveEventssFromCSVWithForm,
+        getEventListByVideo: getEventListByVideo,
+        getAllShoppersByStartTime: getAllShoppersByStartTime
 
     };
 
-    function setSelectedVideo(currentVideo)
-    {
+    function setSelectedVideo(currentVideo) {
         selectedVideo = currentVideo;
     }
 
-    function getSelectedVideo()
-    {
+    function getSelectedVideo() {
         return selectedVideo;
     }
 
-    function setHeatMapFilterObj(filterObj)
-    {
+    function setHeatMapFilterObj(filterObj) {
         heatMapFilterObj = filterObj;
     }
 
-    function getHeatMapFilterObj()
-    {
+    function getHeatMapFilterObj() {
         return heatMapFilterObj;
     }
 
@@ -53,37 +50,38 @@ function EventService($http, $localStorage) {
     };
 
     function getEventsByVideoForHeatMap(filterObj) {
-        return $http.post('/api/events/getEventsByVideoForHeatMap',filterObj);
+        return $http.post('/api/events/getEventsByVideoForHeatMap', filterObj);
     };
 
-    function getEventsByVideoPagination(pageNo,videoId) {
-        return $http.post('/api/events/getEventsByVideoPagination',{page:pageNo,videoId:videoId});
+    function getEventsByVideoPagination(pageNo, videoId) {
+        return $http.post('/api/events/getEventsByVideoPagination', { page: pageNo, videoId: videoId });
     };
 
     function getEventsByVideoAggregation(inputObj) {
-        return $http.post('/api/events/getEventsByVideoAggregation',inputObj);
+        return $http.post('/api/events/getEventsByVideoAggregation', inputObj);
     };
 
-    function deleteEvent(eventId,videoId,discarded, discardUserId) {
-        return $http.post('/api/removeEventById',{eventId:eventId,videoId:videoId,isDiscarded:discarded, discardUserId:discardUserId});
+    function deleteEvent(eventId, videoId, discarded, discardUserId) {
+        return $http.post('/api/removeEventById', { eventId: eventId, videoId: videoId, isDiscarded: discarded, discardUserId: discardUserId });
     };
 
-    function saveEventssFromCSVWithForm(csvData,videoId,videoObj) {
-        return $http.post('/api/events/saveEventsFromCSVWithForm',{csvData:csvData,videoId:videoId,frameWidth:videoObj.frameWidth,frameHeight:videoObj.frameHeight});
+    function saveEventssFromCSVWithForm(csvData, videoId, videoObj) {
+        return $http.post('/api/events/saveEventsFromCSVWithForm', { csvData: csvData, videoId: videoId, frameWidth: videoObj.frameWidth, frameHeight: videoObj.frameHeight });
     }
 
     function getEventListByVideo(videoId) {
-        return $http.post('/api/events/getEventListByVideo',{videoId:videoId});
+        return $http.post('/api/events/getEventListByVideo', { videoId: videoId });
+    }
+
+    function getEventSubListByVideo(videoId) {
+        return $http.post('/api/events/getEventSubListByVideo', { videoId: videoId });
     }
 
     function newEvent(data) {
 
-        if(data.eventId != undefined)
-        {
+        if (data.eventId != undefined) {
             return $http.put('/api/event/update', data);
-        }
-        else
-        {
+        } else {
             return $http.post('/api/event', data);
         }
 
@@ -94,7 +92,7 @@ function EventService($http, $localStorage) {
     };
 
     function getAllShoppersByStartTime(filterObj) {
-        return $http.post('/api/events/getAllShoppersByStartTime',filterObj);
+        return $http.post('/api/events/getAllShoppersByStartTime', filterObj);
     };
 
 }

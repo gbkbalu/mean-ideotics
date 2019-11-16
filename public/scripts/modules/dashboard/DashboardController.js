@@ -18,9 +18,9 @@ angular
     .module('ideotics')
     .controller('DashboardController', DashboardController);
 
-DashboardController.$inject = ['$scope', '$compile', '$interval', '$timeout', '$rootScope', '$location', '$localStorage', 'VideoService', 'CategoryService', 'EventService', 'AuthService', 'SubCategoryService', 'IconsService', 'AwsService'];
+DashboardController.$inject = ['$scope', '$compile', '$interval', '$timeout', '$rootScope', '$location', '$localStorage', 'VideoService', 'CategoryService', 'EventService', 'TestService', 'AuthService', 'SubCategoryService', 'IconsService', 'AwsService'];
 
-function DashboardController($scope, $compile, $interval, $timeout, $rootScope, $location, $localStorage, VideoService, CategoryService, EventService, AuthService, SubCategoryService, IconsService, AwsService) {
+function DashboardController($scope, $compile, $interval, $timeout, $rootScope, $location, $localStorage, VideoService, CategoryService, EventService, TestService, AuthService, SubCategoryService, IconsService, AwsService) {
 
     // window.dashboard === false, terminate polling
     window.dashboard = true;
@@ -1483,12 +1483,38 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         $rootScope.isTracking = true;
     }
 
+    let frame_rate = 25;
+    let sub_frame_rate = 5;
+
     setInterval(function() {
 
         if (!$rootScope.isTracking)
             return;
 
-        console.log(222);
+        if (!vm.currentVideo.videoId) {
+            console.log("Select a video!");
+            return;
+        }
+
+        let current_time = Math.round(vm.mediaPlayerApi.properties.currentTime());
+
+        TestService
+            .getEventListByVideo(vm.currentVideo.videoId, current_time, frame_rate)
+            .success(function(data, status) {
+                for (let i = 0; i < data.length - 1; i++) {
+                    for (let tm = 0; tm < sub_frame_rate; tm++) {
+                        setTimeout(() => {
+                            for (let st_key in data[i].objects) {
+                                let st_val = data[i].objects[st_key];
+                                let ed_val = data[i + 1].objects[st_key];
+                                let cur_pos_x = 0; //(st_val.x * tm + ed_val * (nframe-tm)) / nframe;
+                                draw_rect(cur_pos_x, cur_pos_y);
+                            }
+                        }, 1000 / sub_frame_rate);
+                    }
+                }
+
+            });
 
     }, 1000);
 
