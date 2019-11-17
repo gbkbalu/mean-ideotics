@@ -110,7 +110,7 @@ exports.getEventListByVideo = (req, res) => {
     let from_idx = current_time * frame_rate;
     let to_idx = from_idx + frame_rate;
 
-    console.log("video_id, from_idx, to_idx =", video_id, from_idx, to_idx);
+    console.log("video_id, from_idx, to_idx =", video_id, current_time, from_idx, to_idx);
 
     mongoose.models.test_collections.find({
             video_id,

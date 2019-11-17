@@ -67,6 +67,7 @@
 
             <ab-video ng-if="globals.user.role != 'admin'" api="dashVM.mediaPlayerApi" ng-click="dashVM.getCoordinates($event)" controlsList="nodownload">
             </ab-video>
+            <svg id="svg" width="100%" height="100%" style="position: absolute; top:0px; left:8px;"></svg>
         </div>
 
         <div ng-class="{'col-xs-3': !dashVM.flag.dataEntry, 'col-xs-5': dashVM.flag.dataEntry}">

@@ -1,9 +1,15 @@
 "use strict";
+
+let svgns = "http://www.w3.org/2000/svg";
+let frame_rate = 25;
+let sub_frame_rate = 5;
+
 var videoElement, options, CCTV;
 var videoElementInstance = document.getElementById('video');
 var videoRelativeContainer = document.createElement('div');
 var node = document.createElement('div');
 var moveObject = new Object();
+
 $(document).ready(function() {
     function deleteObject(obj) {
         $(obj).parent().remove();
@@ -1483,10 +1489,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         $rootScope.isTracking = true;
     }
 
-    let frame_rate = 25;
-    let sub_frame_rate = 5;
-
-    setInterval(function() {
+    setInterval(() => {
 
         if (!$rootScope.isTracking)
             return;
@@ -1497,18 +1500,42 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         }
 
         let current_time = Math.round(vm.mediaPlayerApi.properties.currentTime());
+        if (current_time == 0)
+            return;
+
+        let v_width = document.getElementById("video").videoWidth;
+        let v_height = document.getElementById("video").videoHeight;
 
         TestService
             .getEventListByVideo(vm.currentVideo.videoId, current_time, frame_rate)
-            .success(function(data, status) {
+            .success((data, status) => {
                 for (let i = 0; i < data.length - 1; i++) {
                     for (let tm = 0; tm < sub_frame_rate; tm++) {
                         setTimeout(() => {
                             for (let st_key in data[i].objects) {
                                 let st_val = data[i].objects[st_key];
                                 let ed_val = data[i + 1].objects[st_key];
-                                let cur_pos_x = 0; //(st_val.x * tm + ed_val * (nframe-tm)) / nframe;
-                                draw_rect(cur_pos_x, cur_pos_y);
+
+                                let st_px = (st_val.x1 + st_val.x2) / 2;
+                                let st_py = (st_val.y1 + st_val.y2) / 2;
+
+                                let cur_x = st_px;
+                                let cur_y = st_py;
+
+                                if (ed_val) {
+                                    let ed_px = (ed_val.x1 + ed_val.x2) / 2;
+                                    let ed_py = (ed_val.y1 + ed_val.y2) / 2;
+
+                                    let cur_pos_x = 0; //(st_val.x * tm + ed_val * (nframe-tm)) / nframe;
+                                    cur_x = st_px + (ed_px - st_px) * tm / sub_frame_rate;
+                                    cur_y = st_py + (ed_py - st_py) * tm / sub_frame_rate;
+                                }
+
+                                cur_x = Math.round(cur_x * v_width / 1366);
+                                cur_y = Math.round(cur_y * v_height / 768);
+
+                                vm.drawObject(cur_x, cur_y);
+
                             }
                         }, 1000 / sub_frame_rate);
                     }
@@ -1518,10 +1545,60 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
     }, 1000);
 
+    vm.drawObject = function(pos_x, pos_y) {
+
+        let old_element = document.getElementById("player");
+        if (!old_element) {
+            let player_element = document.createElementNS(svgns, 'circle');
+            player_element.setAttribute("id", "player");
+            player_element.setAttribute("cx", 150);
+            player_element.setAttribute("cy", 150);
+            player_element.setAttribute("r", 40);
+            player_element.setAttribute("stroke", "blue");
+            player_element.setAttribute("stroke-width", 4);
+            player_element.setAttribute("fill", "lightgreen");
+
+            document.getElementById("svg").appendChild(player_element);
+        }
+
+        let player = document.getElementById("player");
+
+        let animation_x = document.createElementNS(svgns, "animate");
+        animation_x.setAttribute("attributeType", "XML");
+        animation_x.setAttribute("attributeName", "cx");
+        animation_x.setAttribute("dur", "2s");
+        animation_x.setAttribute("to", pos_x);
+        animation_x.setAttribute("from", player.getAttribute("cx"));
+        animation_x.setAttribute("fill", "freeze");
+        animation_x.setAttribute("id", "animation_x");
+
+        let previous_animation_x = document.getElementById("animation_x");
+        if (previous_animation_x) {
+            player.removeChild(previous_animation_x);
+        }
+        player.appendChild(animation_x);
+
+        let animation_y = document.createElementNS(svgns, "animate");
+        animation_y.setAttribute("attributeType", "XML");
+        animation_y.setAttribute("attributeName", "cy");
+        animation_y.setAttribute("dur", "2s");
+        animation_y.setAttribute("to", pos_y);
+        animation_y.setAttribute("from", player.getAttribute("cy"));
+        animation_y.setAttribute("fill", "freeze");
+        animation_y.setAttribute("id", "animation_y");
+
+        let previous_animation_y = document.getElementById("animation_y");
+        if (previous_animation_y) {
+            player.removeChild(previous_animation_y);
+        }
+        player.appendChild(animation_y);
+
+        document.getElementById("svg").setCurrentTime(0);
+    }
+
     $rootScope.$on('pauseEvent', function() {
         $rootScope.isTracking = false;
     })
-
 
     vm.totalNumberOfEvents = 0;
     vm.noOfRecordsDiscarded = 0;
@@ -1988,11 +2065,11 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         var pause_state = document.getElementById("video").paused;
         $rootScope.isTracking = pause_state;
 
-        if ((vm.flag.dataEntry) || (vm.selectedEvent && vm.selectedEvent != undefined && (vm.selectedEvent.length > 0 || vm.isNewShopper) && vm.flag && vm.currentSelectedVideo && vm.currentSelectedVideo !== '')) {
-            offsetX = event.offsetX;
-            offsetY = event.offsetY;
-            vm.showSelectedEventOnTopOfVideo(false);
-        }
+        // if ((vm.flag.dataEntry) || (vm.selectedEvent && vm.selectedEvent != undefined && (vm.selectedEvent.length > 0 || vm.isNewShopper) && vm.flag && vm.currentSelectedVideo && vm.currentSelectedVideo !== '')) {
+        //     offsetX = event.offsetX;
+        //     offsetY = event.offsetY;
+        //     vm.showSelectedEventOnTopOfVideo(false);
+        // }
     }
 
     $scope.deleteObjcect = function(obj) {
