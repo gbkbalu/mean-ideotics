@@ -1490,6 +1490,59 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         $rootScope.isTracking = true;
     }
 
+    let color_map = {
+        "obj_1": "#36688d",
+        "obj_2": "#f3cd05",
+        "obj_3": "#f49f05",
+        "obj_4": "#f18904",
+        "obj_5": "#bda589",
+        "obj_6": "#a7414a",
+        "obj_7": "#282726",
+        "obj_8": "#6a8a82",
+        "obj_9": "#a37c27",
+        "obj_10": "#563838",
+        "obj_11": "#0444bf",
+        "obj_12": "#0584f2",
+        "obj_13": "#0aaff1",
+        "obj_14": "#edf259",
+        "obj_15": "#a79674",
+        "obj_16": "#6465a5",
+        "obj_17": "#6975a6",
+        "obj_18": "#f3e96b",
+        "obj_19": "#f28a30",
+        "obj_20": "#f05837",
+        "obj_21": "#aba6bf",
+        "obj_22": "#595775",
+        "obj_23": "#583e2e",
+        "obj_24": "#f1e0d6",
+        "obj_25": "#bf988f",
+        "obj_26": "#192e5b",
+        "obj_27": "#1d65a6",
+        "obj_28": "#72a2c0",
+        "obj_29": "#00743f",
+        "obj_30": "#f2a104",
+        "obj_31": "#040c0e",
+        "obj_32": "#132226",
+        "obj_33": "#525b56",
+        "obj_34": "#be9063",
+        "obj_35": "#a4978e",
+        "obj_36": "#daa2da",
+        "obj_37": "#dbb4da",
+        "obj_38": "#de8cfo",
+        "obj_39": "#bed905",
+        "obj_40": "#93a806",
+        "obj_41": "#a4a4bf",
+        "obj_42": "#16235a",
+        "obj_43": "#2a3457",
+        "obj_44": "#888c46",
+        "obj_45": "#f2eaed",
+        "obj_46": "#a3586d",
+        "obj_47": "#5c4a72",
+        "obj_48": "#f3b05a",
+        "obj_49": "#f4874b",
+        "obj_50": "#f46a4e"
+    }
+
     const timerModule = () => {
 
         if (!$rootScope.isTracking)
@@ -1514,7 +1567,6 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             .getEventListByVideo(vm.currentVideo.videoId, current_time, frame_rate)
             .success((data, status) => {
                 for (let i = 0; i < data.length - 1; i++) {
-                    // for (let tm = 0; tm < sub_frame_rate; tm++) {
                     $timeout(() => {
                         for (let st_key in data[i].objects) {
                             let st_val = data[i].objects[st_key];
@@ -1523,66 +1575,74 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                             let st_px = (st_val.x1 + st_val.x2) / 2;
                             let st_py = (st_val.y1 + st_val.y2) / 2;
 
-                            let cur_x = st_px;
-                            let cur_y = st_py;
+                            let ed_px;
+                            let ed_py;
 
                             if (ed_val) {
-                                // let ed_px = (ed_val.x1 + ed_val.x2) / 2;
-                                // let ed_py = (ed_val.y1 + ed_val.y2) / 2;
-
-                                // let cur_pos_x = 0; //(st_val.x * tm + ed_val * (nframe-tm)) / nframe;
-                                // cur_x = st_px + (ed_px - st_px) * tm / sub_frame_rate;
-                                // cur_y = st_py + (ed_py - st_py) * tm / sub_frame_rate;
+                                ed_px = (ed_val.x1 + ed_val.x2) / 2;
+                                ed_py = (ed_val.y1 + ed_val.y2) / 2;
+                            } else {
+                                ed_px = st_px;
+                                ed_py = st_py;
                             }
 
-                            cur_x = Math.round(cur_x * v_width / Math.max(1366, v_width));
-                            cur_y = Math.round(cur_y * v_height / Math.max(768, v_height));
+                            st_px = Math.round(st_px * v_width / Math.max(1366, v_width));
+                            st_py = Math.round(st_py * v_height / Math.max(768, v_height));
 
-                            vm.drawObject(cur_x / 2, cur_y / 2);
+                            ed_px = Math.round(ed_px * v_width / Math.max(1366, v_width));
+                            ed_py = Math.round(ed_py * v_height / Math.max(768, v_height));
+
+                            vm.drawObject(st_key, st_px / 2, st_py / 2, ed_px / 2, ed_py / 2);
 
                         }
                     }, 1000 / sub_frame_rate);
-                    // }
                 }
 
             });
 
     };
 
-    vm.drawObject = function(pos_x, pos_y) {
+    vm.drawObject = function(obj_key, st_px, st_py, ed_px, ed_py) {
+
+        // if (obj_key != "obj_2")
+        //     return;
 
         let g_container = document.getElementById("svg").getElementById("g");
         if (!g_container)
             return;
-        let old_element = document.getElementById("player");
-        if (!old_element) {
+        let player = document.getElementById(obj_key);
+        if (!player) {
             let player_element = document.createElementNS(svgns, 'circle');
-            player_element.setAttribute("id", "player");
-            player_element.setAttribute("cx", 150);
-            player_element.setAttribute("cy", 150);
-            player_element.setAttribute("r", 40);
+            player_element.setAttribute("id", obj_key);
+            player_element.setAttribute("cx", st_px);
+            player_element.setAttribute("cy", st_py);
+            player_element.setAttribute("r", 30);
             player_element.setAttribute("z-index", "1000");
             player_element.setAttribute("stroke", "blue");
             player_element.setAttribute("stroke-width", 4);
-            player_element.setAttribute("fill", "lightgreen");
+            player_element.setAttribute("fill", color_map[obj_key]);
 
             g_container.appendChild(player_element);
         }
 
-        let player = document.getElementById("player");
+        player = document.getElementById(obj_key);
 
         let animation_x = document.createElementNS(svgns, "animate");
         animation_x.setAttribute("attributeType", "XML");
         animation_x.setAttribute("attributeName", "cx");
         animation_x.setAttribute("dur", "2s");
-        animation_x.setAttribute("to", pos_x);
+        animation_x.setAttribute("to", ed_px);
         animation_x.setAttribute("from", player.getAttribute("cx"));
         animation_x.setAttribute("fill", "freeze");
         animation_x.setAttribute("id", "animation_x");
 
         let previous_animation_x = document.getElementById("animation_x");
         if (previous_animation_x) {
-            player.removeChild(previous_animation_x);
+            try {
+                player.removeChild(previous_animation_x);
+            } catch (e) {
+                console.log(e);
+            }
         }
         player.appendChild(animation_x);
 
@@ -1590,14 +1650,19 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         animation_y.setAttribute("attributeType", "XML");
         animation_y.setAttribute("attributeName", "cy");
         animation_y.setAttribute("dur", "2s");
-        animation_y.setAttribute("to", pos_y);
+        animation_y.setAttribute("to", ed_py);
         animation_y.setAttribute("from", player.getAttribute("cy"));
         animation_y.setAttribute("fill", "freeze");
         animation_y.setAttribute("id", "animation_y");
 
         let previous_animation_y = document.getElementById("animation_y");
         if (previous_animation_y) {
-            player.removeChild(previous_animation_y);
+            try {
+                player.removeChild(previous_animation_y);
+            } catch (e) {
+                console.log(e);
+            }
+
         }
         player.appendChild(animation_y);
 
