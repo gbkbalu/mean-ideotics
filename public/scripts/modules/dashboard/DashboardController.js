@@ -262,7 +262,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     vm.selectedEventIndex = '';
 
     // Init
-    getUnlockVideos();
+    getUnlockVideos(); //commendted by baimin
     getTypes();
 
     //pausedVideoId = $localStorage.user.pausedVideoId;
@@ -534,9 +534,10 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                             pausedVideoId = element.videoId;
                             // vm.analysing = true;         //commented by baimin
 
-                            vm.mediaPlayerApi.controls.pause();
+                            if (vm.mediaPlayerApi.controls)
+                                vm.mediaPlayerApi.controls.pause();
 
-                            openVideo(pausedVideo, true, pausedTime, true);
+                            // openVideo(pausedVideo, true, pausedTime, true);      //commented by baimin
                         }
                     });
                 } else {
@@ -1450,7 +1451,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                                     });
                             } else {
                                 bucketUrl = video.url;
-                                vm.mediaPlayerApi.controls.changeSource(bucketUrl, play);
+                                // vm.mediaPlayerApi.controls.changeSource(bucketUrl, play);
                                 // vm.mediaPlayerApi.controls.pause();
                             }
 
@@ -1489,7 +1490,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         $rootScope.isTracking = true;
     }
 
-    setInterval(() => {
+    const timerModule = () => {
 
         if (!$rootScope.isTracking)
             return;
@@ -1503,6 +1504,9 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         if (current_time == 0)
             return;
 
+        document.getElementById('video').addEventListener('ended', endedHandler, false);
+        document.getElementById('video').addEventListener('play', playHandler, false);
+
         let v_width = document.getElementById("video").videoWidth;
         let v_height = document.getElementById("video").videoHeight;
 
@@ -1510,43 +1514,46 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             .getEventListByVideo(vm.currentVideo.videoId, current_time, frame_rate)
             .success((data, status) => {
                 for (let i = 0; i < data.length - 1; i++) {
-                    for (let tm = 0; tm < sub_frame_rate; tm++) {
-                        setTimeout(() => {
-                            for (let st_key in data[i].objects) {
-                                let st_val = data[i].objects[st_key];
-                                let ed_val = data[i + 1].objects[st_key];
+                    // for (let tm = 0; tm < sub_frame_rate; tm++) {
+                    $timeout(() => {
+                        for (let st_key in data[i].objects) {
+                            let st_val = data[i].objects[st_key];
+                            let ed_val = data[i + 1].objects[st_key];
 
-                                let st_px = (st_val.x1 + st_val.x2) / 2;
-                                let st_py = (st_val.y1 + st_val.y2) / 2;
+                            let st_px = (st_val.x1 + st_val.x2) / 2;
+                            let st_py = (st_val.y1 + st_val.y2) / 2;
 
-                                let cur_x = st_px;
-                                let cur_y = st_py;
+                            let cur_x = st_px;
+                            let cur_y = st_py;
 
-                                if (ed_val) {
-                                    let ed_px = (ed_val.x1 + ed_val.x2) / 2;
-                                    let ed_py = (ed_val.y1 + ed_val.y2) / 2;
+                            if (ed_val) {
+                                // let ed_px = (ed_val.x1 + ed_val.x2) / 2;
+                                // let ed_py = (ed_val.y1 + ed_val.y2) / 2;
 
-                                    let cur_pos_x = 0; //(st_val.x * tm + ed_val * (nframe-tm)) / nframe;
-                                    cur_x = st_px + (ed_px - st_px) * tm / sub_frame_rate;
-                                    cur_y = st_py + (ed_py - st_py) * tm / sub_frame_rate;
-                                }
-
-                                cur_x = Math.round(cur_x * v_width / 1366);
-                                cur_y = Math.round(cur_y * v_height / 768);
-
-                                vm.drawObject(cur_x, cur_y);
-
+                                // let cur_pos_x = 0; //(st_val.x * tm + ed_val * (nframe-tm)) / nframe;
+                                // cur_x = st_px + (ed_px - st_px) * tm / sub_frame_rate;
+                                // cur_y = st_py + (ed_py - st_py) * tm / sub_frame_rate;
                             }
-                        }, 1000 / sub_frame_rate);
-                    }
+
+                            cur_x = Math.round(cur_x * v_width / Math.max(1366, v_width));
+                            cur_y = Math.round(cur_y * v_height / Math.max(768, v_height));
+
+                            vm.drawObject(cur_x / 2, cur_y / 2);
+
+                        }
+                    }, 1000 / sub_frame_rate);
+                    // }
                 }
 
             });
 
-    }, 1000);
+    };
 
     vm.drawObject = function(pos_x, pos_y) {
 
+        let g_container = document.getElementById("svg").getElementById("g");
+        if (!g_container)
+            return;
         let old_element = document.getElementById("player");
         if (!old_element) {
             let player_element = document.createElementNS(svgns, 'circle');
@@ -1554,11 +1561,12 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             player_element.setAttribute("cx", 150);
             player_element.setAttribute("cy", 150);
             player_element.setAttribute("r", 40);
+            player_element.setAttribute("z-index", "1000");
             player_element.setAttribute("stroke", "blue");
             player_element.setAttribute("stroke-width", 4);
             player_element.setAttribute("fill", "lightgreen");
 
-            document.getElementById("svg").appendChild(player_element);
+            g_container.appendChild(player_element);
         }
 
         let player = document.getElementById("player");
@@ -1595,6 +1603,20 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
         document.getElementById("svg").setCurrentTime(0);
     }
+
+    let trackingHandler;
+
+    const playHandler = () => {
+        if (trackingHandler)
+            return;
+        trackingHandler = setInterval(timerModule, 1000);
+    }
+
+    const endedHandler = (e) => {
+        clearInterval(trackingHandler);
+    }
+
+    playHandler();
 
     $rootScope.$on('pauseEvent', function() {
         $rootScope.isTracking = false;
@@ -2115,39 +2137,11 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         videoElementInstance = document.getElementById('video');
         videoRelativeContainer = document.createElement('div');
 
-        videoRelativeContainer.style.position = 'relative'
-        videoElementInstance.parentNode.insertBefore(videoRelativeContainer, videoElementInstance)
-        videoRelativeContainer.appendChild(videoElementInstance)
+        videoRelativeContainer.style.position = 'relative';
+        videoElementInstance.parentNode.insertBefore(videoRelativeContainer, videoElementInstance);
+        videoRelativeContainer.appendChild(videoElementInstance);
 
-        /*var svg = d3.select("#video").append("svg:svg")
-            .attr("width", 500)
-            .attr("height", 500)
-            .style("pointer-events", "all")
-            .append("g")
-            .attr("transform", "translate(20,20)")
-
-        svg.append('polygon')
-            .attr("points", "220,10 300,210 170,250 123,0")
-        ;*/
-
-        //svg.style.position = 'relative'
-        //videoElementInstance.parentNode.insertBefore(svg[0][0], videoElementInstance)
-
-        // create SVG root element
-        /*var svg = document.createElementNS("http://www.w3.org/2000/svg", 'svg'); // don't need to pass in 'true'
-        svg.setAttribute('width', '600');
-        svg.setAttribute('height', '600');
-        svg.setAttribute('position', 'absolute');
-
-        // create an example circle and append it to SVG root element
-        var circle = document.createElementNS("http://www.w3.org/2000/svg", 'polygon');
-        circle.setAttribute("points", "220,10 300,210 170,250 123,0")
-        svg.appendChild(circle);
-        var divVid = document.getElementById("video");
-        videoElementInstance.parentNode.appendChild(svg,videoElementInstance);*/
-
-        var pinPointBoxHTML = 'User Selected<br>' +
-            'Time:' + vm.mediaPlayerApi.properties.currentTime();
+        var pinPointBoxHTML = 'User Selected<br> Time:' + vm.mediaPlayerApi.properties.currentTime();
         node.innerHTML = pinPointBoxHTML;
 
         var css = {
@@ -2162,10 +2156,9 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             "padding": "2px",
             "width": "50px",
             "height": "100px"
-
         }
 
-        node.setAttribute('style', JSON.stringify(css).replace(/"*\{*\}*/gi, '').replace(/,/gi, ';'))
+        node.setAttribute('style', JSON.stringify(css).replace(/"*\{*\}*/gi, '').replace(/,/gi, ';'));
 
         if (firstTimeEdit) {
             vm.shopperDisplayingId = angular.copy(shopperCount);
@@ -2271,7 +2264,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         }
     }
 
-    var q = setInterval(function() {
+    const q = setInterval(() => {
         var userId = $localStorage.user ? $localStorage.user.userId : null;
         // if window.dashboard === false, terminate polling
         if (!window.dashboard) {
@@ -2281,7 +2274,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             startPolling = false;
             VideoService
                 .getUnlockedVideos(userId)
-                .success(function(data, status) {
+                .success((data, status) => {
                     vm.videos = data;
                     startPolling = true;
                 });
@@ -2289,173 +2282,3 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     }, 30000);
 
 };
-
-
-
-// load events data
-/*
-var demo_uri = "timeline.json";
-(function (cb) {
-    var xhr = new XMLHttpRequest()
-    xhr.onreadystatechange = function (e) {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            try { cb ? cb(JSON.parse(xhr.responseText)) : 0 } catch (e) { }
-        }
-    }
-    xhr.open('get', demo_uri, true)
-    xhr.send()
-
-})(function (events) {
-    videoElement = document.getElementById('video');
-
-    // this is the main loading of function
-
-    // function config object
-    options = { 'fps': 6, 'boxFadeDelay': 2000 }
-
-    // function instance
-    //CCTV = new VideoMonitorHandler(events, videoElement, options)
-
-    // function to seek manually using frameNo
-    //CCTV.setSeek(126)
-
-})
-
-function VideoMonitorHandler(eventsData, videoElementInstance, options) {
-    eventsData = eventsData || []
-
-    if (!(videoElementInstance instanceof HTMLVideoElement)) {
-        console.log('video dom object instance not provided')
-        return
-    }
-
-    var videoRelativeContainer,
-        fps = 6,
-        totalduration = 0,
-        curtime = 0,
-        curframe = 0,
-        pinPointBoxFadeDelay = 3000,
-        eventNodes = {};
-
-
-    // init configuation options with 3rd argument
-    (function () {
-        if (!options) {
-            return
-        }
-        fps = options['fps'] || fps
-        pinPointBoxFadeDelay = options['boxFadeDelay'] || pinPointBoxFadeDelay
-    } ());
-
-
-    // wrap video element with relative position node
-    (function () {
-        videoRelativeContainer = document.createElement('div')
-        videoRelativeContainer.style.position = 'relative'
-        videoElementInstance.parentNode.insertBefore(videoRelativeContainer, videoElementInstance)
-        videoRelativeContainer.appendChild(videoElementInstance)
-    } ())
-
-
-    // init video player events
-    videoElementInstance.addEventListener('loadedmetadata', function () {
-        totalduration = this.duration
-        curtime = this.currentTime
-    })
-    videoElementInstance.addEventListener('timeupdate', function () {
-        var event
-        curtime = this.currentTime
-        curframe = curtime * fps
-        if ((event = getEventObject(curframe)) && event['Frameno']) {
-            drawPinPointBox(event)
-        }
-    })
-    videoElementInstance.addEventListener('seeking', function () {
-        for (var p in eventNodes) {
-            if (eventNodes.hasOwnProperty(p)) {
-                if (eventNodes[p].node instanceof HTMLElement) {
-                    videoRelativeContainer.removeChild(eventNodes[p].node)
-                }
-                delete eventNodes[p]
-            }
-        }
-    })
-
-
-    // set video current time with event-data "FrameNo"
-    this.setSeek = function (frameNo) {
-        videoElementInstance.currentTime = frameNo / fps
-    }
-
-
-    // will attach rectangle box to event-data "HumanID"
-    function drawPinPointBox(event) {
-        var builtNode = eventNodes[event['HumanID']], node, html
-        if (!builtNode) {
-
-            node = document.createElement('div')
-
-            pinPointBoxHTML = 'id: ' + event['HumanID']
-            node.innerHTML = pinPointBoxHTML
-
-            var css = {
-                "border": "3px solid red",
-                "position": "absolute",
-                "text-align": "center",
-                "pointer-events": "none",
-                "display": "inline-block",
-                "font-size": "0.9em",
-                "box-sizing": "border-box",
-                "color": "white",
-                "padding": "2px",
-                "width":"90px",
-                "height":"150px"
-
-            }
-
-            node.setAttribute('style', JSON.stringify(css).replace(/"*\{*\}*!/gi, '').replace(/,/gi, ';'))
-
-            node.style.left = event['Xcoord'] + 'px'
-            node.style.top = event['Ycoord'] + 'px'
-
-            videoRelativeContainer.appendChild(node)
-            eventNodes[event['HumanID']] = { node: node, lastSeen: Date.now() }
-            trackPinPointObject(event['HumanID'])
-
-        } else {
-            node = builtNode.node
-            node.style.left = event['Xcoord'] + 'px'
-            node.style.top = event['Ycoord'] + 'px'
-            builtNode.lastSeen = Date.now()
-        }
-    }
-
-
-    function trackPinPointObject(HumanID) {
-        var t = setInterval(function () {
-            var object = eventNodes[HumanID]
-            if (object) {
-                if ((Date.now() - object.lastSeen) > pinPointBoxFadeDelay && (!videoElementInstance.paused)) {
-                    eventNodes[HumanID] = null
-                    delete eventNodes[HumanID]
-                    clearInterval(t)
-                    videoRelativeContainer.removeChild(object.node)
-                }
-            } else {
-                clearInterval(t)
-            }
-        }, 500)
-    }
-
-
-    function getEventObject(frameNo) {
-        var res
-        for (var i = 0; i < eventsData.length; i++) {
-            if (parseInt(eventsData[i]['Frameno']) == parseInt(frameNo)) {
-                res = eventsData[i]
-            }
-        }
-        return res
-    }
-
-}*/
