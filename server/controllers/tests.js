@@ -118,7 +118,7 @@ exports.getEventListByVideo = (req, res) => {
                 $gte: from_idx,
                 $lte: to_idx
             }
-        })
+        }).sort({ frame_id: 1 })
         .exec((err, events) => {
 
             if (err) {
