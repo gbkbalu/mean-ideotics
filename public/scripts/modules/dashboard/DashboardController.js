@@ -1,8 +1,9 @@
 "use strict";
 
 let svgns = "http://www.w3.org/2000/svg";
-let frame_rate = 25;
+let frame_rate = 50;
 let sub_frame_rate = 5;
+let delta_time = 1;
 
 var videoElement, options, CCTV;
 var videoElementInstance = document.getElementById('video');
@@ -1585,7 +1586,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                         element_lbl.parentNode.removeChild(element_lbl);
                 }
             }
-            await sleep(1000 / sub_frame_rate);
+            await sleep(1000 / (frame_rate / sub_frame_rate));
         }
     }
 
@@ -1600,8 +1601,10 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         }
 
         let current_time = Math.round(vm.mediaPlayerApi.properties.currentTime());
-        if (current_time == 0)
-            return;
+        // if (current_time == 0)
+        //     return;
+
+        current_time += delta_time;
 
         document.getElementById('video').addEventListener('ended', endedHandler, false);
         document.getElementById('video').addEventListener('play', playHandler, false);
@@ -1698,7 +1701,8 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     }
 
     const endedHandler = (e) => {
-        clearInterval(trackingHandler);
+        $rootScope.isTracking = false;
+        //clearInterval(trackingHandler);
     }
 
     playHandler();
