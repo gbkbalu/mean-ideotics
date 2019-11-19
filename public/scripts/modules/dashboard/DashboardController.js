@@ -1543,7 +1543,53 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         "#f46a4e"
     ]
 
-    const timerModule = () => {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function animateModule(data, status) {
+        let v_width = document.getElementById("video").videoWidth;
+        let v_height = document.getElementById("video").videoHeight;
+
+        let c_width = document.getElementById("video").clientWidth;
+        let c_height = document.getElementById("video").clientHeight;
+        for (let i = 0; i < data.length - 1; i++) {
+            if (!data[i].objects)
+                return;
+            for (let st_key in data[i].objects) {
+                let st_val = data[i].objects[st_key];
+                let ed_val = data[i + 1].objects[st_key];
+
+                let st_px = (st_val.x1 + st_val.x2) / 2;
+                let st_py = (st_val.y1 + st_val.y2) / 2;
+
+                let ed_px;
+                let ed_py;
+
+                if (ed_val) {
+                    ed_px = (ed_val.x1 + ed_val.x2) / 2;
+                    ed_py = (ed_val.y1 + ed_val.y2) / 2;
+                    st_px = Math.round(st_px * c_width / v_width);
+                    st_py = Math.round(st_py * c_height / v_height);
+
+                    ed_px = Math.round(ed_px * c_width / v_width);
+                    ed_py = Math.round(ed_py * c_height / v_height);
+
+                    vm.drawObject(st_val.id, st_px, st_py, ed_px, ed_py);
+                } else {
+                    let element = document.getElementById(st_key);
+                    let element_lbl = document.getElementById("lbl_" + st_val.id);
+                    if (element)
+                        element.parentNode.removeChild(element);
+                    if (element_lbl)
+                        element_lbl.parentNode.removeChild(element_lbl);
+                }
+            }
+            await sleep(1000 / sub_frame_rate);
+        }
+    }
+
+    function timerModule() {
 
         if (!$rootScope.isTracking)
             return;
@@ -1560,60 +1606,16 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         document.getElementById('video').addEventListener('ended', endedHandler, false);
         document.getElementById('video').addEventListener('play', playHandler, false);
 
-        let v_width = document.getElementById("video").videoWidth;
-        let v_height = document.getElementById("video").videoHeight;
-
-        let c_width = document.getElementById("video").clientWidth;
-        let c_height = document.getElementById("video").clientHeight;
-
-
         TestService
             .getEventListByVideo(vm.currentVideo.videoId, current_time, frame_rate)
-            .success((data, status) => {
-                for (let i = 0; i < data.length - 1; i++) {
-                    $timeout(() => {
-
-                        for (let st_key in data[i].objects) {
-                            let st_val = data[i].objects[st_key];
-                            let ed_val = data[i + 1].objects[st_key];
-
-                            let st_px = (st_val.x1 + st_val.x2) / 2;
-                            let st_py = (st_val.y1 + st_val.y2) / 2;
-
-                            let ed_px;
-                            let ed_py;
-
-                            if (ed_val) {
-                                ed_px = (ed_val.x1 + ed_val.x2) / 2;
-                                ed_py = (ed_val.y1 + ed_val.y2) / 2;
-                                st_px = Math.round(st_px * c_width / v_width);
-                                st_py = Math.round(st_py * c_height / v_height);
-
-                                ed_px = Math.round(ed_px * c_width / v_width);
-                                ed_py = Math.round(ed_py * c_height / v_height);
-
-                                vm.drawObject(st_val.id, st_px, st_py, ed_px, ed_py);
-                            } else {
-                                var element = document.getElementById(st_key);
-                                if (element)
-                                    element.parentNode.removeChild(element);
-                            }
-                        }
-                    }, 1000 / sub_frame_rate);
-                }
-
-            });
-
+            .success(animateModule);
     };
 
     vm.drawObject = function(obj_idx, st_px, st_py, ed_px, ed_py) {
 
-        if (obj_idx != 1)
-            return;
-
         let obj_key = "obj_" + obj_idx;
         let obj_lbl = "lbl_" + obj_idx;
-        let svg_container = document.getElementById("svg"); //.getElementById("g");
+        let svg_container = document.getElementById("svg");
 
         if (!svg_container)
             return;
@@ -1622,6 +1624,9 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         if (!g_unit) {
             g_unit = document.createElementNS(svgns, "g");
             g_unit.setAttribute("id", "g_unit_" + obj_idx);
+
+            g_unit.setAttribute("transform", "translate(" + st_px + " " + st_py + ")");
+
             svg_container.appendChild(g_unit);
         }
 
@@ -1636,8 +1641,8 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             player.setAttribute("stroke-width", 4);
             player.setAttribute("fill", color_map[obj_idx % 50]);
 
-            player.setAttribute("cx", st_px);
-            player.setAttribute("cy", st_py);
+            player.setAttribute("cx", 0);
+            player.setAttribute("cy", 0);
 
             g_unit.appendChild(player);
         }
@@ -1651,33 +1656,21 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             player_lbl.setAttribute('fill', color_map[obj_idx % 50]);
             player_lbl.textContent = obj_key;
 
-            player_lbl.setAttribute('x', st_px);
-            player_lbl.setAttribute('y', st_py + 25);
+            player_lbl.setAttribute('x', 0);
+            player_lbl.setAttribute('y', 25);
 
             g_unit.appendChild(player_lbl);
         }
 
-        // player.setAttribute("cx", st_px);
-        // player.setAttribute("cy", st_py);
-        // player_lbl.setAttribute('x', st_px);
-        // player_lbl.setAttribute('y', st_py + 25);
-
         let animation = document.createElementNS(svgns, "animateTransform");
 
-        // animation.setAttribute("keyFrame", "0;0.2");
-
-        // animation.setAttribute("from", "st_px st_py");
-        // animation.setAttribute("to", "ed_px ed_py");
-
-        let fromstr = st_px + " " + st_py;
-        let tostr = ed_px + " " + ed_py;
-        animation.setAttribute("from", fromstr);
-        animation.setAttribute("to", tostr);
+        animation.setAttribute("from", st_px + " " + st_py);
+        animation.setAttribute("to", ed_px + " " + ed_py);
 
         animation.setAttribute("attributeType", "XML");
         animation.setAttribute("attributeName", "transform");
         animation.setAttribute("type", "translate");
-        animation.setAttribute("calcMode", "linear");
+        animation.setAttribute("calcMode", "paced");
         animation.setAttribute("repeatCount", 1);
         animation.setAttribute("dur", "0.2s");
         animation.setAttribute("fill", "freeze");
