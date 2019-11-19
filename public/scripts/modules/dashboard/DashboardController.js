@@ -1490,58 +1490,58 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         $rootScope.isTracking = true;
     }
 
-    let color_map = {
-        "obj_1": "#36688d",
-        "obj_2": "#f3cd05",
-        "obj_3": "#f49f05",
-        "obj_4": "#f18904",
-        "obj_5": "#bda589",
-        "obj_6": "#a7414a",
-        "obj_7": "#282726",
-        "obj_8": "#6a8a82",
-        "obj_9": "#a37c27",
-        "obj_10": "#563838",
-        "obj_11": "#0444bf",
-        "obj_12": "#0584f2",
-        "obj_13": "#0aaff1",
-        "obj_14": "#edf259",
-        "obj_15": "#a79674",
-        "obj_16": "#6465a5",
-        "obj_17": "#6975a6",
-        "obj_18": "#f3e96b",
-        "obj_19": "#f28a30",
-        "obj_20": "#f05837",
-        "obj_21": "#aba6bf",
-        "obj_22": "#595775",
-        "obj_23": "#583e2e",
-        "obj_24": "#f1e0d6",
-        "obj_25": "#bf988f",
-        "obj_26": "#192e5b",
-        "obj_27": "#1d65a6",
-        "obj_28": "#72a2c0",
-        "obj_29": "#00743f",
-        "obj_30": "#f2a104",
-        "obj_31": "#040c0e",
-        "obj_32": "#132226",
-        "obj_33": "#525b56",
-        "obj_34": "#be9063",
-        "obj_35": "#a4978e",
-        "obj_36": "#daa2da",
-        "obj_37": "#dbb4da",
-        "obj_38": "#de8cfo",
-        "obj_39": "#bed905",
-        "obj_40": "#93a806",
-        "obj_41": "#a4a4bf",
-        "obj_42": "#16235a",
-        "obj_43": "#2a3457",
-        "obj_44": "#888c46",
-        "obj_45": "#f2eaed",
-        "obj_46": "#a3586d",
-        "obj_47": "#5c4a72",
-        "obj_48": "#f3b05a",
-        "obj_49": "#f4874b",
-        "obj_50": "#f46a4e"
-    }
+    let color_map = [
+        "#36688d",
+        "#f3cd05",
+        "#f49f05",
+        "#f18904",
+        "#bda589",
+        "#a7414a",
+        "#282726",
+        "#6a8a82",
+        "#a37c27",
+        "#563838",
+        "#0444bf",
+        "#0584f2",
+        "#0aaff1",
+        "#edf259",
+        "#a79674",
+        "#6465a5",
+        "#6975a6",
+        "#f3e96b",
+        "#f28a30",
+        "#f05837",
+        "#aba6bf",
+        "#595775",
+        "#583e2e",
+        "#f1e0d6",
+        "#bf988f",
+        "#192e5b",
+        "#1d65a6",
+        "#72a2c0",
+        "#00743f",
+        "#f2a104",
+        "#040c0e",
+        "#132226",
+        "#525b56",
+        "#be9063",
+        "#a4978e",
+        "#daa2da",
+        "#dbb4da",
+        "#de8cfo",
+        "#bed905",
+        "#93a806",
+        "#a4a4bf",
+        "#16235a",
+        "#2a3457",
+        "#888c46",
+        "#f2eaed",
+        "#a3586d",
+        "#5c4a72",
+        "#f3b05a",
+        "#f4874b",
+        "#f46a4e"
+    ]
 
     const timerModule = () => {
 
@@ -1574,7 +1574,6 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                     $timeout(() => {
 
                         for (let st_key in data[i].objects) {
-                            // $timeout(() => {
                             let st_val = data[i].objects[st_key];
                             let ed_val = data[i + 1].objects[st_key];
 
@@ -1593,13 +1592,12 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                                 ed_px = Math.round(ed_px * c_width / v_width);
                                 ed_py = Math.round(ed_py * c_height / v_height);
 
-                                vm.drawObject(st_key, st_px, st_py, ed_px, ed_py);
+                                vm.drawObject(st_val.id, st_px, st_py, ed_px, ed_py);
                             } else {
                                 var element = document.getElementById(st_key);
                                 if (element)
                                     element.parentNode.removeChild(element);
                             }
-                            // }, 1000 / sub_frame_rate);
                         }
                     }, 1000 / sub_frame_rate);
                 }
@@ -1608,98 +1606,93 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
     };
 
-    vm.drawObject = function(obj_key, st_px, st_py, ed_px, ed_py) {
+    vm.drawObject = function(obj_idx, st_px, st_py, ed_px, ed_py) {
 
-        // if (obj_key != "obj_1" && obj_key != "obj_2")
-        //     return;
-
-        let obj_lbl = obj_key + "_lbl";
-        let g_container = document.getElementById("svg").getElementById("g");
-        if (!g_container)
+        if (obj_idx != 1)
             return;
+
+        let obj_key = "obj_" + obj_idx;
+        let obj_lbl = "lbl_" + obj_idx;
+        let svg_container = document.getElementById("svg"); //.getElementById("g");
+
+        if (!svg_container)
+            return;
+
+        let g_unit = document.getElementById("g_unit_" + obj_idx);
+        if (!g_unit) {
+            g_unit = document.createElementNS(svgns, "g");
+            g_unit.setAttribute("id", "g_unit_" + obj_idx);
+            svg_container.appendChild(g_unit);
+        }
 
         let player = document.getElementById(obj_key);
         if (!player) {
-            let player_element = document.createElementNS(svgns, 'circle');
-            player_element.setAttribute("id", obj_key);
+            player = document.createElementNS(svgns, 'circle');
+            player.setAttribute("id", obj_key);
 
-            player_element.setAttribute("r", 10);
-            player_element.setAttribute("z-index", "1000");
-            player_element.setAttribute("stroke", "blue");
-            player_element.setAttribute("stroke-width", 4);
-            player_element.setAttribute("fill", "lightblue"); //color_map[obj_key]);
+            player.setAttribute("r", 10);
+            player.setAttribute("z-index", "1000");
+            player.setAttribute("stroke", "blue");
+            player.setAttribute("stroke-width", 4);
+            player.setAttribute("fill", color_map[obj_idx % 50]);
 
-            g_container.appendChild(player_element);
+            player.setAttribute("cx", st_px);
+            player.setAttribute("cy", st_py);
+
+            g_unit.appendChild(player);
         }
-        /////////////////////////////////////
+
         let player_lbl = document.getElementById(obj_lbl);
         if (!player_lbl) {
 
-            let lbl_element = document.createElementNS(svgns, 'text');
-            lbl_element.setAttribute("id", obj_lbl);
-            // lbl_element.setAttribute("text-anchor", "middle");
-            // lbl_element.setAttribute("dy", ".3em");
-            lbl_element.setAttribute('x', st_px - 15);
-            lbl_element.setAttribute('y', st_py + 40);
-            lbl_element.setAttribute('fill', "lightblue"); //color_map[obj_key]);
-            lbl_element.textContent = obj_key;
+            let player_lbl = document.createElementNS(svgns, 'text');
+            player_lbl.setAttribute("id", obj_lbl);
+            player_lbl.setAttribute("text-anchor", "middle");
+            player_lbl.setAttribute('fill', color_map[obj_idx % 50]);
+            player_lbl.textContent = obj_key;
 
-            g_container.appendChild(lbl_element);
+            player_lbl.setAttribute('x', st_px);
+            player_lbl.setAttribute('y', st_py + 25);
+
+            g_unit.appendChild(player_lbl);
         }
-        /////////////////////////////////////
-        player = document.getElementById(obj_key);
 
-        player.setAttribute("cx", st_px);
-        player.setAttribute("cy", st_py);
+        // player.setAttribute("cx", st_px);
+        // player.setAttribute("cy", st_py);
+        // player_lbl.setAttribute('x', st_px);
+        // player_lbl.setAttribute('y', st_py + 25);
 
-        player_lbl = document.getElementById(obj_lbl);
+        let animation = document.createElementNS(svgns, "animateTransform");
 
-        let animation_x = document.createElementNS(svgns, "animate");
-        animation_x.setAttribute("attributeType", "XML");
-        animation_x.setAttribute("attributeName", "cx");
-        animation_x.setAttribute("repeatCount", 1);
-        animation_x.setAttribute("dur", "0.2s");
-        animation_x.setAttribute("to", ed_px);
-        animation_x.setAttribute("from", st_px);
+        // animation.setAttribute("keyFrame", "0;0.2");
 
-        animation_x.setAttribute("fill", "freeze");
-        animation_x.setAttribute("id", "animation_x_" + obj_key);
+        // animation.setAttribute("from", "st_px st_py");
+        // animation.setAttribute("to", "ed_px ed_py");
 
-        let previous_animation_x = document.getElementById("animation_x_" + obj_key);
-        if (previous_animation_x) {
+        let fromstr = st_px + " " + st_py;
+        let tostr = ed_px + " " + ed_py;
+        animation.setAttribute("from", fromstr);
+        animation.setAttribute("to", tostr);
+
+        animation.setAttribute("attributeType", "XML");
+        animation.setAttribute("attributeName", "transform");
+        animation.setAttribute("type", "translate");
+        animation.setAttribute("calcMode", "linear");
+        animation.setAttribute("repeatCount", 1);
+        animation.setAttribute("dur", "0.2s");
+        animation.setAttribute("fill", "freeze");
+        animation.setAttribute("id", "animation_" + obj_idx);
+
+        let previous_animation = document.getElementById("animation_" + obj_idx);
+        if (previous_animation) {
             try {
-                player.removeChild(previous_animation_x);
+                g_unit.removeChild(previous_animation);
             } catch (e) {
-                console.log(previous_animation_x);
+                console.log(previous_animation);
                 console.log(e);
             }
         }
-        player.appendChild(animation_x);
-        // player_lbl.appendChild(angular.copy(animation_x));
-
-        let animation_y = document.createElementNS(svgns, "animate");
-        animation_y.setAttribute("attributeType", "XML");
-        animation_y.setAttribute("attributeName", "cy");
-        animation_y.setAttribute("repeatCount", 1);
-        animation_y.setAttribute("dur", "0.2s");
-        animation_y.setAttribute("to", ed_py);
-        animation_y.setAttribute("from", st_py);
-        animation_y.setAttribute("fill", "freeze");
-        animation_y.setAttribute("id", "animation_y_" + obj_key);
-
-        let previous_animation_y = document.getElementById("animation_y_" + obj_key);
-        if (previous_animation_y) {
-            try {
-                player.removeChild(previous_animation_y);
-            } catch (e) {
-                console.log(previous_animation_y);
-                console.log(e);
-            }
-
-        }
-        player.appendChild(animation_y);
-        // player_lbl.appendChild(angular.copy(animation_y));
-
+        g_unit.appendChild(animation);
         document.getElementById("svg").setCurrentTime(0);
     }
 
