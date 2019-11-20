@@ -1,12 +1,5 @@
 "use strict";
 
-let svgns = "http://www.w3.org/2000/svg";
-let frame_rate = 50;
-let sub_frame_rate = 5;
-let delta_time = 1;
-
-let v_container = document.getElementById('video');
-let svg_container = document.getElementById("svg");
 let v_r_container = document.createElement('div');
 let node_container = document.createElement('div');
 let move_obj = new Object();
@@ -45,12 +38,23 @@ function DataController($scope, $compile, $interval, $timeout, $rootScope, $loca
     var categories = ['START', 'SHOPPERPROFILE', 'SKUBEHAVIOUR', 'STAFFPROFILE', 'G-STAFFBEHAVIOUR', 'S-STAFFBEHAVIOUR', 'C-STAFFBEHAVIOUR'];
     var catCodesList = ['START', 'SHOPPERPROFILE', 'SKUBEHAVIOUR', 'STAFFPROFILE', 'G-STAFFBEHAVIOUR', 'S-STAFFBEHAVIOUR', 'C-STAFFBEHAVIOUR'];
     vm.codesList = ['START', 'SHOPPERPROFILE', 'SKUBEHAVIOUR', 'STAFFPROFILE', 'G-STAFFBEHAVIOUR', 'S-STAFFBEHAVIOUR', 'C-STAFFBEHAVIOUR'];
+
+    ///////////////////////////////////////////////////////////////////
+    let svgns = "http://www.w3.org/2000/svg";
+    let frame_rate = 50;
+    let sub_frame_rate = 5;
+    let delta_time = 0;
+
+    let v_container = document.getElementById('video');
+    let svg_container = document.getElementById("svg");
+
     let color_map = [
-        "#36688d", "#f3cd05", "#f49f05", "#f18904", "#bda589", "#a7414a", "#282726", "#6a8a82", "#a37c27", "#563838", "#0444bf", "#0584f2", "#0aaff1",
-        "#edf259", "#a79674", "#6465a5", "#6975a6", "#f3e96b", "#f28a30", "#f05837", "#aba6bf", "#595775", "#583e2e", "#f1e0d6", "#bf988f", "#192e5b",
-        "#1d65a6", "#72a2c0", "#00743f", "#f2a104", "#040c0e", "#132226", "#525b56", "#be9063", "#a4978e", "#daa2da", "#dbb4da", "#de8cfo", "#bed905",
-        "#93a806", "#a4a4bf", "#16235a", "#2a3457", "#888c46", "#f2eaed", "#a3586d", "#5c4a72", "#f3b05a", "#f4874b", "#f46a4e"
-    ]
+            "#36688d", "#f3cd05", "#f49f05", "#f18904", "#bda589", "#a7414a", "#282726", "#6a8a82", "#a37c27", "#563838", "#0444bf", "#0584f2", "#0aaff1",
+            "#edf259", "#a79674", "#6465a5", "#6975a6", "#f3e96b", "#f28a30", "#f05837", "#aba6bf", "#595775", "#583e2e", "#f1e0d6", "#bf988f", "#192e5b",
+            "#1d65a6", "#72a2c0", "#00743f", "#f2a104", "#040c0e", "#132226", "#525b56", "#be9063", "#a4978e", "#daa2da", "#dbb4da", "#de8cfo", "#bed905",
+            "#93a806", "#a4a4bf", "#16235a", "#2a3457", "#888c46", "#f2eaed", "#a3586d", "#5c4a72", "#f3b05a", "#f4874b", "#f46a4e"
+        ]
+        /////////////////////////////////////////////////////////////////////
     var categoryStartTime = "";
     var startPolling = true;
     var categoriesLen = categories.length;

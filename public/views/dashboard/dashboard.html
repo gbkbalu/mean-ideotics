@@ -26,14 +26,12 @@
 
     <!--<heat-map data="passed_data"></heat-map>-->
     <div class="row">
-        <div canvas-area-draw points="dashVM.points"
-             active="dashVM.activePolygon" image-url="dashVM.imageSrc"
-             enabled="dashVM.enabled" palette="dashVM.colorArray"></div>
+        <div canvas-area-draw points="dashVM.points" active="dashVM.activePolygon" image-url="dashVM.imageSrc" enabled="dashVM.enabled" palette="dashVM.colorArray"></div>
         <table style="width: 100%;" ng-if="dashVM.currentVideo.project">
             <tr style="width: 100%;">
                 <td style="width: 20%;"><span style="color: green"><b>Project:</b></span>{{dashVM.currentVideo.project.clientcode}}({{dashVM.currentVideo.project.clientsId}})</td>
                 <td style="width: 17%;"><span style="color: green"><b>Camera:</b></span>{{dashVM.currentVideo.camera.cameracode}}({{dashVM.currentVideo.camera.camerasId}})</td>
-                <td style="width: 6%;"><i class="glyphicon glyphicon-camera" style="color:blue;margin-top: 7px;font-size: 20px;cursor:pointer;" ng-click="showCameraImage()"/></td>
+                <td style="width: 6%;"><i class="glyphicon glyphicon-camera" style="color:blue;margin-top: 7px;font-size: 20px;cursor:pointer;" ng-click="showCameraImage()" /></td>
                 <td style="width: 17%;"><span style="color: green"><b>Video:</b></span>{{dashVM.currentVideo.videoId}}</td>
                 <td style="width: 30%;">
                     <!--<input class="form-control" ng-model="dashVM.processed" type="number" min="0" style="max-width: 70px;display:inline-block" numbers-only>
@@ -54,21 +52,23 @@
                 Select a video
             </div>
             <li class="list-group-item list-group-item-header">
-                Video
-                <span ng-if="dashVM.currentVideo.videoId" class="pull-right glyphicon glyphicon-plus-sign pointer" ng-click="dashVM.addNewShopper()" ></span>
+                <span ng-if="dashVM.currentVideo.videoId" class="pull-left glyphicon glyphicon-cog pointer" ng-click="showSettingDlg()"></span> Video
+                <span ng-if="dashVM.currentVideo.videoId" class="pull-right glyphicon glyphicon-plus-sign pointer" ng-click="dashVM.addNewShopper()"></span>
                 <span ng-if="dashVM.currentVideo.videoId" class="pull-right" style="padding-right: 10px;">
                         Speed Rate
-                    <span class="pull-right glyphicon glyphicon glyphicon-upload pointer"  ng-click="dashVM.changeSpeedOfVideo(+0.5)" style="padding-right: 8px;font-size: 16px;"></span>
-                        <span> {{dashVM.selectedVideoRate}}</span>
-                    <span class="pull-right glyphicon glyphicon-download pointer"  ng-click="dashVM.changeSpeedOfVideo(-0.5)" style="padding-right: 8px;;font-size: 16px;"></span>
+                <span class="pull-right glyphicon glyphicon glyphicon-upload pointer"  ng-click="dashVM.changeSpeedOfVideo(+0.5)" style="padding-right: 8px;font-size: 16px;"></span>
+                <span> {{dashVM.selectedVideoRate}}</span>
+                <span class="pull-right glyphicon glyphicon-download pointer" ng-click="dashVM.changeSpeedOfVideo(-0.5)" style="padding-right: 8px;;font-size: 16px;"></span>
 
                 </span>
             </li>
-            <ab-video ng-if="globals.user.role == 'admin'" api="dashVM.mediaPlayerApi" ng-click="dashVM.getCoordinates($event)">
+            <ab-video ng-if="globals.user.role == 'admin'" api="dashVM.mediaPlayerApi" ng-init="dashVM.initVideo()" ng-click="dashVM.getCoordinates($event)">
             </ab-video>
 
-            <ab-video ng-if="globals.user.role != 'admin'" api="dashVM.mediaPlayerApi" ng-click="dashVM.getCoordinates($event)" controlsList="nodownload">
+            <ab-video ng-if="globals.user.role != 'admin'" api="dashVM.mediaPlayerApi" ng-init="dashVM.initVideo()" ng-click="dashVM.getCoordinates($event)" controlsList="nodownload">
             </ab-video>
+
+            <svg id="svg" width="99%" height="93%" style="position: absolute; top:25px; left:5px;pointer-events: none;" ng-init="dashVM.initSVG()"></svg>
         </div>
 
         <div ng-class="{'col-xs-3': !dashVM.flag.dataEntry, 'col-xs-5': dashVM.flag.dataEntry}">
@@ -84,11 +84,11 @@
                     <div class="panel-body">
 
                         <ul class="list-group first-row-panel">
-                            <li class= "list-group-item" ng-repeat="item in dashVM['category'][dashVM.currentCategory]">
+                            <li class="list-group-item" ng-repeat="item in dashVM['category'][dashVM.currentCategory]">
                                 <div class="col-xs-4">{{item.subCategory}}<span style="color: red;" ng-if="item.isMandatory==1">*</span></div>
-                                <div class = "col-xs-8" style="text-align:right;">
+                                <div class="col-xs-8" style="text-align:right;">
                                     <!--ng-init="dashVM.form[dashVM.currentCategory][item.subCategory]=item.selectedValue" -->
-									<span ng-repeat="type in item.type">
+                                    <span ng-repeat="type in item.type">
 										<input type="radio" selected id="{{item.subCategory}}-{{type.icon.name}}"
                                                ng-click="dashVM.onInputClick(type.icon.name,item.subCategory,item,type)"
                                                ng-change="dashVM.onInputChange(type.icon.name,item.subCategory,item,type)"
@@ -102,37 +102,36 @@
                                 </div>
                             </li>
                             <!--ng-if="dashVM.currentCategory == 'Exit Path'"-->
-                            <input type="text" class="form-control" ng-change="dashVM.changeComments()" ng-model="dashVM.comments" placeholder="Add Notes/Comments" style="width: 96%;margin: 10px;"
-                                   maxlength="150"/>
+                            <input type="text" class="form-control" ng-change="dashVM.changeComments()" ng-model="dashVM.comments" placeholder="Add Notes/Comments" style="width: 96%;margin: 10px;" maxlength="150" />
                         </ul>
 
                     </div>
                     <div class="panel-footer">
-						<span class="pull-left" ng-if="dashVM.hasError">
+                        <span class="pull-left" ng-if="dashVM.hasError">
 							<span class="text-danger">Few fields are missed(*).</span>
-						</span>
+                        </span>
                         <span class="pull-left" ng-if="dashVM.catError">
 							<span class="text-danger">Categories are missed</span>
-						</span>
-						<span class="pull-right">
+                        </span>
+                        <span class="pull-right">
                             <span class="pointer btn btn-success btn-sm" ng-if="dashVM.currentIndexVal > 0"  ng-click="dashVM.backPressed()">Back</span>
-                            <span class="pointer btn btn-success btn-sm" ng-click="dashVM.resetValues()">Undo</span>
-							<span class="pointer btn btn-success btn-sm" ng-click="dashVM.saveCategory(false, true,'Add Another SKU')" ng-if="dashVM.currentCategory == dashVM.codesList[2] && dashVM.showAnother">Add another SKU </span>
-                            <span class="pointer btn btn-success btn-sm" ng-click="dashVM.saveCategory(false, true,'Add Another Staff')" ng-if="(dashVM.currentCategory == dashVM.codesList[4] || dashVM.currentCategory == dashVM.codesList[5] || dashVM.currentCategory == dashVM.codesList[6]) && dashVM.showAnother">Add another Staff Behaviour</span>
-							<span class="pointer btn btn-danger btn-sm" ng-if="dashVM.selectedCurrCategory" ng-click="dashVM.deleteDataEntry()">{{dashVM.discardRetain}} </span>
-                            <span class="pointer btn btn-default btn-sm" ng-click="dashVM.closeDataEntry()">Close </span>
-							<span class="pointer btn btn-primary btn-sm" ng-click="dashVM.saveCategory(false,false,'Save')"  ng-if="!(dashVM.currentCategory == dashVM.codesList[2])  || dashVM.editedFlag "> Save</span>
-                            <span class="pointer btn btn-success btn-sm"  ng-click="dashVM.saveCategory(true,false,'New')" ng-if="(dashVM.currentCategory == dashVM.codesList[2] || dashVM.currentCategory == dashVM.codesList[4] || dashVM.currentCategory == dashVM.codesList[5] || dashVM.currentCategory == dashVM.codesList[6]) && (dashVM.currentLen < dashVM.event.analysis[dashVM.currentCategory].length -1)"> Next</span>
-							<span class="pointer btn btn-success btn-sm"  ng-click="dashVM.saveCategory(true,false,'New')" ng-if="!(dashVM.currentCategory == dashVM.codesList[2] || dashVM.currentCategory == dashVM.codesList[3] || dashVM.currentCategory == dashVM.codesList[4] || dashVM.currentCategory == dashVM.codesList[5] || dashVM.currentCategory == dashVM.codesList[6])"> Next</span>
-                            <!--ng-hide="dashVM.currentCategory == 'Exit Path'"-->
-						</span>
+                        <span class="pointer btn btn-success btn-sm" ng-click="dashVM.resetValues()">Undo</span>
+                        <span class="pointer btn btn-success btn-sm" ng-click="dashVM.saveCategory(false, true,'Add Another SKU')" ng-if="dashVM.currentCategory == dashVM.codesList[2] && dashVM.showAnother">Add another SKU </span>
+                        <span class="pointer btn btn-success btn-sm" ng-click="dashVM.saveCategory(false, true,'Add Another Staff')" ng-if="(dashVM.currentCategory == dashVM.codesList[4] || dashVM.currentCategory == dashVM.codesList[5] || dashVM.currentCategory == dashVM.codesList[6]) && dashVM.showAnother">Add another Staff Behaviour</span>
+                        <span class="pointer btn btn-danger btn-sm" ng-if="dashVM.selectedCurrCategory" ng-click="dashVM.deleteDataEntry()">{{dashVM.discardRetain}} </span>
+                        <span class="pointer btn btn-default btn-sm" ng-click="dashVM.closeDataEntry()">Close </span>
+                        <span class="pointer btn btn-primary btn-sm" ng-click="dashVM.saveCategory(false,false,'Save')" ng-if="!(dashVM.currentCategory == dashVM.codesList[2])  || dashVM.editedFlag "> Save</span>
+                        <span class="pointer btn btn-success btn-sm" ng-click="dashVM.saveCategory(true,false,'New')" ng-if="(dashVM.currentCategory == dashVM.codesList[2] || dashVM.currentCategory == dashVM.codesList[4] || dashVM.currentCategory == dashVM.codesList[5] || dashVM.currentCategory == dashVM.codesList[6]) && (dashVM.currentLen < dashVM.event.analysis[dashVM.currentCategory].length -1)"> Next</span>
+                        <span class="pointer btn btn-success btn-sm" ng-click="dashVM.saveCategory(true,false,'New')" ng-if="!(dashVM.currentCategory == dashVM.codesList[2] || dashVM.currentCategory == dashVM.codesList[3] || dashVM.currentCategory == dashVM.codesList[4] || dashVM.currentCategory == dashVM.codesList[5] || dashVM.currentCategory == dashVM.codesList[6])"> Next</span>
+                        <!--ng-hide="dashVM.currentCategory == 'Exit Path'"-->
+                        </span>
                     </div>
 
                 </div>
             </div>
 
         </div>
-        <div class="col-xs-2"  ng-if="!dashVM.flag.dataEntry">
+        <div class="col-xs-2" ng-if="!dashVM.flag.dataEntry">
 
             <div class="panel panel-default mt-1">
 
@@ -155,17 +154,17 @@
 
         </div>
     </div>
-    <div class="row" >
+    <div class="row">
         <div class="col-xs-2" ng-repeat="catSelects in dashVM.catListWithCodeAndRepeat">
             <li class="list-group-item list-group-item-header">
                 {{(catSelects.category).toUpperCase()}}
             </li>
             <ul class="list-group second-row-panel">
-                <li class= "list-group-item" ng-repeat="event in dashVM.selectedEvent" ng-click="dashVM.createEvent(dashVM.catListWithCodeAndRepeat[0].catcode)">
+                <li class="list-group-item" ng-repeat="event in dashVM.selectedEvent" ng-click="dashVM.createEvent(dashVM.catListWithCodeAndRepeat[0].catcode)">
                     <div class="col-xs-4">{{catSelects.shoporemp}}-{{event.eventId}}</div>
                     <div class="col-xs-8" style="display: inline; text-align:right;">
                         <div ng-repeat="item in event['analysis'][catSelects.catcode]  track by $index" ng-if="catSelects.isrepeats == true">
-							<span ng-repeat="subItem in item  track by $index">
+                            <span ng-repeat="subItem in item  track by $index">
 								<img ng-if="dashVM.types[subItem]" ng-src="{{dashVM.types[subItem]}}" class="img-responsive pointer" title="{{subItem}}"/>
 							</span>
                         </div>
@@ -191,14 +190,13 @@
             </div>
             <div class="modal-body" style="max-height: 400px;overflow-y: auto;">
                 <table class="table table-bordered table-condensed">
-                    <div ui-grid="dashVM.gridOptions"  class="grid" external-scopes="dashVM"
-                         ui-grid-selection ui-grid-auto-resize ></div>
+                    <div ui-grid="dashVM.gridOptions" class="grid" external-scopes="dashVM" ui-grid-selection ui-grid-auto-resize></div>
                 </table>
 
             </div><br>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default"  ng-click="dashVM.showPreviousFramesShoppers()" ng-if="dashVM.previousVideoPosition>0 && !dashVM.loadMorePreviousFrameShoppers">Load Previous</button>
-                <button type="button" class="btn btn-default"  ng-click="dashVM.selectAlreadyInShopper()" ng-if="dashVM.gridApi.selection.getSelectedRows().length>0">Select Shopper</button>
+                <button type="button" class="btn btn-default" ng-click="dashVM.showPreviousFramesShoppers()" ng-if="dashVM.previousVideoPosition>0 && !dashVM.loadMorePreviousFrameShoppers">Load Previous</button>
+                <button type="button" class="btn btn-default" ng-click="dashVM.selectAlreadyInShopper()" ng-if="dashVM.gridApi.selection.getSelectedRows().length>0">Select Shopper</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -217,6 +215,34 @@
             </div>
             <div class="modal-body" style="max-height: 400px;overflow-y: auto;">
                 <image id="imageUrl" style="height: 315px;" ng-src="{{dashVM.imageUrl}}"></image>
+            </div><br>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="popupSettingDlg" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:20%">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">display setting</h4>
+            </div>
+            <div class="modal-body" style="max-height: 400px;overflow-y: auto;">
+
+                <h4>Please check display options.</h4>
+                <div ng-repeat="item in class_filter">
+                    <div class="action-checkbox" style="padding-top:10px;">
+                        <input style="width:50%" id="{{item}}" type="checkbox" value="{{item}}" ng-checked="selection.indexOf(item) > -1" ng-click="toggleSelection(item)" />
+                        <label style="vertical-align: middle;" for="{{item}}">{{item}}</label>
+                    </div>
+                </div>
+
             </div><br>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
