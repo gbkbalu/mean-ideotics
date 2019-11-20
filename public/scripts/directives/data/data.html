@@ -1,0 +1,8 @@
+<span class="list-group-item list-group-item-header">Frame List(video_id, frame_id, objects)</span>
+<ul id="eventsList" ng-class="{'list-group first-row-panel': dataVM.isDashBorard === true, 'list-group analysis-row-panel': dataVM.isDashBorard === false}">
+
+    <li class="list-group-item" ng-repeat="event in dataVM.events" ng-click="dataVM.selectedHumanInHumanList($index,event)" id="event{{$index}}">
+        <span>{{event.video_id}} : {{event.frame_id}}</span>
+        <span class="pull-right">{{dataVM.calcLen(event)}}</span>
+    </li>
+</ul>

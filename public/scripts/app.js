@@ -122,6 +122,25 @@ function routeConfig($routeProvider) {
         }
     })
 
+    .when('/data', {
+        templateUrl: 'views/data/data.html',
+        controller: 'DataController',
+        controllerAs: 'dataVM',
+        data: {
+            authorizedRoles: ['admin', 'agent']
+        },
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load({
+                    files: [
+                        //TODO add all the required css and js
+                        'scripts/modules/data/DataController.js'
+                    ]
+                });
+            }]
+        }
+    })
+
     .when('/review', {
             templateUrl: 'views/review/dashboard.html',
             controller: 'ReviewController',
@@ -711,9 +730,9 @@ app.run(function($rootScope, $timeout, $document, $http, $localStorage, socket, 
         $rootScope.screenHeight = window.screen.height;
 
         if ($rootScope.screenWidth !== 1366 || $rootScope.screenHeight !== 768) {
-            toastr.error("Please change resolution to 1366*768", 'Done');
-            //showNotificationMessage("Please change resolution to 1366*768");
-            //  return;
+            // toastr.error("Please change resolution to 1366*768", 'Done');
+            // showNotificationMessage("Please change resolution to 1366*768");
+            // return;
         }
 
         if ($rootScope.headerMenuSelected == 0) {

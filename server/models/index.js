@@ -5,7 +5,7 @@ module.exports = exports = function() {
     require('./videos');
     require('./options');
     require('./events');
-    require('./test_collections');
+    require('./data_collections');
     require('./images');
     require('./categories');
     require('./subcategories');

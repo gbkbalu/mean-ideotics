@@ -4,152 +4,165 @@
 <div class="container wrapper">
 
     <div class="row">
-         <div class="row">
-         <div class="col-md-6">
-             <div class="row">
-            <div class="col-md-4" ng-if="homeVM.isAdmin">
-                <div class="card card-blue text-xs-center">
-                    <div class="card-block">
-                        <h4 class="card-title"></h4>
-                        <p class="card-text">Analysis</p>
-                    </div>
-                    <a class="card-footer text-muted" href="#/dashboard">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-4" ng-if="homeVM.isAdmin">
+                        <div class="card card-blue text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title"></h4>
+                                <p class="card-text">Analysis</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/dashboard">
                         View All
                     </a>
-                </div>
-            </div>
+                        </div>
+                    </div>
 
-                 <div class="col-md-4">
-                     <div class="card card-green text-xs-center">
-                         <div class="card-block">
-                             <h4 class="card-title"></h4>
-                             <p class="card-text">Review</p>
-                         </div>
-                         <a class="card-footer text-muted" href="#/review">
+                    <div class="col-md-4">
+                        <div class="card card-green text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title"></h4>
+                                <p class="card-text">Review</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/review">
                              View All
                          </a>
-                     </div>
-                 </div>
-                 <div class="col-md-4"  ng-if="homeVM.isAdmin">
-                     <div class="card card-blue text-xs-center">
-                         <div class="card-block">
-                             <h4 class="card-title"></h4>
-                             <p class="card-text">Parameters</p>
-                         </div>
-                         <a class="card-footer text-muted" href="#/categories">
+                        </div>
+                    </div>
+                    <div class="col-md-4" ng-if="homeVM.isAdmin">
+                        <div class="card card-blue text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title"></h4>
+                                <p class="card-text">Parameters</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/categories">
                              View All
                          </a>
-                     </div>
-                 </div>
-                 <div class="col-md-4">
-                     <div class="card card-green text-xs-center">
-                         <div class="card-block">
-                             <h4 class="card-title"></h4>
-                             <p class="card-text">Sessions</p>
-                         </div>
-                         <a class="card-footer text-muted" href="#/usersession">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-green text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title"></h4>
+                                <p class="card-text">Sessions</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/usersession">
                              View All
                          </a>
-                     </div>
-                 </div>
+                        </div>
+                    </div>
 
 
 
-                 <div class="col-md-4" ng-if="homeVM.isAdmin">
-                     <div class="card card-blue text-xs-center">
-                         <div class="card-block">
-                             <h4 class="card-title"></h4>
-                             <p class="card-text">Helper</p>
-                         </div>
-                         <a class="card-footer text-muted" href="#/helper">
+                    <div class="col-md-4" ng-if="homeVM.isAdmin">
+                        <div class="card card-blue text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title"></h4>
+                                <p class="card-text">Helper</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/helper">
                              View All
                          </a>
-                     </div>
-                 </div>
+                        </div>
+                    </div>
 
-                 <div class="col-md-4" ng-if="homeVM.isAdmin">
-                     <div class="card card-green text-xs-center">
-                         <div class="card-block">
-                             <h4 class="card-title"></h4>
-                             <p class="card-text">Ip Config</p>
-                         </div>
-                         <a class="card-footer text-muted" href="#/ips">
+                    <div class="col-md-4" ng-if="homeVM.isAdmin">
+                        <div class="card card-green text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title"></h4>
+                                <p class="card-text">Ip Config</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/ips">
                              View All
                          </a>
-                     </div>
-                 </div>
-            <div class="col-md-4" ng-if="homeVM.isAdmin">
-                <div class="card card-blue text-xs-center">
-                    <div class="card-block">
-                        <h4 class="card-title">{{homeVM.countListObj.teamsCount}}</h4>
-                        <p class="card-text">Teams</p>
+                        </div>
                     </div>
-                    <a class="card-footer text-muted" href="#/team">
+                    <div class="col-md-4" ng-if="homeVM.isAdmin">
+                        <div class="card card-blue text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title">{{homeVM.countListObj.teamsCount}}</h4>
+                                <p class="card-text">Teams</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/team">
                         View All
                     </a>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card card-black text-xs-center">
-                    <div class="card-block">
-                        <h4 class="card-title">{{homeVM.countListObj.usersCount}}</h4>
-                        <p class="card-text">Users(<span style="color: green;">{{homeVM.countListObj.userStatus.onLine}}</span>)</p>
+                        </div>
                     </div>
-                    <a class="card-footer text-muted" href="#/user">
+                    <div class="col-md-4">
+                        <div class="card card-black text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title">{{homeVM.countListObj.usersCount}}</h4>
+                                <p class="card-text">Users(<span style="color: green;">{{homeVM.countListObj.userStatus.onLine}}</span>)</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/user">
                         View All
                     </a>
-                </div>
-            </div>
+                        </div>
+                    </div>
 
-            <div class="col-md-4" ng-if="homeVM.isAdmin">
-                <div class="card card-yellow text-xs-center">
-                    <div class="card-block">
-                        <h4 class="card-title">{{homeVM.countListObj.projectCount}}</h4>
-                        <p class="card-text">Projects</p>
-                    </div>
-                    <a class="card-footer text-muted" href="#/projects">
+                    <div class="col-md-4" ng-if="homeVM.isAdmin">
+                        <div class="card card-yellow text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title">{{homeVM.countListObj.projectCount}}</h4>
+                                <p class="card-text">Projects</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/projects">
                         View All
                     </a>
-                </div>
-            </div>
+                        </div>
+                    </div>
 
-            <div class="col-md-4">
-                <div class="card card-black text-xs-center">
-                    <div class="card-block">
-                        <h4 class="card-title">{{homeVM.countListObj.cameraCount}}</h4>
-                        <p class="card-text">Cameras</p>
-                    </div>
-                    <a class="card-footer text-muted" href="#/cameras">
+                    <div class="col-md-4">
+                        <div class="card card-black text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title">{{homeVM.countListObj.cameraCount}}</h4>
+                                <p class="card-text">Cameras</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/cameras">
                         View All
                     </a>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card card-yellow text-xs-center">
-                    <div class="card-block">
-                        <h4 class="card-title">{{homeVM.countListObj.videoCount}}</h4>
-                        <p class="card-text">Videos</p>
+                        </div>
                     </div>
-                    <a class="card-footer text-muted" href="#/videos">
+                    <div class="col-md-4">
+                        <div class="card card-yellow text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title">{{homeVM.countListObj.videoCount}}</h4>
+                                <p class="card-text">Videos</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/videos">
                         View All
                     </a>
-                </div>
-            </div>
+                        </div>
+                    </div>
 
-            <div class="col-md-4" ng-if="homeVM.isAdmin">
-                 <div class="card card-green text-xs-center">
-                      <div class="card-block">
-                          <p class="card-text">Tracking</p>
-                      </div>
-                      <a class="card-footer text-muted" href="#/tracking">
+                    <div class="col-md-4" ng-if="homeVM.isAdmin">
+                        <div class="card card-green text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title"></h4>
+                                <p class="card-text">Tracking</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/tracking">
                          View All
                       </a>
-                 </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4" ng-if="homeVM.isAdmin">
+                        <div class="card card-blue text-xs-center">
+                            <div class="card-block">
+                                <h4 class="card-title"></h4>
+                                <p class="card-text">Data</p>
+                            </div>
+                            <a class="card-footer text-muted" href="#/data">
+                        View All
+                        </a>
+                        </div>
+                    </div>
+
+
+                </div>
             </div>
-
-
-             </div>
-        </div>
             <div class="col-md-6">
                 <div class="row">
                     <div class="panel panel-primary dsPanel">
@@ -159,13 +172,12 @@
                                 <option value="{{project._id}}" ng-repeat="project in homeVM.projects track by project._id">{{project.clientname}}</option>
                             </select>
 
-                            <select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;width:90px;margin-right: 5px;font-size: 12px;" ng-init="homeVM.getCamerasList()"  ng-model="homeVM.selectCameraName" ng-change="homeVM.getVideosCountsByFilter()">
+                            <select class="editable-has-buttons editable-input form-control ng-pristine" style="border: 2px solid green;display: inline;width:90px;margin-right: 5px;font-size: 12px;" ng-init="homeVM.getCamerasList()" ng-model="homeVM.selectCameraName" ng-change="homeVM.getVideosCountsByFilter()">
                                 <option value="{{camera._id}}" ng-repeat="camera in homeVM.cameras track by camera._id">{{camera.cameracode}}</option>
                             </select>
                             <button type="button" class="btn btn-default" style="margin-right: 5px;" ng-click="homeVM.resetFilterForm()">Reset</button>
                             <button type="button" class="btn btn-default" style="margin-right: 5px;" ng-click="homeVM.downloadLogsFiles()">Download Logs</button>
-                            <canvas class="chart chart-bar" chart-data="data" chart-labels="labels" chart-options="options"
-                                    chart-series="series" chart-click="onClick" width="720" height="432" style="display: block; width: 360px; height: 216px;"></canvas>
+                            <canvas class="chart chart-bar" chart-data="data" chart-labels="labels" chart-options="options" chart-series="series" chart-click="onClick" width="720" height="432" style="display: block; width: 360px; height: 216px;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -178,4 +190,3 @@
 </div>
 
 <div ng-include="'scripts/directives/footer/footer.html'"></div>
-

@@ -1,0 +1,225 @@
+<!-- header directive -->
+<div ng-include="'scripts/directives/header/header.html'"></div>
+
+<div class="container wrapper">
+
+    <div id="confirmBox">
+        <div class="message"></div><br>
+        <div class="message1"></div>
+        <div class="message2"></div>
+        <div class="message3"></div><br>
+
+        <span class="button yes">Review</span>
+        <span class="button submit">Submit</span>
+        <span class="button no">Cancel</span>
+    </div>
+
+    <div id="confirmBoxDelete">
+        <div class="message"></div>
+        <span class="button yes">Yes</span>
+        <span class="button no">No</span>
+    </div>
+
+    <!--<div class="demo-wrapper">
+        <div class="heatmap"></div>
+    </div>-->
+
+    <!--<heat-map data="passed_data"></heat-map>-->
+    <div class="row">
+        <div canvas-area-draw points="dataVM.points" active="dataVM.activePolygon" image-url="dataVM.imageSrc" enabled="dataVM.enabled" palette="dataVM.colorArray"></div>
+        <table style="width: 100%;" ng-if="dataVM.currentVideo.project">
+            <tr style="width: 100%;">
+                <td style="width: 20%;"><span style="color: green"><b>Project:</b></span>{{dataVM.currentVideo.project.clientcode}}({{dataVM.currentVideo.project.clientsId}})</td>
+                <td style="width: 17%;"><span style="color: green"><b>Camera:</b></span>{{dataVM.currentVideo.camera.cameracode}}({{dataVM.currentVideo.camera.camerasId}})</td>
+                <td style="width: 6%;"><i class="glyphicon glyphicon-camera" style="color:blue;margin-top: 7px;font-size: 20px;cursor:pointer;" ng-click="showCameraImage()" /></td>
+                <td style="width: 17%;"><span style="color: green"><b>Video:</b></span>{{dataVM.currentVideo.videoId}}</td>
+                <td style="width: 30%;">
+                    <!--<input class="form-control" ng-model="dataVM.processed" type="number" min="0" style="max-width: 70px;display:inline-block" numbers-only>
+                    <button type="button" class="btn btn-default" ng-if="dataVM.currentVideo.videoId" ng-click="dataVM.fetchStaffOrAllEvents()">{{dataVM.staffOrAll}}</button>-->
+                    <button type="button" class="btn btn-default" ng-if="dataVM.currentVideo.videoId" ng-click="dataVM.forwardVideo(-1)">Prev</button>
+                    <button type="button" class="btn btn-default" ng-if="dataVM.selectedEvent.length>0 && !dataVM.flag.dataEntry" ng-click="dataVM.createEvent(dataVM.catListWithCodeAndRepeat[0].catcode, true)">Panel</button>
+                    <button type="button" class="btn btn-default" ng-if="dataVM.selectedEvent.length>0 && dataVM.flag.dataEntry" ng-click="dataVM.closeDataEntry()">Close</button>
+                    <button type="button" class="btn btn-default" ng-if="dataVM.currentVideo.videoId" ng-click="dataVM.forwardVideo(1)">Next</button>
+                    <span>({{dataVM.playingVideoPosition}})</span>
+                </td>
+                <td style="width: 10%;"><span style="color: green"><b>Date:</b></span>{{dataVM.currentVideo.dateOfTheVideo | date:"dd/MM/yyyy"}}</td>
+            </tr>
+        </table>
+        <!--<input ng-model="dataVM.formVideoIdToSubmit">
+        <button class="btn btn-default"  style="margin-right: 5px;font-size: 12px;" ng-click="dataVM.submitVideoFromForm()">submit</button>-->
+        <div class="col-xs-7" style="height: 580px;">
+            <div class="divCenter" ng-if="!dataVM.currentVideo.videoId">
+                Select a video
+            </div>
+            <li class="list-group-item list-group-item-header">
+                Video
+                <span ng-if="dataVM.currentVideo.videoId" class="pull-right glyphicon glyphicon-plus-sign pointer" ng-click="dataVM.addNewShopper()"></span>
+                <span ng-if="dataVM.currentVideo.videoId" class="pull-right" style="padding-right: 10px;">
+                        Speed Rate
+                    <span class="pull-right glyphicon glyphicon glyphicon-upload pointer"  ng-click="dataVM.changeSpeedOfVideo(+0.5)" style="padding-right: 8px;font-size: 16px;"></span>
+                <span> {{dataVM.selectedVideoRate}}</span>
+                <span class="pull-right glyphicon glyphicon-download pointer" ng-click="dataVM.changeSpeedOfVideo(-0.5)" style="padding-right: 8px;;font-size: 16px;"></span>
+
+                </span>
+            </li>
+            <ab-video ng-if="globals.user.role == 'admin'" api="dataVM.mediaPlayerApi" ng-init="dataVM.initVideo()" ng-click="dataVM.getCoordinates($event)">
+            </ab-video>
+
+            <ab-video ng-if="globals.user.role != 'admin'" api="dataVM.mediaPlayerApi" ng-init="dataVM.initVideo()" ng-click="dataVM.getCoordinates($event)" controlsList="nodownload">
+            </ab-video>
+            <svg id="svg" width="100%" height="100%" style="position: absolute; top:22px; left:6px;pointer-events: none;" ng-init="dataVM.initSVG()"></svg>
+        </div>
+
+        <div ng-class="{'col-xs-3': !dataVM.flag.dataEntry, 'col-xs-5': dataVM.flag.dataEntry}">
+            <id-data ng-if="!dataVM.flag.dataEntry"></id-data>
+
+            <!-- Widget to enter data -->
+            <div ng-if="dataVM.flag.dataEntry" class="data-entry ">
+                <div class="panel panel-default">
+
+                    <div class="panel-heading">
+                        <span class="list-group-item list-group-item-header">{{(dataVM.editedCategory).toUpperCase()}}<span  ng-if="dataVM.selectedEvent.length>0">({{dataVM.selectedEvent[0].frameno}}-{{dataVM.selectedEvent[0].eventId}})</span></span>
+                    </div>
+                    <div class="panel-body">
+
+                        <ul class="list-group first-row-panel">
+                            <li class="list-group-item" ng-repeat="item in dataVM['category'][dataVM.currentCategory]">
+                                <div class="col-xs-4">{{item.subCategory}}<span style="color: red;" ng-if="item.isMandatory==1">*</span></div>
+                                <div class="col-xs-8" style="text-align:right;">
+                                    <!--ng-init="dataVM.form[dataVM.currentCategory][item.subCategory]=item.selectedValue" -->
+                                    <span ng-repeat="type in item.type">
+										<input type="radio" selected id="{{item.subCategory}}-{{type.icon.name}}"
+                                               ng-click="dataVM.onInputClick(type.icon.name,item.subCategory,item,type)"
+                                               ng-change="dataVM.onInputChange(type.icon.name,item.subCategory,item,type)"
+                                               ng-model="dataVM.form[dataVM.currentCategory][item.subCategory]"
+
+                                               value="{{type.icon.name}}"/>
+										<label for="{{item.subCategory}}-{{type.icon.name}}">
+                                            <img ng-src="{{type.icon.imageUrl}}" alt="image" class="img-responsive pointer" title="{{type.icon.name}}">
+                                        </label>
+									</span>
+                                </div>
+                            </li>
+                            <!--ng-if="dataVM.currentCategory == 'Exit Path'"-->
+                            <input type="text" class="form-control" ng-change="dataVM.changeComments()" ng-model="dataVM.comments" placeholder="Add Notes/Comments" style="width: 96%;margin: 10px;" maxlength="150" />
+                        </ul>
+
+                    </div>
+                    <div class="panel-footer">
+                        <span class="pull-left" ng-if="dataVM.hasError">
+							<span class="text-danger">Few fields are missed(*).</span>
+                        </span>
+                        <span class="pull-left" ng-if="dataVM.catError">
+							<span class="text-danger">Categories are missed</span>
+                        </span>
+                        <span class="pull-right">
+                            <span class="pointer btn btn-success btn-sm" ng-if="dataVM.currentIndexVal > 0"  ng-click="dataVM.backPressed()">Back</span>
+                        <span class="pointer btn btn-success btn-sm" ng-click="dataVM.resetValues()">Undo</span>
+                        <span class="pointer btn btn-success btn-sm" ng-click="dataVM.saveCategory(false, true,'Add Another SKU')" ng-if="dataVM.currentCategory == dataVM.codesList[2] && dataVM.showAnother">Add another SKU </span>
+                        <span class="pointer btn btn-success btn-sm" ng-click="dataVM.saveCategory(false, true,'Add Another Staff')" ng-if="(dataVM.currentCategory == dataVM.codesList[4] || dataVM.currentCategory == dataVM.codesList[5] || dataVM.currentCategory == dataVM.codesList[6]) && dataVM.showAnother">Add another Staff Behaviour</span>
+                        <span class="pointer btn btn-danger btn-sm" ng-if="dataVM.selectedCurrCategory" ng-click="dataVM.deleteDataEntry()">{{dataVM.discardRetain}} </span>
+                        <span class="pointer btn btn-default btn-sm" ng-click="dataVM.closeDataEntry()">Close </span>
+                        <span class="pointer btn btn-primary btn-sm" ng-click="dataVM.saveCategory(false,false,'Save')" ng-if="!(dataVM.currentCategory == dataVM.codesList[2])  || dataVM.editedFlag "> Save</span>
+                        <span class="pointer btn btn-success btn-sm" ng-click="dataVM.saveCategory(true,false,'New')" ng-if="(dataVM.currentCategory == dataVM.codesList[2] || dataVM.currentCategory == dataVM.codesList[4] || dataVM.currentCategory == dataVM.codesList[5] || dataVM.currentCategory == dataVM.codesList[6]) && (dataVM.currentLen < dataVM.event.analysis[dataVM.currentCategory].length -1)"> Next</span>
+                        <span class="pointer btn btn-success btn-sm" ng-click="dataVM.saveCategory(true,false,'New')" ng-if="!(dataVM.currentCategory == dataVM.codesList[2] || dataVM.currentCategory == dataVM.codesList[3] || dataVM.currentCategory == dataVM.codesList[4] || dataVM.currentCategory == dataVM.codesList[5] || dataVM.currentCategory == dataVM.codesList[6])"> Next</span>
+                        <!--ng-hide="dataVM.currentCategory == 'Exit Path'"-->
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-2" ng-if="!dataVM.flag.dataEntry">
+
+            <div class="panel panel-default mt-1">
+
+                <div class="panel-heading">
+                    <span class="list-group-item list-group-item-header">VIDEO LIST</span>
+                </div>
+                <div class="panel-body">
+                    {{dataVM.videosNoneMsg}}
+                    <ul class="list-group  first-row-panel">
+                        <li class="list-group-item pointer" ng-repeat="video in dataVM.videos" ng-if="!dataVM.analysing || dataVM.currentVideo.videoId == video.videoId" ng-click="dataVM.openVideo(video, true)">({{video.videoId}}){{video.name}}</li>
+                    </ul>
+                </div>
+                <div class="panel-footer">
+                    <span class="pull-right pointer btn btn-warning btn-sm" ng-if="dataVM.currentVideo.videoId" ng-click="dataVM.pauseAnalysis()">Pause </span>
+                    <!--<span class="pull-left pointer btn btn-success btn-sm" ng-if="dataVM.currentVideo.videoId" ng-click="dataVM.submitVideo()"> Submit Video</span>-->
+                    <span class="pull-left pointer btn btn-success btn-sm" ng-if="dataVM.currentVideo.videoId" ng-click="dataVM.askForConfirmation()"> Submit Video</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2" ng-repeat="catSelects in dataVM.catListWithCodeAndRepeat">
+            <li class="list-group-item list-group-item-header">
+                {{(catSelects.category).toUpperCase()}}
+            </li>
+            <ul class="list-group second-row-panel">
+                <li class="list-group-item" ng-repeat="event in dataVM.selectedEvent" ng-click="dataVM.createEvent(dataVM.catListWithCodeAndRepeat[0].catcode)">
+                    <div class="col-xs-4">{{catSelects.shoporemp}}-{{event.eventId}}</div>
+                    <div class="col-xs-8" style="display: inline; text-align:right;">
+                        <div ng-repeat="item in event['analysis'][catSelects.catcode]  track by $index" ng-if="catSelects.isrepeats == true">
+                            <span ng-repeat="subItem in item  track by $index">
+								<img ng-if="dataVM.types[subItem]" ng-src="{{dataVM.types[subItem]}}" class="img-responsive pointer" title="{{subItem}}"/>
+							</span>
+                        </div>
+
+                        <span ng-repeat="item in event['analysis'][catSelects.catcode]  track by $index" ng-if="catSelects.isrepeats == false">
+							<img ng-if="dataVM.types[item]" ng-src="{{dataVM.types[item]}}" class="img-responsive pointer" title="{{item}}"/>
+						</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="existingShoppersList" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Existing Shoppers List.</h4>
+            </div>
+            <div class="modal-body" style="max-height: 400px;overflow-y: auto;">
+                <table class="table table-bordered table-condensed">
+                    <div ui-grid="dataVM.gridOptions" class="grid" external-scopes="dataVM" ui-grid-selection ui-grid-auto-resize></div>
+                </table>
+
+            </div><br>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" ng-click="dataVM.showPreviousFramesShoppers()" ng-if="dataVM.previousVideoPosition>0 && !dataVM.loadMorePreviousFrameShoppers">Load Previous</button>
+                <button type="button" class="btn btn-default" ng-click="dataVM.selectAlreadyInShopper()" ng-if="dataVM.gridApi.selection.getSelectedRows().length>0">Select Shopper</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="popupCameraImage" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Camera Image</h4>
+            </div>
+            <div class="modal-body" style="max-height: 400px;overflow-y: auto;">
+                <image id="imageUrl" style="height: 315px;" ng-src="{{dataVM.imageUrl}}"></image>
+            </div><br>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div ng-include="'scripts/directives/footer/footer.html'"></div>

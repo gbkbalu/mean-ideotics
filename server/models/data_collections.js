@@ -3,8 +3,8 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-var testSchema = new Schema({
+var dataSchema = new Schema({
 
 });
 
-mongoose.model('test_collections', testSchema);
+mongoose.model('data_collections', dataSchema);

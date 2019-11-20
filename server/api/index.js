@@ -2,7 +2,7 @@ var users = require('./users')
 var videos = require('./videos')
 var eventOptions = require('./options')
 var events = require('./events')
-var tests = require('./tests')
+var data = require('./data')
 var categories = require('./categories')
 var subcategories = require('./subcategories')
 var icons = require('./icons')
@@ -23,7 +23,7 @@ module.exports = exports = function(options) {
     videos({ app: options.app });
     eventOptions({ app: options.app });
     events({ app: options.app });
-    tests({ app: options.app });
+    data({ app: options.app });
     categories({ app: options.app });
     subcategories({ app: options.app });
     icons({ app: options.app });

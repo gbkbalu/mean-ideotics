@@ -23,8 +23,6 @@
             }
         };
 
-
-
         function link(scope, elem, attribs, controller) {
 
             var video = elem[0];
@@ -79,8 +77,6 @@
             function pause() {
                 // alert(vm.api.properties.currentTime())
                 //vm.native.currentTime  = 50;
-
-                $rootScope.$broadcast('pauseEvent');
 
                 vm.native.pause();
             }

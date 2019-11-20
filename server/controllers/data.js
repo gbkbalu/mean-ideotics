@@ -19,7 +19,7 @@ exports.newEvent = function(req, res) {
     }
     var maxItemId;
     var settings = {
-        collection: 'test_collection',
+        collection: 'data_collection',
         field: '_id',
         query: { video_id: body.videoId }
     };
@@ -83,7 +83,7 @@ exports.newEvent = function(req, res) {
 
 exports.getEvents = function(req, res) {
 
-    mongoose.models.test_collection.find({}, { __v: 0 }, function(err, events) {
+    mongoose.models.data_collection.find({}, { __v: 0 }, function(err, events) {
         if (err) {
             return res.status(500).json({ error: 'Error with mongoDB connection.' });
         }
@@ -112,7 +112,7 @@ exports.getEventListByVideo = (req, res) => {
 
     console.log("video_id, from_idx, to_idx =", video_id, current_time, from_idx, to_idx);
 
-    mongoose.models.test_collections.find({
+    mongoose.models.data_collections.find({
             video_id,
             frame_id: {
                 $gte: from_idx,
@@ -135,7 +135,7 @@ exports.getEventListByVideo = (req, res) => {
 
 exports.getEventByFrameId = function(req, res) {
 
-    mongoose.models.test_collection.findOne({ frame_id: req.params.frameId }, { _id: 0, __v: 0 }, function(err, event) {
+    mongoose.models.data_collection.findOne({ frame_id: req.params.frameId }, { _id: 0, __v: 0 }, function(err, event) {
         if (err) {
             return res.status(500).json({ error: 'Error with mongoDB connection.' });
         }
