@@ -191,8 +191,8 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             .success(animateModule);
     };
 
-    $scope.class_filter = ["class", "accuracy", "speed", "actions", "express", "gender", "age", "LPR"]
-    $scope.selection = ["class", "accuracy"];
+    $scope.class_filter = ["class", "speed", "accuracy", "actions", "express", "gender", "age", "LPR"]
+    $scope.selection = ["speed", "accuracy"];
     $scope.toggleSelection = function toggleSelection(item) {
         let idx = $scope.selection.indexOf(item);
         if (idx > -1) {
@@ -252,26 +252,33 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                 let player_lbl = document.createElementNS(svgns, 'text');
                 player_lbl.setAttribute("id", obj_lbl);
                 player_lbl.setAttribute("text-anchor", "middle");
-                player_lbl.setAttribute('fill', "red"); //color_map[obj_idx % 50]);
+                player_lbl.setAttribute('fill', "orange"); //color_map[obj_idx % 50]);
+                player_lbl.setAttribute('font-size', 15);
 
-                let obj_info = obj_key + ":";
+                let obj_info = "car_" + obj_idx + " ";
                 // make obj info text
                 for (let idx = 0; idx < $scope.selection.length; idx++) {
                     let key = $scope.selection[idx];
+
                     if (key == "class")
                         key = "classification";
 
                     let val = item[key];
                     if (key == "accuracy")
                         val += "%";
+                    else if (key == "speed")
+                        val += "Km/h";
 
-                    obj_info += key + ":" + val + " ";
+                    obj_info = key + ":" + val;
 
-                    obj_info = obj_info.replace("classification", "class");
+                    let tspan = document.createElementNS(svgns, 'tspan');
+                    tspan.textContent = obj_info;
+                    tspan.setAttribute("x", 0);
+                    let dy = (idx > 0) ? 12 : 5;
+                    tspan.setAttribute("dy", dy);
+                    player_lbl.appendChild(tspan);
                 }
                 //
-
-                player_lbl.textContent = obj_info
 
                 player_lbl.setAttribute('x', 0);
                 player_lbl.setAttribute('y', 20);
