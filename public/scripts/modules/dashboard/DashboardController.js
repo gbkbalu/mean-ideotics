@@ -27,7 +27,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     $rootScope.setHeaderglobal(0);
 
     var vm = this;
-    vm.metaDataObj = { GFPS: 30 };
+    vm.metaDataObj = { GFPS: 50 };
     vm.comments = '';
     vm.isProfileStaffSelected = false;
     vm.isDashBorard = true;
@@ -110,16 +110,20 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         $rootScope.isTracking = false;
     }
 
-    const pausedHandler = () => {
+    const pausedHandler = (e) => {
         $rootScope.isTracking = false;
     }
 
-    const seekedHandler = () => {
+    const seekedHandler = (e) => {
         removeAllObjects();
         if (v_container.paused)
             $rootScope.isTracking = false;
         else
             $rootScope.isTracking = true;
+
+        if (v_container.currentTime == parseInt(vm.mediaPlayerApi.properties.duration())) {
+            vm.mediaPlayerApi.controls.changePosition(0);
+        }
     }
 
     function removeAllObjects() {
@@ -180,15 +184,10 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
     function timerModule() {
 
-        if (!$rootScope.isTracking)
-            return;
-
         let current_time = Math.round(vm.mediaPlayerApi.properties.currentTime());
 
-        current_time += delta_time;
-
         DataService
-            .getEventListByVideo(vm.currentVideo.videoId, current_time, frame_rate)
+            .getEventListByVideo(vm.currentVideo.videoId, current_time + delta_time, frame_rate)
             .success(animateModule);
     };
 
@@ -205,6 +204,9 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     };
 
     vm.drawObject = function(item, st_px, st_py, ed_px, ed_py) {
+
+            if (!$rootScope.isTracking)
+                return;
 
             let obj_idx = item.id;
 
@@ -252,7 +254,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                 player_lbl.setAttribute("text-anchor", "middle");
                 player_lbl.setAttribute('fill', "red"); //color_map[obj_idx % 50]);
 
-                let obj_info = "";
+                let obj_info = obj_key + ":";
                 // make obj info text
                 for (let idx = 0; idx < $scope.selection.length; idx++) {
                     let key = $scope.selection[idx];
@@ -1594,7 +1596,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                         .lockVideo(userId, videoId)
                         .success(function(data, success) {
                             vm.getCategoriesListByProject(video);
-                            vm.metaDataObj = { GFPS: 30 };
+                            vm.metaDataObj = { GFPS: 50 };
                             if (video.metaDataObj && video.metaDataObj != null && video.metaDataObj != undefined && video.metaDataObj.GFPS) {
                                 vm.metaDataObj = video.metaDataObj;
                             }
@@ -2120,6 +2122,8 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             offsetY = event.offsetY;
             vm.showSelectedEventOnTopOfVideo(false);
         }
+        if (parseInt(v_container.currentTime) == parseInt(v_container.duration))
+            removeAllObjects();
     }
 
     $scope.deleteObjcect = function(obj) {
