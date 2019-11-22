@@ -759,6 +759,35 @@ th {
     cursor: pointer;
 }
 
+.player {
+    opacity: 0.8;
+}
+
+.lbl {
+    fill: hotPink;
+    stroke: white;
+    stroke-width: 2px;
+    font-size: 15px;
+    opacity: 0.8;
+    paint-order: stroke;
+    background-color: indigo;
+}
+
+@keyframes buttonTransition {
+    from {
+        r: 1;
+    }
+    to {
+        r: 5;
+    }
+}
+
+.innerCircle {
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-name: buttonTransition;
+}
+
 
 /*
 Copyright 2016 Google Inc. All Rights Reserved.
