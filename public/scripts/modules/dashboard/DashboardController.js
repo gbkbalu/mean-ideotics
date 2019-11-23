@@ -151,16 +151,16 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                 let ed_val = data[i + 1].objects[st_key];
 
                 let st_px = (st_val.x1 + st_val.x2) / 2;
-                // let st_py = (st_val.y1 + st_val.y2) / 2; // middle center
-                let st_py = st_val.y1 - 20; // top center
+                let st_py = (st_val.y1 + st_val.y2) / 2; // middle center
+                // let st_py = st_val.y1 - 20; // top center
 
                 let ed_px;
                 let ed_py;
 
                 if (ed_val) {
                     ed_px = (ed_val.x1 + ed_val.x2) / 2;
-                    // ed_py = (ed_val.y1 + ed_val.y2) / 2; // midddle center
-                    ed_py = ed_val.y1 - 20; // top center
+                    ed_py = (ed_val.y1 + ed_val.y2) / 2; // midddle center
+                    // ed_py = ed_val.y1 - 20; // top center
 
                     st_px = Math.round(st_px * vm.c_width / vm.v_width);
                     st_py = Math.round(st_py * vm.c_height / vm.v_height);
@@ -170,7 +170,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                     if (isNaN(st_px) || isNaN(st_py))
                         return;
 
-                    vm.drawObject(st_val, st_px, st_py, ed_px, ed_py);
+                    vm.drawRectMark(st_val, st_px, st_py, ed_px, ed_py);
                 } else {
                     let element = document.getElementById(st_key);
                     let element_lbl = document.getElementById("lbl_" + st_val.id);
@@ -208,7 +208,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         console.log($scope.selection);
     };
 
-    vm.drawObject = function(item, st_px, st_py, ed_px, ed_py) {
+    vm.drawRectMark = function(item, st_px, st_py, ed_px, ed_py) {
 
             if (!$rootScope.isTracking)
                 return;
@@ -229,7 +229,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             if (!g_unit) {
                 g_unit = document.createElementNS(svgns, "g");
                 g_unit.setAttribute("id", "g_unit_" + obj_idx);
-
+                g_unit.setAttribute("style", "opacity:0.8");
                 g_unit.setAttribute("transform", "translate(" + st_px + " " + st_py + ")");
 
                 svg_container.appendChild(g_unit);
@@ -237,29 +237,27 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
             let player = document.getElementById(obj_key);
             if (!player) {
-                player = document.createElementNS(svgns, 'circle');
+                player = document.createElementNS(svgns, 'text');
                 player.setAttribute("id", obj_key);
-                player.setAttribute("class", "player");
-                player.setAttribute("r", 7);
-                player.setAttribute("fill", "white"); //color_map[obj_idx % 50]);
-                player.setAttribute("stroke", "white");
-                player.setAttribute("stroke-width", 2);
-                player.setAttribute("cx", 0);
-                player.setAttribute("cy", 0);
+                player.textContent = "IIIIIIIIII";
+                player.setAttribute("x", 30);
+                player.setAttribute("y", -35);
+                player.setAttribute("style", "fill:#ea220b; stroke:#ea220b; stroke-width:0.7em");
+                player.setAttribute("font-size", 40);
 
                 g_unit.appendChild(player);
             }
 
             let player_cl = document.getElementById(obj_cl);
             if (!player_cl) {
-                player_cl = document.createElementNS(svgns, 'circle');
+                player_cl = document.createElementNS(svgns, 'line');
                 player_cl.setAttribute("id", obj_cl);
-                player_cl.setAttribute("class", "innerCircle");
-                player_cl.setAttribute("r", 5);
-                player_cl.setAttribute("fill", "hotPink"); //color_map[obj_idx % 50]);
+                player_cl.setAttribute("style", "stroke:#ea220b; stroke-width: 2");
 
-                player_cl.setAttribute("cx", 0);
-                player_cl.setAttribute("cy", 0);
+                player_cl.setAttribute("x1", 0);
+                player_cl.setAttribute("y1", 0);
+                player_cl.setAttribute("x2", 30);
+                player_cl.setAttribute("y2", -30);
 
                 g_unit.appendChild(player_cl);
             }
@@ -269,30 +267,30 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
                 player_lbl = document.createElementNS(svgns, 'text');
                 player_lbl.setAttribute("id", obj_lbl);
-                player_lbl.setAttribute("class", "lbl");
-                player_lbl.setAttribute("text-anchor", "middle");
+                player_lbl.setAttribute("fill", "white");
+                player_lbl.setAttribute("font-size", 15);
 
-                player_lbl.setAttribute('x', 0);
-                player_lbl.setAttribute('y', 20);
+                player_lbl.setAttribute('x', 30);
+                player_lbl.setAttribute('y', -70);
 
                 let tcar = document.createElementNS(svgns, 'tspan');
-                tcar.textContent = "name:car_" + obj_idx;
-                tcar.setAttribute("x", 0);
-                tcar.setAttribute("dy", 3);
+                tcar.textContent = "id:" + item["classification"] + "_" + obj_idx;
+                tcar.setAttribute("x", 30);
+                tcar.setAttribute("dy", 10);
                 player_lbl.appendChild(tcar);
 
                 g_unit.appendChild(player_lbl);
 
             }
 
-            let obj_info = "car_" + obj_idx + " ";
+            let obj_info = " ";
 
             // make obj info text
             for (let idx = 0; idx < $scope.selection.length; idx++) {
                 let key = $scope.selection[idx];
 
                 if (key == "class")
-                    key = "classification";
+                    continue;
 
                 let val = item[key];
                 if (key == "accuracy")
@@ -310,8 +308,8 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                 if (!tspan) {
                     tspan = document.createElementNS(svgns, 'tspan');
                     tspan.setAttribute("id", tspan_id);
-                    tspan.setAttribute("x", 0);
-                    tspan.setAttribute("dy", 12);
+                    tspan.setAttribute("x", 30);
+                    tspan.setAttribute("dy", 17);
                     player_lbl.appendChild(tspan);
                 }
                 tspan.textContent = obj_info;
@@ -348,6 +346,146 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             document.getElementById("svg").setCurrentTime(0);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    vm.drawCircleMark = function(item, st_px, st_py, ed_px, ed_py) {
+
+        if (!$rootScope.isTracking)
+            return;
+
+        let obj_idx = item.id;
+
+        if (vm.current_target != -1 && vm.current_target != obj_idx)
+            return;
+
+        let obj_key = "obj_" + obj_idx;
+        let obj_lbl = "lbl_" + obj_idx;
+        let obj_cl = "cl_" + obj_idx;
+
+        if (!svg_container)
+            return;
+
+        let g_unit = document.getElementById("g_unit_" + obj_idx);
+        if (!g_unit) {
+            g_unit = document.createElementNS(svgns, "g");
+            g_unit.setAttribute("id", "g_unit_" + obj_idx);
+
+            g_unit.setAttribute("transform", "translate(" + st_px + " " + st_py + ")");
+
+            svg_container.appendChild(g_unit);
+        }
+
+        let player = document.getElementById(obj_key);
+        if (!player) {
+            player = document.createElementNS(svgns, 'circle');
+            player.setAttribute("id", obj_key);
+            player.setAttribute("class", "player");
+            player.setAttribute("r", 7);
+            player.setAttribute("fill", "white"); //color_map[obj_idx % 50]);
+            player.setAttribute("stroke", "white");
+            player.setAttribute("stroke-width", 2);
+            player.setAttribute("cx", 0);
+            player.setAttribute("cy", 0);
+
+            g_unit.appendChild(player);
+        }
+
+        let player_cl = document.getElementById(obj_cl);
+        if (!player_cl) {
+            player_cl = document.createElementNS(svgns, 'circle');
+            player_cl.setAttribute("id", obj_cl);
+            player_cl.setAttribute("class", "innerCircle");
+            player_cl.setAttribute("r", 5);
+            player_cl.setAttribute("fill", "hotPink"); //color_map[obj_idx % 50]);
+
+            player_cl.setAttribute("cx", 0);
+            player_cl.setAttribute("cy", 0);
+
+            g_unit.appendChild(player_cl);
+        }
+
+        let player_lbl = document.getElementById(obj_lbl);
+        if (!player_lbl) {
+
+            player_lbl = document.createElementNS(svgns, 'text');
+            player_lbl.setAttribute("id", obj_lbl);
+            player_lbl.setAttribute("class", "lbl");
+            player_lbl.setAttribute("text-anchor", "middle");
+
+            player_lbl.setAttribute('x', 0);
+            player_lbl.setAttribute('y', 20);
+
+            let tcar = document.createElementNS(svgns, 'tspan');
+            tcar.textContent = "name:car_" + obj_idx;
+            tcar.setAttribute("x", 0);
+            tcar.setAttribute("dy", 3);
+            player_lbl.appendChild(tcar);
+
+            g_unit.appendChild(player_lbl);
+
+        }
+
+        let obj_info = "car_" + obj_idx + " ";
+
+        // make obj info text
+        for (let idx = 0; idx < $scope.selection.length; idx++) {
+            let key = $scope.selection[idx];
+
+            if (key == "class")
+                key = "classification";
+
+            let val = item[key];
+            if (key == "accuracy")
+                val += "%";
+            else if (key == "speed") {
+                val += "Km/h";
+                console.log("speed, obj_idx = ", val, obj_idx);
+            }
+
+            obj_info = key + ":" + val;
+
+            let tspan_id = "props_" + obj_idx + "_" + key;
+
+            let tspan = document.getElementById(tspan_id);
+            if (!tspan) {
+                tspan = document.createElementNS(svgns, 'tspan');
+                tspan.setAttribute("id", tspan_id);
+                tspan.setAttribute("x", 0);
+                tspan.setAttribute("dy", 12);
+                player_lbl.appendChild(tspan);
+            }
+            tspan.textContent = obj_info;
+        }
+
+        let animation = document.createElementNS(svgns, "animateTransform");
+
+        animation.setAttribute("from", st_px + " " + st_py);
+        animation.setAttribute("to", ed_px + " " + ed_py);
+
+        animation.setAttribute("attributeType", "XML");
+        animation.setAttribute("attributeName", "transform");
+        animation.setAttribute("type", "translate");
+        animation.setAttribute("calcMode", "paced");
+        animation.setAttribute("repeatCount", 1);
+
+        let anim_delta = 1 / (frame_rate / sub_frame_rate); //* 0.8;
+        // console.log("anim_delta = ", anim_delta);
+
+        animation.setAttribute("dur", "" + anim_delta + "s");
+        animation.setAttribute("fill", "freeze");
+        animation.setAttribute("id", "animation_" + obj_idx);
+
+        let previous_animation = document.getElementById("animation_" + obj_idx);
+        if (previous_animation) {
+            try {
+                g_unit.removeChild(previous_animation);
+            } catch (e) {
+                console.log(previous_animation);
+                console.log(e);
+            }
+        }
+        g_unit.appendChild(animation);
+        document.getElementById("svg").setCurrentTime(0);
+    }
 
     vm.showMore = function() {
         for (var len = vm.events.length - 1; len >= 0; len--) {
