@@ -1,9 +1,8 @@
-<span class="list-group-item list-group-item-header">Humans Identified</span>
+<span class="list-group-item list-group-item-header">Objects Identified</span>
 <ul id="eventsList" ng-class="{'list-group first-row-panel': dashVM.isDashBorard === true, 'list-group analysis-row-panel': dashVM.isDashBorard === false}">
     <li class="list-group-item" ng-repeat="event in dashVM.events" ng-show="event.isDiscarded === 0 || dashVM.isOpenedForReview" style="{{event.color}};background-color:{{event.background}}" ng-click="dashVM.selectedHumanInHumanList($index,event)" id="event{{$index}}">
-        <span>{{event.startTime}} : {{event.endTime}}({{event.frameno}})</span>
-        <span class="pull-right">Human-{{event.eventId}}</span>
-        <span ng-show="event.totalTimeSpent">({{event.totalTimeSpent}})</span>
+        <span><{{event.frameno}}>({{event.totalTimeSpent}}):<{{event.classification}}>|<{{event.speed | number:0}}km/h></span>
+        <span class="pull-right">Object-{{event.eventId}}</span>
     </li>
     <li class="list-group-item" ng-click="dashVM.current_target=-1">
         <span class="pull-right">Track all</span>

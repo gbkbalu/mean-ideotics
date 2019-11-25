@@ -47,7 +47,7 @@
         </table>
         <!--<input ng-model="dashVM.formVideoIdToSubmit">
         <button class="btn btn-default"  style="margin-right: 5px;font-size: 12px;" ng-click="dashVM.submitVideoFromForm()">submit</button>-->
-        <div class="col-xs-7" style="height: 580px;">
+        <div class="col-xs-7" id="v_panel" style="height: 580px;">
             <div class="divCenter" ng-if="!dashVM.currentVideo.videoId">
                 Select a video
             </div>
@@ -68,7 +68,7 @@
             <ab-video ng-if="globals.user.role != 'admin'" api="dashVM.mediaPlayerApi" ng-init="dashVM.initVideo()" ng-click="dashVM.getCoordinates($event)" controlsList="nodownload">
             </ab-video>
 
-            <svg id="svg" width="99%" height="93%" style="position: absolute; top:25px; left:5px;pointer-events: none;" ng-init="dashVM.initSVG()"></svg>
+            <svg id="svg" style="position: absolute;  background:gray; opacity:0.5; top:0px; left:0px; width:0px; height:0px; pointer-events: none;" ng-init="dashVM.initSVG()"></svg>
         </div>
 
         <div ng-class="{'col-xs-3': !dashVM.flag.dataEntry, 'col-xs-5': dashVM.flag.dataEntry}">

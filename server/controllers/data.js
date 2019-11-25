@@ -105,18 +105,17 @@ exports.isVaulueValid = function(nameValue) {
 exports.getEventListByVideo = (req, res) => {
 
     let video_id = 2; //req.body.videoId;
-    let current_time = req.body.current_time;
-    let frame_rate = req.body.frame_rate;
-    let from_idx = current_time * frame_rate;
-    let to_idx = from_idx + frame_rate;
+    let frame_no = req.body.frame_no;
+    let frame_cnt = req.body.buff_request_size;
+    let from_idx = frame_no;
 
     mongoose.models.data_collections.find({
             video_id,
             frame_id: {
-                $gte: from_idx,
-                $lte: to_idx
+                $gte: from_idx
             }
         }).sort({ frame_id: 1 })
+        .limit(frame_cnt)
         .exec((err, events) => {
 
             if (err) {

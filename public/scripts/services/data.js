@@ -69,8 +69,8 @@ function DataService($http, $localStorage) {
         return $http.post('/api/data/saveEventsFromCSVWithForm', { csvData: csvData, videoId: videoId, frameWidth: videoObj.frameWidth, frameHeight: videoObj.frameHeight });
     }
 
-    function getEventListByVideo(videoId, current_time, frame_rate) {
-        return $http.post('/api/data/getEventListByVideo', { videoId, current_time, frame_rate });
+    function getEventListByVideo(videoId, frame_no, buff_request_size) {
+        return $http.post('/api/data/getEventListByVideo', { videoId, frame_no, buff_request_size });
     }
 
     function getEventSubListByVideo(videoId) {

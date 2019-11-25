@@ -43,18 +43,11 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     let svgns = "http://www.w3.org/2000/svg";
     let frame_rate = 50;
     let sub_frame_rate = 5;
-    let delta_time = 1;
 
     let v_container = document.getElementById('video');
     let svg_container = document.getElementById("svg");
 
-    let color_map = [
-            "#36688d", "#f3cd05", "#f49f05", "#f18904", "#bda589", "#a7414a", "#282726", "#6a8a82", "#a37c27", "#563838", "#0444bf", "#0584f2", "#0aaff1",
-            "#edf259", "#a79674", "#6465a5", "#6975a6", "#f3e96b", "#f28a30", "#f05837", "#aba6bf", "#595775", "#583e2e", "#f1e0d6", "#bf988f", "#192e5b",
-            "#1d65a6", "#72a2c0", "#00743f", "#f2a104", "#040c0e", "#132226", "#525b56", "#be9063", "#a4978e", "#daa2da", "#dbb4da", "#de8cfo", "#bed905",
-            "#93a806", "#a4a4bf", "#16235a", "#2a3457", "#888c46", "#f2eaed", "#a3586d", "#5c4a72", "#f3b05a", "#f4874b", "#f46a4e"
-        ]
-        /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
     var categoryStartTime = "";
     var startPolling = true;
     var categoriesLen = categories.length;
@@ -84,14 +77,67 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         v_container.addEventListener('ended', endedHandler, false);
         v_container.addEventListener('pause', pausedHandler, false);
         v_container.addEventListener('seeked', seekedHandler, false);
+        v_container.addEventListener('loadeddata', svgResizeHandler, false);
+        window.onresize = svgResizeHandler;
 
         v_container.muted = true;
 
-        setInterval(timerModule, 1000);
+        setInterval(writeTimer, 200);
+        setInterval(readTimer, 100);
     }
 
     vm.initSVG = function() { //called from svg
         svg_container = document.getElementById("svg");
+    }
+
+    const getOffset = (el) => {
+        const rect = el.getBoundingClientRect();
+        return {
+            left: rect.left + window.scrollX,
+            top: rect.top + window.scrollY
+        };
+    }
+
+    const svgResizeHandler = () => {
+        let v = document.getElementById("video");
+        let v_w = v.videoWidth;
+        let v_h = v.videoHeight;
+        let c_w = v.clientWidth;
+        let c_h = v.clientHeight;
+        let r_w;
+        let r_h;
+
+        let v_rate = v_h / v_w;
+        let c_rate = c_h / c_w;
+        console.log(v_rate, c_rate);
+
+        if (v_rate < c_rate) {
+            r_w = c_w;
+            r_h = c_w * v_rate;
+        } else {
+            r_h = c_h;
+            r_w = r_h / v_rate;
+        }
+        vm.svg_width = r_w;
+        vm.svg_height = r_h;
+
+        let v_panel = document.getElementById("v_panel");
+        let v_panel_off = getOffset(v_panel);
+        let v_off = getOffset(v)
+            // let left_padding = (c_w - r_w) / 2;
+            // let top_padding = (c_h - r_h) / 2;
+        let left_padding = (c_w - r_w) / 2 + v_off.left - v_panel_off.left + 2.9;
+        let top_padding = (c_h - r_h) / 2 + v_off.top - v_panel_off.top + 2.9;
+
+        console.log("v_offset", v_off.left, v_off.top);
+        console.log(v_w, v_h, c_w, c_h, r_w, r_h);
+        console.log("padding", left_padding, top_padding);
+
+        let s = document.getElementById("svg");
+        let styleStr = "position: absolute;"
+        styleStr += "top:" + parseInt(top_padding) + "px; left:" + parseInt(left_padding) + "px;";
+        styleStr += "width:" + parseInt(r_w) + "px; height:" + parseInt(r_h) + "px; pointer-events: none;"
+        s.setAttribute("style", styleStr);
     }
 
     const playHandler = () => {
@@ -100,8 +146,6 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
         vm.v_width = v_container.videoWidth;
         vm.v_height = v_container.videoHeight;
-        vm.c_width = v_container.clientWidth;
-        vm.c_height = v_container.clientHeight;
 
         $rootScope.isTracking = true;
     }
@@ -116,6 +160,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
     const seekedHandler = (e) => {
         removeAllObjects();
+        resetBuff();
         if (v_container.paused)
             $rootScope.isTracking = false;
         else
@@ -132,69 +177,150 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         }
     }
 
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    async function animateModule(data, status) {
+    function readTimer(data, status) {
         if (vm.v_width == 0 || vm.v_height == 0)
             return;
+        let cur_time = v_container.currentTime;
+        let cur_frame_no = Math.round(cur_time * vm.vfps);
 
-        for (let i = 0; i < data.length - 1; i++) {
-            if (!data[i].objects)
-                return;
+        console.log("cur_time, cur_frame_no ================================ ", cur_time, cur_frame_no);
 
-            console.log("frame_id ================================ ", data[i].frame_id);
+        let datas = ReadBuff(cur_frame_no);
+        if (datas == false) return;
 
-            for (let st_key in data[i].objects) {
-                let st_val = data[i].objects[st_key];
-                let ed_val = data[i + 1].objects[st_key];
+        let cur_data = datas[0];
+        let nxt_data = datas[1];
 
-                let st_px = (st_val.x1 + st_val.x2) / 2;
-                let st_py = (st_val.y1 + st_val.y2) / 2; // middle center
-                // let st_py = st_val.y1 - 20; // top center
+        console.log("cur_data, next_data", cur_data.frame_id, nxt_data.frame_id);
 
-                let ed_px;
-                let ed_py;
+        for (let st_key in cur_data.objects) {
+            let st_val = cur_data.objects[st_key];
+            let ed_val = nxt_data.objects[st_key];
 
-                if (ed_val) {
-                    ed_px = (ed_val.x1 + ed_val.x2) / 2;
-                    ed_py = (ed_val.y1 + ed_val.y2) / 2; // midddle center
-                    // ed_py = ed_val.y1 - 20; // top center
+            let st_px = (st_val.x1 + st_val.x2) / 2;
+            let st_py = (st_val.y1 + st_val.y2) / 2; // middle center
+            // let st_py = st_val.y1 - 20; // top center
 
-                    st_px = Math.round(st_px * vm.c_width / vm.v_width);
-                    st_py = Math.round(st_py * vm.c_height / vm.v_height);
-                    ed_px = Math.round(ed_px * vm.c_width / vm.v_width);
-                    ed_py = Math.round(ed_py * vm.c_height / vm.v_height);
+            let ed_px;
+            let ed_py;
 
-                    if (isNaN(st_px) || isNaN(st_py))
-                        return;
+            if (ed_val) {
+                ed_px = (ed_val.x1 + ed_val.x2) / 2;
+                ed_py = (ed_val.y1 + ed_val.y2) / 2; // midddle center
+                // ed_py = ed_val.y1 - 20; // top center
 
-                    vm.drawRectMark(st_val, st_px, st_py, ed_px, ed_py);
-                } else {
-                    let element = document.getElementById(st_key);
-                    let element_lbl = document.getElementById("lbl_" + st_val.id);
-                    let element_cl = document.getElementById("cl_" + st_val.id);
-                    if (element)
-                        element.parentNode.removeChild(element);
-                    if (element_lbl)
-                        element_lbl.parentNode.removeChild(element_lbl);
-                    if (element_cl)
-                        element_cl.parentNode.removeChild(element_cl);
-                }
+                st_px = Math.round(st_px * vm.svg_width / vm.v_width);
+                st_py = Math.round(st_py * vm.svg_height / vm.v_height);
+                ed_px = Math.round(ed_px * vm.svg_width / vm.v_width);
+                ed_py = Math.round(ed_py * vm.svg_height / vm.v_height);
+
+                if (isNaN(st_px) || isNaN(st_py))
+                    return;
+
+                vm.drawRectMark(st_val, st_px, st_py, ed_px, ed_py);
+            } else {
+                let element = document.getElementById(st_key);
+                let element_lbl = document.getElementById("lbl_" + st_val.id);
+                let element_cl = document.getElementById("cl_" + st_val.id);
+                if (element)
+                    element.parentNode.removeChild(element);
+                if (element_lbl)
+                    element_lbl.parentNode.removeChild(element_lbl);
+                if (element_cl)
+                    element_cl.parentNode.removeChild(element_cl);
             }
-            await sleep(1000 / (frame_rate / sub_frame_rate));
         }
     }
 
-    function timerModule() {
+    vm.vfps = 50;
+    vm.buff_size = 500;
+    vm.buff_st = 0;
+    vm.buff_ed = 0;
+    vm.buff_request_size = vm.vfps;
+    vm.frame_buff = new Array(vm.buff_size);
+    vm.can_request = true;
 
-        let current_time = Math.round(vm.mediaPlayerApi.properties.currentTime());
+    function resetBuff() {
+        vm.buff_st = 0;
+        vm.buff_ed = 0;
+        vm.frame_buff = [];
+    }
 
-        DataService
-            .getEventListByVideo(vm.currentVideo.videoId, current_time + delta_time, frame_rate)
-            .success(animateModule);
-    };
+    function isBuffEmpty() {
+        if (vm.buff_st == vm.buff_ed)
+            return true;
+        return false;
+    }
+
+    function getBuffLastElement() {
+        let cur = vm.buff_ed - 1;
+        if (cur == -1) cur = vm.buff_size - 1;
+        return vm.frame_buff[cur];
+    }
+
+    function needBuffRequest() {
+        let cur_num = ((vm.buff_ed + vm.buff_size) - vm.buff_st) % vm.buff_size;
+        let need_num = vm.buff_size - cur_num;
+        if (need_num >= vm.buff_request_size) return true;
+        return false;
+    }
+
+    function pushBuffDatas(datas, status) {
+        for (let i = 0; i < datas.length; i++) {
+            let data = datas[i];
+            vm.frame_buff[vm.buff_ed++] = data;
+            if (vm.buff_ed == vm.buff_size) vm.buff_ed = 0;
+        }
+        vm.can_request = true;
+    }
+
+    function removeBuff(frameno) {
+        while (!isBuffEmpty()) {
+            if (vm.frame_buff[vm.buff_st].frame_id >= frameno)
+                break;
+            vm.buff_st++;
+            if (vm.buff_st == vm.buff_size)
+                vm.buff_st = 0;
+        }
+    }
+
+    function ReadBuff(frameno) {
+        removeBuff(frameno);
+        if (isBuffEmpty())
+            return false;
+        let buff_next = vm.buff_st + 1;
+        if (buff_next == vm.buff_size)
+            buff_next = 0;
+        if (buff_next == vm.buff_ed)
+            return false;
+        let ret_arr = [vm.frame_buff[vm.buff_st], vm.frame_buff[buff_next]];
+        return ret_arr;
+    }
+
+    async function writeTimer() {
+        await writeModule();
+    }
+
+    function writeModule() {
+        if (!vm.can_request)
+            return;
+        vm.can_request = false;
+        let cur_time = Math.round(vm.mediaPlayerApi.properties.currentTime());
+        let cur_frame_no = Math.round(vm.mediaPlayerApi.properties.currentTime() * vm.vfps);
+        if (isBuffEmpty()) {
+            let frame_no = cur_frame_no;
+            DataService
+                .getEventListByVideo(vm.currentVideo.videoId, frame_no, vm.buff_request_size)
+                .success(pushBuffDatas);
+        } else if (needBuffRequest()) {
+            let last_element = getBuffLastElement();
+            let last_frame_no = last_element.frame_id;
+            let frame_no = Math.max(last_frame_no + 1, cur_frame_no);
+            DataService
+                .getEventListByVideo(vm.currentVideo.videoId, frame_no, vm.buff_request_size)
+                .success(pushBuffDatas);
+        }
+    }
 
     $scope.class_filter = ["class", "speed", "accuracy", "actions", "express", "gender", "age", "LPR"]
     $scope.selection = ["speed", "accuracy"];
@@ -212,6 +338,8 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
             if (!$rootScope.isTracking)
                 return;
+
+            console.log("drawRectMark", st_px, st_py, ed_px, ed_py);
 
             let obj_idx = item.id;
 
@@ -239,11 +367,11 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             if (!player) {
                 player = document.createElementNS(svgns, 'text');
                 player.setAttribute("id", obj_key);
-                player.textContent = "IIIIIIIIII";
-                player.setAttribute("x", 30);
-                player.setAttribute("y", -35);
-                player.setAttribute("style", "fill:#ea220b; stroke:#ea220b; stroke-width:0.7em");
-                player.setAttribute("font-size", 40);
+                player.textContent = "IIIIIIIIIIII";
+                player.setAttribute("x", 20);
+                player.setAttribute("y", -25);
+                player.setAttribute("style", "fill:#ea220b; stroke:#ea220b; stroke-width:0.8em");
+                player.setAttribute("font-size", 23);
 
                 g_unit.appendChild(player);
             }
@@ -256,8 +384,8 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
                 player_cl.setAttribute("x1", 0);
                 player_cl.setAttribute("y1", 0);
-                player_cl.setAttribute("x2", 30);
-                player_cl.setAttribute("y2", -30);
+                player_cl.setAttribute("x2", 17);
+                player_cl.setAttribute("y2", -20);
 
                 g_unit.appendChild(player_cl);
             }
@@ -268,14 +396,14 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                 player_lbl = document.createElementNS(svgns, 'text');
                 player_lbl.setAttribute("id", obj_lbl);
                 player_lbl.setAttribute("fill", "white");
-                player_lbl.setAttribute("font-size", 15);
+                player_lbl.setAttribute("font-size", 14);
 
-                player_lbl.setAttribute('x', 30);
-                player_lbl.setAttribute('y', -70);
+                player_lbl.setAttribute('x', 15);
+                player_lbl.setAttribute('y', -47);
 
                 let tcar = document.createElementNS(svgns, 'tspan');
-                tcar.textContent = "id:" + item["classification"] + "_" + obj_idx;
-                tcar.setAttribute("x", 30);
+                tcar.textContent = obj_idx + ":" + item["classification"];
+                tcar.setAttribute("x", 17);
                 tcar.setAttribute("dy", 10);
                 player_lbl.appendChild(tcar);
 
@@ -283,8 +411,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
             }
 
-            let obj_info = " ";
-
+            let speed_acc = false;
             // make obj info text
             for (let idx = 0; idx < $scope.selection.length; idx++) {
                 let key = $scope.selection[idx];
@@ -293,14 +420,23 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                     continue;
 
                 let val = item[key];
-                if (key == "accuracy")
-                    val += "%";
-                else if (key == "speed") {
-                    val += "Km/h";
-                    console.log("speed, obj_idx = ", val, obj_idx);
-                }
 
-                obj_info = key + ":" + val;
+                if (key == "accuracy" || key == "speed") {
+                    if (!speed_acc) {
+                        let speed = item["speed"];
+                        let acc = item["accuracy"];
+
+                        acc = parseInt(acc);
+                        acc += "%";
+
+                        speed += "km/h";
+
+                        val = speed + "(" + acc + ")";
+                        speed_acc = true;
+                    } else {
+                        continue;
+                    }
+                }
 
                 let tspan_id = "props_" + obj_idx + "_" + key;
 
@@ -308,11 +444,11 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                 if (!tspan) {
                     tspan = document.createElementNS(svgns, 'tspan');
                     tspan.setAttribute("id", tspan_id);
-                    tspan.setAttribute("x", 30);
-                    tspan.setAttribute("dy", 17);
+                    tspan.setAttribute("x", 17);
+                    tspan.setAttribute("dy", 15);
                     player_lbl.appendChild(tspan);
                 }
-                tspan.textContent = obj_info;
+                tspan.textContent = val;
             }
 
             let animation = document.createElementNS(svgns, "animateTransform");
