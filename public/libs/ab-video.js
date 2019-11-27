@@ -66,7 +66,8 @@
                 //https://www.youtube.com/watch?v=VEJs8puLPX0"; //
                 // blob:https://www.youtube.com/4c530d6c-0b77-4996-bc56-2b01a445bbde";
                 //https://www.youtube.com/watch?v=17Deeq8N2e4"; 
-                vm.native.src = "http://localhost/test.mp4"; //src;
+                // vm.native.src = "http://localhost/test.mp4";
+                vm.native.src = src;
 
                 if (play) {
                     vm.native.play();

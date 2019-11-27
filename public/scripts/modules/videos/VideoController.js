@@ -181,7 +181,8 @@ function VideoController(uiGridExporterConstants, uiGridExporterService, $timeou
             vm.resetValuesOfAws();
             vm.setBucketName(selectedVideo);
             vm.showPlayingVideo = true;
-            var paramsObj = { Bucket: $scope.creds.bucket, Key: selectedVideo.url, Expires: 7200 };
+            let paramsObj = { Bucket: $scope.creds.bucket, Key: selectedVideo.url, Expires: 7200 };
+
             /*var signedUrl = bucket.getSignedUrl('getObject', paramsObj, function (err, signedUrl)
             {
                 if (signedUrl)
@@ -192,16 +193,24 @@ function VideoController(uiGridExporterConstants, uiGridExporterService, $timeou
                     }, 1000);
                 }
             });*/
-            AwsService
-                .authenticateUrl({ paramsObj: paramsObj })
-                .success(function(data, status) {
-                    vm.mediaPlayerApi.controls.changeSource(data.signedUrl, true);
+
+            if (selectedVideo.videoFromAws) {
+                AwsService
+                    .authenticateUrl({ paramsObj: paramsObj })
+                    .success(function(data, status) {
+                        vm.mediaPlayerApi.controls.changeSource(data.signedUrl, true);
+                        vm.mediaPlayerApi.controls.pause();
+                        //showCustomProgressBar();
+                    }).error(function(err, status) {
+                        console.log(err);
+                        console.log(status);
+                    });
+            } else {
+                $timeout(function() {
+                    vm.mediaPlayerApi.controls.changeSource(selectedVideo.url, true);
                     vm.mediaPlayerApi.controls.pause();
-                    //showCustomProgressBar();
-                }).error(function(err, status) {
-                    console.log(err);
-                    console.log(status);
-                });
+                }, 100);
+            }
         }
     }
 

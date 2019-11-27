@@ -105,7 +105,7 @@ exports.createConnection = function(callback) {
             var mongoJson = JSON.parse(mongohq);
             host = mongoJson[environment[envType].ENV];
 
-            console.log("host###############################################" + host);
+            console.log("host" + host);
 
             // mongoose.connect(host, { useNewUrlParser: true }, { auth: { authdb: "admin" } });
 
@@ -117,7 +117,7 @@ exports.createConnection = function(callback) {
                 }, { auth: { authdb: "admin" } })
                 .then(() => console.log('DB Connected!'))
                 .catch(err => {
-                    console.log("DB Connection Error-------------------------------------:" + err.message);
+                    console.log("DB Connection Error::" + err.message);
                 });
 
             console.log('Connections established::' + host);

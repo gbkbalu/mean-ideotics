@@ -178,20 +178,23 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     }
 
     function readTimer(data, status) {
+
         if (vm.v_width == 0 || vm.v_height == 0)
             return;
+
         let cur_time = v_container.currentTime;
         let cur_frame_no = Math.round(cur_time * vm.vfps);
 
-        console.log("cur_time, cur_frame_no ================================ ", cur_time, cur_frame_no);
+        // console.log("cur_time, cur_frame_no ================================ ", cur_time, cur_frame_no);
 
         let datas = ReadBuff(cur_frame_no);
-        if (datas == false) return;
+        if (datas == false)
+            return;
 
         let cur_data = datas[0];
         let nxt_data = datas[1];
 
-        console.log("cur_data, next_data", cur_data.frame_id, nxt_data.frame_id);
+        // console.log("cur_data, next_data", cur_data.frame_id, nxt_data.frame_id);
 
         for (let st_key in cur_data.objects) {
             let st_val = cur_data.objects[st_key];
@@ -334,17 +337,23 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         console.log($scope.selection);
     };
 
+    vm.target_timer = 0;
+
     vm.drawRectMark = function(item, st_px, st_py, ed_px, ed_py) {
 
             if (!$rootScope.isTracking)
                 return;
 
-            console.log("drawRectMark", st_px, st_py, ed_px, ed_py);
+            if (vm.current_target != -1 && vm.current_target != item.id)
+                return;
+
+            if (vm.target_timer > 0 && v_container.currentTime > vm.target_timer) {
+                // v_container.pause();
+                vm.mediaPlayerApi.controls.pause();
+                vm.target_timer = 0;
+            }
 
             let obj_idx = item.id;
-
-            if (vm.current_target != -1 && vm.current_target != obj_idx)
-                return;
 
             let obj_key = "obj_" + obj_idx;
             let obj_lbl = "lbl_" + obj_idx;
@@ -831,6 +840,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
     // Init
     getUnlockVideos();
+
     getTypes();
 
     //pausedVideoId = $localStorage.user.pausedVideoId;
@@ -934,6 +944,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                 vm.previousFrameNo = vm.currentFrameNo;
                 vm.currentFrameNo = event.frameno;
                 vm.current_target = event.eventId;
+                vm.target_timer = event.endTime;
                 vm.showMore();
             } else {
                 resetAllDrawnBoxes();
@@ -1116,7 +1127,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             });
     }
 
-    function unlockAllVideos(e) {
+    function unlockAllVideos() {
 
         delete $localStorage.user.pausedVideoTime;
         delete $localStorage.user.pausedVideoId;
@@ -1923,16 +1934,20 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                             var bucketUrl = '';
                             if ((video.project && video.project.bucket) || video.bucket) {
                                 var paramsObj = { Bucket: video.bucket, Key: video.url, Expires: 7200 };
-                                AwsService
-                                    .authenticateUrl({ paramsObj: paramsObj })
-                                    .success(function(data, status) {
-                                        vm.mediaPlayerApi.controls.changeSource(data.signedUrl, play);
-                                        vm.mediaPlayerApi.controls.pause();
-                                        //showCustomProgressBar();
-                                    }).error(function(err, status) {
-                                        console.log(err);
-                                        console.log(status);
-                                    });
+
+                                vm.mediaPlayerApi.controls.changeSource(video.url, play);
+                                vm.mediaPlayerApi.controls.pause();
+
+                                // AwsService
+                                //     .authenticateUrl({ paramsObj: paramsObj })
+                                //     .success(function(data, status) {
+                                // vm.mediaPlayerApi.controls.changeSource(data.signedUrl, play);
+                                // vm.mediaPlayerApi.controls.pause();
+                                //showCustomProgressBar();
+                                // }).error(function(err, status) {
+                                //     console.log(err);
+                                //     console.log(status);
+                                // });
                             } else {
                                 bucketUrl = video.url;
                                 vm.mediaPlayerApi.controls.changeSource(bucketUrl, play);
@@ -2642,6 +2657,9 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     }
 
     var q = setInterval(function() {
+
+        console.log("q SetInterval");
+
         var userId = $localStorage.user ? $localStorage.user.userId : null;
         // if window.dashboard === false, terminate polling
         if (!window.dashboard) {

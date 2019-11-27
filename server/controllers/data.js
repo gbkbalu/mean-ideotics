@@ -104,7 +104,7 @@ exports.isVaulueValid = function(nameValue) {
 
 exports.getEventListByVideo = (req, res) => {
 
-    let video_id = 2; //req.body.videoId;
+    let video_id = req.body.videoId;
     let frame_no = req.body.frame_no;
     let frame_cnt = req.body.buff_request_size;
     let from_idx = frame_no;
