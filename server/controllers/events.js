@@ -97,7 +97,6 @@ exports.getEvents = function(req, res) {
 
 exports.getAllShoppersByStartTime = function(req, res) {
     var body = req.body;
-    req.body.videoId = 1; //for test
     mongoose.models.events.find(body, { __v: 0 }, function(err, events) {
         if (err) {
             return res.status(500).json({ error: 'Error with mongoDB connection.' });

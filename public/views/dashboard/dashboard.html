@@ -141,7 +141,7 @@
                 <div class="panel-body">
                     {{dashVM.videosNoneMsg}}
                     <ul class="list-group  first-row-panel">
-                        <li class="list-group-item pointer" ng-repeat="video in dashVM.videos" ng-if="!dashVM.analysing || dashVM.currentVideo.videoId == video.videoId" ng-click="dashVM.openVideo(video, true)" ng-class="{'active-video': video.videoId === dashVM.currentVideo.videoId}">({{video.videoId}}){{video.name}}</li>
+                        <li class="list-group-item pointer" ng-repeat="video in dashVM.videos" ng-click="dashVM.openVideo(video, true)" ng-class="{'active-video': video.videoId === dashVM.currentVideo.videoId}">({{video.videoId}}){{video.name}}</li>
                     </ul>
 
                 </div>
