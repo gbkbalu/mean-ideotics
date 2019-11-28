@@ -60,6 +60,7 @@ var videoSchema = new Schema({
     netTime: { type: String, default: '' },
     fps: { type: Number, default: 50 },
     nskip: { type: Number, default: 5 },
+    detect_flag: { type: Number, required: true, default: 1 },
     metaDataObj: {},
     copyObj: {}
 });
