@@ -27,7 +27,11 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     $rootScope.setHeaderglobal(0);
 
     var vm = this;
-    vm.metaDataObj = { GFPS: 50 };
+
+    vm.frame_rate = 50;
+    vm.sub_frame_rate = 5;
+
+    vm.metaDataObj = { GFPS: vm.frame_rate };
     vm.comments = '';
     vm.isProfileStaffSelected = false;
     vm.isDashBorard = true;
@@ -41,8 +45,6 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     ///////////////////////////////////////////////////////////////////
     vm.current_target = -1;
     let svgns = "http://www.w3.org/2000/svg";
-    let frame_rate = 50;
-    let sub_frame_rate = 5;
 
     let v_container = document.getElementById('video');
     let svg_container = document.getElementById("svg");
@@ -191,13 +193,12 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         }
 
         let cur_time = v_container.currentTime;
-        let cur_frame_no = Math.round(cur_time * vm.vfps);
+        let cur_frame_no = Math.round(cur_time * vm.frame_rate);
 
         // console.log("cur_time, cur_frame_no ================================ ", cur_time, cur_frame_no);
 
         let datas = ReadBuff(cur_frame_no);
         if (datas == false) {
-            console.log("no readbuff...");
             return;
         }
 
@@ -252,11 +253,10 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             }
     }
 
-    vm.vfps = 50;
     vm.buff_size = 500;
     vm.buff_st = 0;
     vm.buff_ed = 0;
-    vm.buff_request_size = vm.vfps;
+    vm.buff_request_size = vm.frame_rate;
     vm.frame_buff = new Array(vm.buff_size);
     vm.can_request = true;
 
@@ -328,7 +328,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             return;
         vm.can_request = false;
         let cur_time = Math.round(vm.mediaPlayerApi.properties.currentTime());
-        let cur_frame_no = Math.round(vm.mediaPlayerApi.properties.currentTime() * vm.vfps);
+        let cur_frame_no = Math.round(vm.mediaPlayerApi.properties.currentTime() * vm.frame_rate);
         if (isBuffEmpty()) {
             let frame_no = cur_frame_no;
             DataService
@@ -489,7 +489,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             animation.setAttribute("calcMode", "paced");
             animation.setAttribute("repeatCount", 1);
 
-            let anim_delta = 1 / (frame_rate / sub_frame_rate); //* 0.8;
+            let anim_delta = 1 / (vm.frame_rate / vm.sub_frame_rate); //* 0.8;
             // console.log("anim_delta = ", anim_delta);
 
             animation.setAttribute("dur", "" + anim_delta + "s");
@@ -629,7 +629,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         animation.setAttribute("calcMode", "paced");
         animation.setAttribute("repeatCount", 1);
 
-        let anim_delta = 1 / (frame_rate / sub_frame_rate); //* 0.8;
+        let anim_delta = 1 / (vm.frame_rate / vm.sub_frame_rate); //* 0.8;
         // console.log("anim_delta = ", anim_delta);
 
         animation.setAttribute("dur", "" + anim_delta + "s");
@@ -1928,7 +1928,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                         .lockVideo(userId, videoId)
                         .success(function(data, success) {
                             vm.getCategoriesListByProject(video);
-                            vm.metaDataObj = { GFPS: 50 };
+                            vm.metaDataObj = { GFPS: vm.frame_rate };
                             if (video.metaDataObj && video.metaDataObj != null && video.metaDataObj != undefined && video.metaDataObj.GFPS) {
                                 vm.metaDataObj = video.metaDataObj;
                             }
@@ -1961,6 +1961,16 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
                             vm.mediaPlayerApi.controls.pause();
                             vm.currentVideo = video;
+
+                            /////////////////////////////////
+                            removeAllObjects();
+                            resetBuff();
+
+                            vm.frame_rate = data.fps;
+                            vm.sub_frame_rate = data.nskip;
+                            /////////////////////////////////
+
+                            console.log(data);
 
                             vm.analysing = true;
 
@@ -2458,8 +2468,10 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             offsetY = event.offsetY;
             vm.showSelectedEventOnTopOfVideo(false);
         }
-        if (parseInt(v_container.currentTime) == parseInt(v_container.duration))
+        if (parseInt(v_container.currentTime) == parseInt(v_container.duration)) {
             removeAllObjects();
+            resetBuff();
+        }
     }
 
     $scope.deleteObjcect = function(obj) {
