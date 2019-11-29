@@ -265,7 +265,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     function resetCtlInfo() {
         vm.can_request = true;
         removeAllObjects();
-        resetBuff();
+        // resetBuff();
     }
 
     function resetBuff() {
@@ -281,7 +281,8 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
     function getBuffLastElement() {
         let cur = vm.buff_ed - 1;
-        if (cur == -1) cur = vm.buff_size - 1;
+        if (cur == -1)
+            cur = vm.buff_size - 1;
         return vm.frame_buff[cur];
     }
 
@@ -297,7 +298,9 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         for (let i = 0; i < datas.length; i++) {
             let data = datas[i];
             vm.frame_buff[vm.buff_ed++] = data;
-            if (vm.buff_ed == vm.buff_size) vm.buff_ed = 0;
+
+            if (vm.buff_ed == vm.buff_size)
+                vm.buff_ed = 0;
         }
         vm.can_request = true;
     }
@@ -312,10 +315,17 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         }
     }
 
+    vm.empty_cnt = 0;
+
     function ReadBuff(frameno) {
         removeBuff(frameno);
         if (isBuffEmpty()) {
             console.log("empty buff....", frameno);
+            vm.empty_cnt++;
+            if (vm.empty_cnt > 4) {
+                resetCtlInfo();
+                vm.empty_cnt = 0;
+            }
             return false;
         }
         let buff_next = vm.buff_st + 1;
