@@ -72,6 +72,8 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    vm.anim_delta = 1 / (vm.frame_rate / vm.sub_frame_rate); //* 0.8;
+
     vm.initVideo = function() { //called from ab-video
 
         v_container = document.getElementById('video');
@@ -85,7 +87,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         v_container.muted = true;
 
         setInterval(writeTimer, 200);
-        setInterval(readTimer, 100);
+        setInterval(readTimer, 1000 * vm.anim_delta);
     }
 
     vm.initSVG = function() { //called from svg
@@ -161,8 +163,9 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     }
 
     const seekedHandler = (e) => {
-        removeAllObjects();
-        resetBuff();
+
+        resetCtlInfo();
+
         if (v_container.paused)
             $rootScope.isTracking = false;
         else
@@ -181,11 +184,11 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         }
     }
 
-    async function readTimer(data, status) {
-        readModule(data, status)
+    async function readTimer() {
+        readModule()
     }
 
-    function readModule(data, status) {
+    function readModule() {
 
         if (vm.v_width == 0 || vm.v_height == 0) {
             console.log("v_width, v_height = ", vm.v_width, vm.v_height);
@@ -201,7 +204,6 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         if (datas == false) {
             return;
         }
-
 
         let cur_data = datas[0];
         let nxt_data = datas[1];
@@ -253,17 +255,22 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             }
     }
 
-    vm.buff_size = 500;
+    vm.buff_size = 1000;
     vm.buff_st = 0;
     vm.buff_ed = 0;
     vm.buff_request_size = vm.frame_rate;
     vm.frame_buff = new Array(vm.buff_size);
     vm.can_request = true;
 
+    function resetCtlInfo() {
+        vm.can_request = true;
+        removeAllObjects();
+        resetBuff();
+    }
+
     function resetBuff() {
         vm.buff_st = 0;
         vm.buff_ed = 0;
-        vm.frame_buff = [];
     }
 
     function isBuffEmpty() {
@@ -281,7 +288,8 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     function needBuffRequest() {
         let cur_num = ((vm.buff_ed + vm.buff_size) - vm.buff_st) % vm.buff_size;
         let need_num = vm.buff_size - cur_num;
-        if (need_num >= vm.buff_request_size) return true;
+        if (need_num >= vm.buff_request_size)
+            return true;
         return false;
     }
 
@@ -489,10 +497,9 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             animation.setAttribute("calcMode", "paced");
             animation.setAttribute("repeatCount", 1);
 
-            let anim_delta = 1 / (vm.frame_rate / vm.sub_frame_rate); //* 0.8;
-            // console.log("anim_delta = ", anim_delta);
+            vm.anim_delta = 1 / (vm.frame_rate / vm.sub_frame_rate); //* 0.8;
 
-            animation.setAttribute("dur", "" + anim_delta + "s");
+            animation.setAttribute("dur", "" + vm.anim_delta + "s");
             animation.setAttribute("fill", "freeze");
             animation.setAttribute("id", "animation_" + obj_idx);
 
@@ -508,146 +515,6 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             document.getElementById("svg").setCurrentTime(0);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    vm.drawCircleMark = function(item, st_px, st_py, ed_px, ed_py) {
-
-        if (!$rootScope.isTracking)
-            return;
-
-        let obj_idx = item.id;
-
-        if (vm.current_target != -1 && vm.current_target != obj_idx)
-            return;
-
-        let obj_key = "obj_" + obj_idx;
-        let obj_lbl = "lbl_" + obj_idx;
-        let obj_cl = "cl_" + obj_idx;
-
-        if (!svg_container)
-            return;
-
-        let g_unit = document.getElementById("g_unit_" + obj_idx);
-        if (!g_unit) {
-            g_unit = document.createElementNS(svgns, "g");
-            g_unit.setAttribute("id", "g_unit_" + obj_idx);
-
-            g_unit.setAttribute("transform", "translate(" + st_px + " " + st_py + ")");
-
-            svg_container.appendChild(g_unit);
-        }
-
-        let player = document.getElementById(obj_key);
-        if (!player) {
-            player = document.createElementNS(svgns, 'circle');
-            player.setAttribute("id", obj_key);
-            player.setAttribute("class", "player");
-            player.setAttribute("r", 7);
-            player.setAttribute("fill", "white"); //color_map[obj_idx % 50]);
-            player.setAttribute("stroke", "white");
-            player.setAttribute("stroke-width", 2);
-            player.setAttribute("cx", 0);
-            player.setAttribute("cy", 0);
-
-            g_unit.appendChild(player);
-        }
-
-        let player_cl = document.getElementById(obj_cl);
-        if (!player_cl) {
-            player_cl = document.createElementNS(svgns, 'circle');
-            player_cl.setAttribute("id", obj_cl);
-            player_cl.setAttribute("class", "innerCircle");
-            player_cl.setAttribute("r", 5);
-            player_cl.setAttribute("fill", "hotPink"); //color_map[obj_idx % 50]);
-
-            player_cl.setAttribute("cx", 0);
-            player_cl.setAttribute("cy", 0);
-
-            g_unit.appendChild(player_cl);
-        }
-
-        let player_lbl = document.getElementById(obj_lbl);
-        if (!player_lbl) {
-
-            player_lbl = document.createElementNS(svgns, 'text');
-            player_lbl.setAttribute("id", obj_lbl);
-            player_lbl.setAttribute("class", "lbl");
-            player_lbl.setAttribute("text-anchor", "middle");
-
-            player_lbl.setAttribute('x', 0);
-            player_lbl.setAttribute('y', 20);
-
-            let tcar = document.createElementNS(svgns, 'tspan');
-            tcar.textContent = "name:car_" + obj_idx;
-            tcar.setAttribute("x", 0);
-            tcar.setAttribute("dy", 3);
-            player_lbl.appendChild(tcar);
-
-            g_unit.appendChild(player_lbl);
-
-        }
-
-        let obj_info = "car_" + obj_idx + " ";
-
-        // make obj info text
-        for (let idx = 0; idx < $scope.selection.length; idx++) {
-            let key = $scope.selection[idx];
-
-            if (key == "class")
-                key = "classification";
-
-            let val = item[key];
-            if (key == "accuracy")
-                val += "%";
-            else if (key == "speed") {
-                val += "Km/h";
-                console.log("speed, obj_idx = ", val, obj_idx);
-            }
-
-            obj_info = key + ":" + val;
-
-            let tspan_id = "props_" + obj_idx + "_" + key;
-
-            let tspan = document.getElementById(tspan_id);
-            if (!tspan) {
-                tspan = document.createElementNS(svgns, 'tspan');
-                tspan.setAttribute("id", tspan_id);
-                tspan.setAttribute("x", 0);
-                tspan.setAttribute("dy", 12);
-                player_lbl.appendChild(tspan);
-            }
-            tspan.textContent = obj_info;
-        }
-
-        let animation = document.createElementNS(svgns, "animateTransform");
-
-        animation.setAttribute("from", st_px + " " + st_py);
-        animation.setAttribute("to", ed_px + " " + ed_py);
-
-        animation.setAttribute("attributeType", "XML");
-        animation.setAttribute("attributeName", "transform");
-        animation.setAttribute("type", "translate");
-        animation.setAttribute("calcMode", "paced");
-        animation.setAttribute("repeatCount", 1);
-
-        let anim_delta = 1 / (vm.frame_rate / vm.sub_frame_rate); //* 0.8;
-        // console.log("anim_delta = ", anim_delta);
-
-        animation.setAttribute("dur", "" + anim_delta + "s");
-        animation.setAttribute("fill", "freeze");
-        animation.setAttribute("id", "animation_" + obj_idx);
-
-        let previous_animation = document.getElementById("animation_" + obj_idx);
-        if (previous_animation) {
-            try {
-                g_unit.removeChild(previous_animation);
-            } catch (e) {
-                console.log(previous_animation);
-                console.log(e);
-            }
-        }
-        g_unit.appendChild(animation);
-        document.getElementById("svg").setCurrentTime(0);
-    }
 
     vm.showMore = function() {
         for (var len = vm.events.length - 1; len >= 0; len--) {
@@ -1963,8 +1830,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                             vm.currentVideo = video;
 
                             /////////////////////////////////
-                            removeAllObjects();
-                            resetBuff();
+                            resetCtlInfo()
 
                             vm.frame_rate = data.fps;
                             vm.sub_frame_rate = data.nskip;
@@ -2469,8 +2335,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             vm.showSelectedEventOnTopOfVideo(false);
         }
         if (parseInt(v_container.currentTime) == parseInt(v_container.duration)) {
-            removeAllObjects();
-            resetBuff();
+            resetCtlInfo();
         }
     }
 
