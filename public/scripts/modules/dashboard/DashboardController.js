@@ -29,7 +29,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     var vm = this;
 
     vm.frame_rate = 50;
-    vm.sub_frame_rate = 5;
+    vm.nskip = 5;
 
     vm.metaDataObj = { GFPS: vm.frame_rate };
     vm.comments = '';
@@ -72,8 +72,6 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    vm.anim_delta = 1 / (vm.frame_rate / vm.sub_frame_rate); //* 0.8;
-
     vm.initVideo = function() { //called from ab-video
 
         v_container = document.getElementById('video');
@@ -87,8 +85,9 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         v_container.muted = true;
 
         setInterval(writeTimer, 200);
-        setInterval(readTimer, 1000 * vm.anim_delta);
+        setInterval(readTimer, 1000 / (vm.frame_rate / vm.nskip));
     }
+
 
     vm.initSVG = function() { //called from svg
         svg_container = document.getElementById("svg");
@@ -127,15 +126,10 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
         let v_panel = document.getElementById("v_panel");
         let v_panel_off = getOffset(v_panel);
-        let v_off = getOffset(v)
-            // let left_padding = (c_w - r_w) / 2;
-            // let top_padding = (c_h - r_h) / 2;
+        let v_off = getOffset(v);
+
         let left_padding = (c_w - r_w) / 2 + v_off.left - v_panel_off.left + 2.9;
         let top_padding = (c_h - r_h) / 2 + v_off.top - v_panel_off.top + 2.9;
-
-        console.log("v_offset", v_off.left, v_off.top);
-        console.log(v_w, v_h, c_w, c_h, r_w, r_h);
-        console.log("padding", left_padding, top_padding);
 
         let s = document.getElementById("svg");
         let styleStr = "position: absolute;"
@@ -185,10 +179,10 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     }
 
     async function readTimer() {
-        readModule()
+        await readModule()
     }
 
-    function readModule() {
+    async function readModule() {
 
         if (vm.v_width == 0 || vm.v_height == 0) {
             console.log("v_width, v_height = ", vm.v_width, vm.v_height);
@@ -211,7 +205,8 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         // remove cash
         for (let ti in vm.tmp_arr) {
             let tv = vm.tmp_arr[ti];
-            vm.removeCash(tv.id);
+            if (tv)
+                vm.removeCash(tv.id);
         }
 
         for (let st_key in cur_data.objects) {
@@ -236,7 +231,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                 ed_py = Math.round(ed_py * vm.svg_height / vm.v_height);
 
                 if (!isNaN(st_px) && !isNaN(st_py))
-                    vm.drawRectMark(st_val, st_px, st_py, ed_px, ed_py);
+                    await vm.drawRectMark(st_val, st_px, st_py, ed_px, ed_py);
             }
             if (!ed_val || isNaN(st_px) || isNaN(st_py)) {
                 vm.removeCash(st_val.id);
@@ -255,17 +250,22 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             }
     }
 
-    vm.buff_size = 1000;
+    vm.buff_size = 501;
     vm.buff_st = 0;
     vm.buff_ed = 0;
+    vm.buff_flag = 0;
+    vm.buff_no = 0;
     vm.buff_request_size = vm.frame_rate;
     vm.frame_buff = new Array(vm.buff_size);
     vm.can_request = true;
 
     function resetCtlInfo() {
-        vm.can_request = true;
+        resetBuff();
         removeAllObjects();
-        // resetBuff();
+        vm.can_request = true;
+        vm.buff_flag = 0;
+
+        console.log("resetCtlInfo");
     }
 
     function resetBuff() {
@@ -286,7 +286,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         return vm.frame_buff[cur];
     }
 
-    function needBuffRequest() {
+    function isWritable() {
         let cur_num = ((vm.buff_ed + vm.buff_size) - vm.buff_st) % vm.buff_size;
         let need_num = vm.buff_size - cur_num;
         if (need_num >= vm.buff_request_size)
@@ -295,8 +295,27 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
     }
 
     function pushBuffDatas(datas, status) {
+        if (vm.buff_flag == 1) {
+            if (datas.length < 1) {
+                console.log("data.length is small than 1");
+                return;
+            }
+            console.log("buff_check buff_no new no", vm.buff_no, datas[0].frame_id);
+            if (datas[0].frame_id < vm.buff_no - vm.nskip || vm.buff_no + vm.nskip < datas[0].frame_id) {
+                console.log("nskip................");
+                return;
+            }
+
+            vm.buff_flag = 2;
+            console.log("vm.buff_flag = 2");
+        }
         for (let i = 0; i < datas.length; i++) {
             let data = datas[i];
+            if (vm.currentVideo.videoId != datas[i].video_id) {
+                console.log("different video ids", vm.currentVideo.videoId, datas[i].video_id);
+                continue;
+            }
+
             vm.frame_buff[vm.buff_ed++] = data;
 
             if (vm.buff_ed == vm.buff_size)
@@ -307,25 +326,18 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
     function removeBuff(frameno) {
         while (!isBuffEmpty()) {
-            if (vm.frame_buff[vm.buff_st].frame_id >= frameno)
+            if (vm.frame_buff[vm.buff_st].frame_id < frameno) {
+                vm.buff_st++;
+                if (vm.buff_st == vm.buff_size)
+                    vm.buff_st = 0;
+            } else
                 break;
-            vm.buff_st++;
-            if (vm.buff_st == vm.buff_size)
-                vm.buff_st = 0;
         }
     }
-
-    vm.empty_cnt = 0;
 
     function ReadBuff(frameno) {
         removeBuff(frameno);
         if (isBuffEmpty()) {
-            console.log("empty buff....", frameno);
-            vm.empty_cnt++;
-            if (vm.empty_cnt > 4) {
-                resetCtlInfo();
-                vm.empty_cnt = 0;
-            }
             return false;
         }
         let buff_next = vm.buff_st + 1;
@@ -345,20 +357,33 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
         if (!vm.can_request)
             return;
         vm.can_request = false;
+        // console.log("tm->", vm.mediaPlayerApi.properties.currentTime());
         let cur_time = Math.round(vm.mediaPlayerApi.properties.currentTime());
         let cur_frame_no = Math.round(vm.mediaPlayerApi.properties.currentTime() * vm.frame_rate);
+
+        if (vm.buff_flag == 0) {
+            vm.buff_flag = 1;
+            vm.buff_st = vm.buff_ed = 0;
+            vm.buff_no = cur_frame_no;
+            console.log("set buff_no, buff_flag = ", vm.buff_no, vm.buff_flag);
+        }
+
         if (isBuffEmpty()) {
             let frame_no = cur_frame_no;
+            // console.log("~~~~frameno -> ", frame_no);
             DataService
                 .getEventListByVideo(vm.currentVideo.videoId, frame_no, vm.buff_request_size)
                 .success(pushBuffDatas);
-        } else if (needBuffRequest()) {
+        } else if (isWritable()) {
             let last_element = getBuffLastElement();
             let last_frame_no = last_element.frame_id;
             let frame_no = Math.max(last_frame_no + 1, cur_frame_no);
+            console.log("writable frameno -> ", frame_no);
             DataService
                 .getEventListByVideo(vm.currentVideo.videoId, frame_no, vm.buff_request_size)
                 .success(pushBuffDatas);
+        } else {
+            vm.can_request = true;
         }
     }
 
@@ -376,7 +401,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
     vm.target_timer = 0;
 
-    vm.drawRectMark = function(item, st_px, st_py, ed_px, ed_py) {
+    vm.drawRectMark = async function(item, st_px, st_py, ed_px, ed_py) {
 
             if (!$rootScope.isTracking)
                 return;
@@ -507,9 +532,10 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
             animation.setAttribute("calcMode", "paced");
             animation.setAttribute("repeatCount", 1);
 
-            vm.anim_delta = 1 / (vm.frame_rate / vm.sub_frame_rate); //* 0.8;
+            vm.anim_delta = 1 / (vm.frame_rate / vm.nskip); //* 0.8;
 
-            animation.setAttribute("dur", "" + vm.anim_delta + "s");
+            // animation.setAttribute("dur", vm.anim_delta + "s");
+            animation.setAttribute("dur", "3s");
             animation.setAttribute("fill", "freeze");
             animation.setAttribute("id", "animation_" + obj_idx);
 
@@ -521,7 +547,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                     console.log("pre_ani_remove_exp...", e.toString());
                 }
             }
-            g_unit.appendChild(animation);
+            await g_unit.appendChild(animation);
             document.getElementById("svg").setCurrentTime(0);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1843,7 +1869,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
                             resetCtlInfo()
 
                             vm.frame_rate = data.fps;
-                            vm.sub_frame_rate = data.nskip;
+                            vm.nskip = data.nskip;
                             /////////////////////////////////
 
                             console.log(data);
@@ -2523,7 +2549,7 @@ function DashboardController($scope, $compile, $interval, $timeout, $rootScope, 
 
     var q = setInterval(function() {
 
-        console.log("q SetInterval");
+        console.log("q SetInterval----------------------------->");
 
         var userId = $localStorage.user ? $localStorage.user.userId : null;
         // if window.dashboard === false, terminate polling

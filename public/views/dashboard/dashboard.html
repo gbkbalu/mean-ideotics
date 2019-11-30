@@ -65,9 +65,6 @@
             <ab-video ng-if="globals.user.role == 'admin'" api="dashVM.mediaPlayerApi" ng-init="dashVM.initVideo()" ng-click="dashVM.getCoordinates($event)">
             </ab-video>
 
-            <ab-video ng-if="globals.user.role != 'admin'" api="dashVM.mediaPlayerApi" ng-init="dashVM.initVideo()" ng-click="dashVM.getCoordinates($event)" controlsList="nodownload">
-            </ab-video>
-
             <svg id="svg" style="position: absolute;  background:gray; opacity:0.5; top:0px; left:0px; width:0px; height:0px; pointer-events: none;" ng-init="dashVM.initSVG()"></svg>
         </div>
 

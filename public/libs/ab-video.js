@@ -9,7 +9,7 @@
     videoDirective.$inject = ['$rootScope'];
 
     function videoDirective($rootScope) {
-        var template = '<video id="video" controls autoplay=""></video>';
+        var template = '<video id="video" controls controlsList="nofullscreen"></video>';
 
         return {
             restrict: "EA",
